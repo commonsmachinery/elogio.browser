@@ -18,6 +18,8 @@
     </menupopup>
 
 
+
+
     <toolbarpalette id="BrowserToolbarPalette">
         <toolbarbutton id="elogio-toolbar-button" label="&elogio.menu.label;" tooltiptext="&elogio.menu.label;" oncommand="TTElogioRunner.run()" />
     </toolbarpalette>
