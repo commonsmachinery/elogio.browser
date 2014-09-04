@@ -5,6 +5,7 @@
 
 <!DOCTYPE overlay SYSTEM "chrome://elogio/locale/translations.dtd">
 
+
 <overlay id="elogio-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script src="script.js" />
