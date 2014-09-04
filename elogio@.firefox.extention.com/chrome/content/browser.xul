@@ -9,7 +9,7 @@
 <overlay id="elogio-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script src="script.js" />
-
+    <script src="jquery-2.1.1.js"/>
     <stringbundleset id="stringbundleset">
         <stringbundle id="elogio-string-bundle" src="chrome://elogio/locale/translations.properties" />
     </stringbundleset>

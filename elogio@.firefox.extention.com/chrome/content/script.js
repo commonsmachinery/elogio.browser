@@ -2,9 +2,7 @@
  * Created by TEMA on 04.09.2014.
  */
 var TTElogioRunner = function() {
-
     var curVersion = "1.0";
-
     var showAlert = function(messageID) {
         var alertsService = Components.classes["@mozilla.org/alerts-service;1"].getService(Components.interfaces.nsIAlertsService);
         var stringBundle = document.getElementById("elogio-string-bundle");
@@ -23,7 +21,6 @@ var TTElogioRunner = function() {
                 if (elem && elem.parentNode == toolbar)
                     before = elem.nextElementSibling;
             }
-
             toolbar.insertItem(id, before);
             toolbar.setAttribute("currentset", toolbar.currentSet);
             document.persist(toolbar.id, "currentset");
@@ -36,12 +33,21 @@ var TTElogioRunner = function() {
 
     return {
         run: function() {
-
-            alert('hello world!')
+           showAlert('error1');
+        },onPageLoad:function(aEvent){
+            var doc = aEvent.originalTarget;
+            if (doc.nodeName == "#document") {
+                var images=doc.getElementsByTagName('img');
+                alert(images.length);
+            }
+        },
+        onWindowLoad:function(){
+            var appcontent = document.getElementById("appcontent");
+            if (appcontent)
+                appcontent.addEventListener("load", TTElogioRunner.onPageLoad, true);
         },
         init: function(extensions) {
             var firstrun = Services.prefs.getBoolPref("extensions.elogio@.firefox.extention.com.firstrun");
-
             if (firstrun) {
                 Services.prefs.setBoolPref("extensions.elogio@.firefox.extention.com.firstrun", false);
                 Services.prefs.setCharPref("extensions.elogio@.firefox.extention.com.installedVersion", curVersion);
@@ -64,4 +70,4 @@ var TTElogioRunner = function() {
     };
 }();
 
-window.addEventListener("load", TTElogioRunner.init, false);
+window.addEventListener("load", TTElogioRunner.onWindowLoad, false);
