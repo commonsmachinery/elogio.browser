@@ -1,0 +1,7 @@
+content elogio chrome/content/
+content elogio chrome/content/ contentaccessible=yes
+skin    elogio classic/1.0     skin/
+locale  elogio en-US           locale/en-US/
+
+
+overlay chrome://browser/content/browser.xul  chrome://elogio/content/browser.xul

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<?xml-stylesheet type="text/css" href="chrome://global/skin/" ?>
+<?xml-stylesheet type="text/css" href="chrome://elogio/skin/skin.css" ?>
+
+<!DOCTYPE overlay SYSTEM "chrome://elogio/locale/translations.dtd">
+
+<overlay id="elogio-browser-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="script.js" />
+
+    <stringbundleset id="stringbundleset">
+        <stringbundle id="elogio-string-bundle" src="chrome://elogio/locale/translations.properties" />
+    </stringbundleset>
+
+    <menupopup id="menu_ToolsPopup">
+        <menuitem label="&elogio.menu.label;" oncommand="TTElogioRunner.run()" />
+    </menupopup>
+
+    <toolbarpalette id="BrowserToolbarPalette">
+        <toolbarbutton id="elogio-toolbar-button" label="&elogio.menu.label;" tooltiptext="&elogio.menu.label;" oncommand="TTElogioRunner.run()" />
+    </toolbarpalette>
+</overlay>
