@@ -1,9 +1,9 @@
 {
   "name": "elogio-firefox",
-  "title": "elogio.firefox",
-  "id": "jid1-SpxEl4Y9aD8wig",
-  "description": "Add-on for get metadata of an image on the web page",
-  "author": "Fedorov Artem",
+  "title": "elogio-firefox",
+  "id": "jid1-GeU6gWF8UtDrQw",
+  "description": "a basic add-on",
+  "author": "",
   "license": "MPL 2.0",
-  "version": "1.0"
+  "version": "0.1"
 }
