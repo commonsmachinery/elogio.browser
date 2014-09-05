@@ -5,3 +5,10 @@
 # IntelliJ IDEA project files.
 .idea
 *.iml
+testpage
+app-extension
+bin
+examples
+lib
+python-lib
+test
