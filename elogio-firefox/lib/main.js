@@ -14,6 +14,7 @@ var button = buttons.ActionButton({
     },
     onClick: handleClick
 });
+
 pageMod.PageMod({
     include:"*",
     contentScriptFile: data.url("content-script.js"),
