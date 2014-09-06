@@ -1,10 +1,26 @@
 {
-    "name": "addon-sdk",
-    "description": "Add-on development made easy.",
-    "keywords": [
-      "javascript", "engine", "addon", "extension",
-      "xulrunner", "firefox", "browser"
-    ],
-    "loader": "lib/sdk/loader/cuddlefish.js",
-    "license": "MPL 2.0"
+    "name": "elogio-firefox",
+    "version": "1.0.0",
+    "description": "elog.io Firefox Plugin",
+    "directories": {
+        "test": "test"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+
+    // TODO: node module author.
+    "author": "",
+
+    // TODO: license -> GPL?
+    "license": "ISC",
+
+    "devDependencies": {
+        "grunt": "^0.4.5",
+        "grunt-contrib-clean": "^0.6.0",
+        "grunt-contrib-copy": "^0.5.0",
+        "grunt-contrib-jshint": "^0.10.0",
+        "grunt-contrib-uglify": "^0.5.1",
+        "grunt-mozilla-addon-sdk": "^0.3.2"
+    }
 }

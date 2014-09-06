@@ -1,10 +1,18 @@
-# Temporary and product files.
+
+
+# Temporary and product files and dirs
 *.tmp
 *.xpi
+build
+dist
+node_modules
+tmp
 
 # IntelliJ IDEA project files.
 .idea
 *.iml
+
+#Mozilla SDK Stuff
 testpage
 app-extension
 bin
