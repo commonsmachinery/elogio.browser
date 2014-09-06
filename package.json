@@ -9,10 +9,8 @@
         "test": "echo \"Error: no test specified\" && exit 1"
     },
 
-    // TODO: node module author.
     "author": "",
 
-    // TODO: license -> GPL?
     "license": "ISC",
 
     "devDependencies": {
