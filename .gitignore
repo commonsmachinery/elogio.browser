@@ -1,5 +1,3 @@
-
-
 # Temporary and product files and dirs
 *.tmp
 *.xpi
@@ -17,6 +15,5 @@ testpage
 app-extension
 bin
 examples
-lib
 python-lib
 test
