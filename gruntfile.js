@@ -6,6 +6,10 @@ module.exports = function (grunt) {
         distDir: "dist",
         buildDir: "build",
 
+        useage: {
+
+        },
+
         "clean": {
             src: ["<%= buildDir%>" , "<%= distDir %>"]
         },
@@ -41,7 +45,7 @@ module.exports = function (grunt) {
         jshint: {
             contentScript: {
                 src: [
-                    './elogio-firefox/data/**/*.js'
+                    './elogio-firefox/data/**/*.js',
                 ],
                 options: {
                     jshintrc: './elogio-firefox/data/.jshintrc'
@@ -50,7 +54,7 @@ module.exports = function (grunt) {
 
             chrome: {
                 src: [
-                    './lib/**/*.js'
+                    './elogio-firefox/lib/**/*.js'
                 ],
                 options: {
                     jshintrc: './elogio-firefox/lib/.jshintrc'
@@ -104,6 +108,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-mozilla-addon-sdk');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-bower-task');
 
 
     /**
@@ -116,6 +121,13 @@ module.exports = function (grunt) {
      *
      * These are used to build, run and test the product.
      */
+    grunt.registerTask('default', function () {
+        grunt.log.write('\n\nElog.io Mozilla plugin build system. Please use any of following: ');
+        grunt.log.write('\n   grunt run -- runs the firefox with the extension in debug mode.');
+        grunt.log.write('\n   grunt dist-debug -- makes an XPI packaged (see dist folder), with all the resources and sources unchanged ');
+        grunt.log.write('\n   grunt dist-minified -- makes an XPI ready for production (uglified) ');
+    });
+
     grunt.registerTask('run', [
         'mozilla-addon-sdk',
         'mozilla-cfx']);
