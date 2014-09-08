@@ -4,6 +4,8 @@
 build
 dist
 node_modules
+bower_components
+elogio-firefox/data/deps
 tmp
 
 # IntelliJ IDEA project files.

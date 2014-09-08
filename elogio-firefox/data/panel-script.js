@@ -1,11 +1,18 @@
 (function () {
     'use strict';
 
-    window.addEventListener('click', function (event) {
-        var t = event.target;
-        if (t.nodeName === 'A') {
-            self.port.emit('click-link', t.toString());
+    require.config({
+        baseUrl: 'deps',
+        paths: {
+            jquery: 'jquery'
         }
-    }, false);
-
+    });
+    require(['jquery'], function ($) {
+        window.addEventListener('click', function (event) {
+            var t = event.target;
+            if (t.nodeName === 'A') {
+                self.port.emit('click-link', t.toString());
+            }
+        }, false);
+    });
 })();

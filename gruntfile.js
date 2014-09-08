@@ -6,8 +6,12 @@ module.exports = function (grunt) {
         distDir: "dist",
         buildDir: "build",
 
-        useage: {
-
+        bower: {
+            install: {
+                options: {
+                    targetDir: "elogio-firefox/data/deps"
+                }
+            }
         },
 
         "clean": {
@@ -42,7 +46,7 @@ module.exports = function (grunt) {
             }
         },
 
-        jshint: {
+        "jshint": {
             contentScript: {
                 src: [
                     './elogio-firefox/data/**/*.js',
@@ -129,11 +133,13 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('run', [
+        'bower',
         'mozilla-addon-sdk',
         'mozilla-cfx']);
 
     grunt.registerTask('dist-debug', [
         'clean',
+        'bower',
         'lint',
         'copy:resourcesWithoutJS',
         'uglify:beautify',
@@ -143,6 +149,7 @@ module.exports = function (grunt) {
     grunt.registerTask('dist-minified', [
         'clean',
         'lint',
+        'bower',
         'copy:resourcesWithoutJS',
         'uglify:minify',
         'mozilla-addon-sdk',

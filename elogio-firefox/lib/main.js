@@ -5,10 +5,13 @@ var data = require("sdk/self").data;
 var tag = "img";
 
 var panel = require("sdk/panel").Panel({
-    width: 180,
-    height: 180,
+    width: 240,
+    height: 400,
     contentURL: data.url('panel.html'),
-    contentScriptFile: data.url('panel-script.js')
+    contentScriptFile: [
+        data.url('deps/jquery/jquery.js'),
+        data.url('deps/jquery/bootstrap.js'),
+        data.url('panel-script.js')]
 });
 
 
