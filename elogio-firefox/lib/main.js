@@ -1,7 +1,7 @@
 'use strict';
 var buttons = require('sdk/ui/button/action');
 var pageMod = require("sdk/page-mod");
-var data = require("sdk/self").data;
+var data = require('sdk/self').data;
 var tag = "img";
 
 var panel = require("sdk/panel").Panel({
@@ -15,6 +15,12 @@ var panel = require("sdk/panel").Panel({
 });
 
 
+var sidebar = require("sdk/ui/sidebar").Sidebar({
+    id: 'my-sidebar',
+    title: 'My sidebar',
+    url: require("sdk/self").data.url("panel.html")
+});
+
 var button = buttons.ActionButton({
     id: "elogio-button",
     label: "Get images",
@@ -24,6 +30,7 @@ var button = buttons.ActionButton({
         "64": "./icon-64.png"
     },
     onClick: function () {
+        sidebar.show();
         panel.show({
             position: button
         });
