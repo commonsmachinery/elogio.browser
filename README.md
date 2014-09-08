@@ -19,7 +19,7 @@ You need to have following installed:
      the python executable may be called `python2`. As a result, the SDK will try to run off version 3, since it expects
      the python to be called `python`, which is currently version 3.
      To work around the issue, please check the Arch wikipage: https://wiki.archlinux.org/index.php/python#Dealing_with_version_problem_in_build_scripts
- * **grunt** - assuming you have `npm` in your `$PATH`, as root, type in `npm install -g grunt`. This installs you a `grunt-cli`,
+ * **grunt** - assuming you have `npm` in your `$PATH`, as root, type in `npm install -g grunt-cli`. This installs you a `grunt-cli`,
    so you should now have `grunt` command on your shell too.
  * **bower** - bower is used to manage dependencies. In order to install it, run `npm install -g bower`.
 
