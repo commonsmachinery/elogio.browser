@@ -2,10 +2,11 @@
 var buttons = require('sdk/ui/button/action');
 var pageMod = require("sdk/page-mod");
 var data = require('sdk/self').data;
-var tag = "img";
-
+var imageStorage = [];
+var activeTab;
+var tabs = require('sdk/tabs');
 var panel = require("sdk/panel").Panel({
-    width: 240,
+    width: 180,
     height: 400,
     contentURL: data.url('panel.html'),
     contentScriptFile: [
@@ -37,17 +38,38 @@ var button = buttons.ActionButton({
     }
 });
 
+
+var workersObject = {};
+console.log('before PageMod');
 pageMod.PageMod({
     include: "*",
-    contentScriptFile: data.url("content-script.js"),
+    contentScriptFile: [data.url("content-script.js"), data.url('deps/jquery/jquery.js')],
     onAttach: function (worker) {
-        worker.port.emit("getElements", tag);
-        worker.port.on("gotElement", function (element) {
-            //at here we do anything with element
-        });
+        var tabId = worker.tab.id;
+        if (!workersObject[tabId]) {
+            workersObject[tabId] = [];
+        }
+        activeTab = worker.tab;
+        workersObject[tabId].push(worker);
     }
 });
-
-panel.port.on("click-link", function (url) {
-    console.log(url);
+tabs.on('open', function (tab) {
+    activeTab = tab;
+});
+tabs.on('activate', function (tab) {
+    activeTab = tab;
+});
+panel.port.on('click-load', function () {
+    imageStorage.splice(0,imageStorage.length);
+    var workers = workersObject[activeTab.id];
+    var getImgs=function (imagesFromPage) {
+        if (imagesFromPage && imagesFromPage.length > 0) {
+            imageStorage.push(imagesFromPage);
+        }
+        panel.port.emit('drawItems', imageStorage);
+    };
+    for (var i = 0; i < workers.length; i++) {
+        workers[i].port.emit("getElements");
+        workers[i].port.on("gotElement", getImgs);
+    }
 });
