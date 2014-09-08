@@ -1,5 +1,6 @@
 (function () {
     'use strict';
+
     self.port.on("getElements", function () {
         //traverse all items on the page
         function arrayIndexOf(arr, what, index) {
@@ -59,22 +60,22 @@
             return false;
         }
 
-        var imgs = document.getElementsByTagName('img');
+        var imgs = document.images;
         var els = getallBgimages();
-        var i;//for loop
-        for (i = 0; i < imgs.length; i++) {
+        //for loop
+
+        for (var i = 0; i < imgs.length; i++) {
             if (null !== imgs[i].src && '' !== imgs[i].src) {
                 els.push(imgs[i].src);
             }
         }
-
         var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/')) + '/';
-        for (i = 0; i < els.length; i++) {
-            if (!startsWith(els[i], 'http')) {
-                els[i] = loc + els[i];
+        for (var j = 0; j < els.length; j++) {
+            if (!startsWith(els[j], 'http')) {
+                els[j] = loc + els[j];
             }
         }
-
+        console.log(els.length);
         self.port.emit("gotElement", els);
     });
 })();

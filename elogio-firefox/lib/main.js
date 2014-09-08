@@ -38,7 +38,12 @@ var button = buttons.ActionButton({
     }
 });
 
-
+function detachWorker(worker, workerArray) {
+    var index = workerArray.indexOf(worker);
+    if(index !== -1) {
+        workerArray.splice(index, 1);
+    }
+}
 var workersObject = {};
 console.log('before PageMod');
 pageMod.PageMod({
@@ -51,6 +56,16 @@ pageMod.PageMod({
         }
         activeTab = worker.tab;
         workersObject[tabId].push(worker);
+        worker.on('detach', function () {
+            detachWorker(this, workersObject[this.tab.id]);
+        });
+        worker.port.on("gotElement", function (imagesFromPage) {
+            if (imagesFromPage && imagesFromPage.length > 0) {
+                imageStorage.push(imagesFromPage);
+                console.log('worker');
+            }
+            panel.port.emit('drawItems', imageStorage);
+        });
     }
 });
 tabs.on('open', function (tab) {
@@ -60,16 +75,10 @@ tabs.on('activate', function (tab) {
     activeTab = tab;
 });
 panel.port.on('click-load', function () {
-    imageStorage.splice(0,imageStorage.length);
+    console.log('clean list');
+    imageStorage=[];
     var workers = workersObject[activeTab.id];
-    var getImgs=function (imagesFromPage) {
-        if (imagesFromPage && imagesFromPage.length > 0) {
-            imageStorage.push(imagesFromPage);
-        }
-        panel.port.emit('drawItems', imageStorage);
-    };
     for (var i = 0; i < workers.length; i++) {
         workers[i].port.emit("getElements");
-        workers[i].port.on("gotElement", getImgs);
     }
 });
