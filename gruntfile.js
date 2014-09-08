@@ -48,8 +48,13 @@ module.exports = function (grunt) {
 
         "jshint": {
             contentScript: {
-                src: [
-                    './elogio-firefox/data/**/*.js',
+                files: [
+                    {
+                        src: [
+                            'elogio-firefox/data/**/*.js',
+                            '!elogio-firefox/data/deps/**'
+                        ]
+                    }
                 ],
                 options: {
                     jshintrc: './elogio-firefox/data/.jshintrc'
