@@ -1,8 +1,7 @@
 (function () {
     'use strict';
-    var limitPixels = 200;
     var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/') + 1);
-    self.port.on("getElements", function () {
+    self.port.on("getElements", function (limitPixels) {
         var count = 0;
         //canonization of image url
         function canonizeUrl(url, urlLocation) {

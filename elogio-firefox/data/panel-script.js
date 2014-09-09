@@ -7,7 +7,6 @@ $(document).ready(function () {
         myNode.innerHTML = '';
         addon.port.emit('click-load');
     });
-
     addon.port.on("drawItems", function (items) {
             for (var i = 0; i < items.length; i++) {
                 var elem = items[i];
@@ -23,7 +22,6 @@ $(document).ready(function () {
                 button.appendChild(t);
                 div.appendChild(button);
                 div.appendChild(br);
-                console.log(img.src);
                 document.getElementById('first').appendChild(div);
             }
         }

@@ -5,8 +5,9 @@ var data = require('sdk/self').data;
 var tabs = require('sdk/tabs');
 var imageStorage = [];
 var activeTab;
+var limitPixels = 200;
 var sidebarWorker = null;
-var workersObject = {};
+var workersObject = [];
 var sidebar = require("sdk/ui/sidebar").Sidebar({
     id: 'elogio-firefox-plugin',
     title: 'Elog.io Image Catalog',
@@ -18,9 +19,9 @@ var sidebar = require("sdk/ui/sidebar").Sidebar({
             var workers = workersObject[activeTab.id];
             if (workers) {
                 for (var i = 0; i < workers.length; i++) {
-                    workers[i].port.emit("getElements");
+                    workers[i].port.emit("getElements", limitPixels);
                 }
-            }else{
+            } else {
                 console.error('sorry but web page is not ready');
             }
         });
@@ -57,7 +58,9 @@ pageMod.PageMod({
         activeTab = worker.tab;
         workersObject[tabId].push(worker);
         worker.on('detach', function () {
-            detachWorker(this, workersObject[activeTab.id]);
+            if (activeTab  && workersObject[activeTab.id]) {
+                detachWorker(this, workersObject[activeTab.id]);
+            }
         });
         worker.port.on("gotElement", function (imagesFromPage) {
             if (imagesFromPage && imagesFromPage.length > 0) {
@@ -74,4 +77,11 @@ tabs.on('open', function (tab) {
 });
 tabs.on('activate', function (tab) {
     activeTab = tab;
+});
+//if tab was closed the we need to remove all workers of this tab
+tabs.on('close', function (tab) {
+    var index = workersObject.indexOf(tab.id);
+    if (index !== -1) {
+        workersObject.splice(index, 1);
+    }
 });
