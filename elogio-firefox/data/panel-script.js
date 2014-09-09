@@ -25,6 +25,7 @@ $(document).ready(function () {
                 div.appendChild(button);
                 div.appendChild(br);
                 document.getElementById('first').appendChild(div);
+                console.log(img.src);
             }
         }
     );

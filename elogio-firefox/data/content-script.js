@@ -1,5 +1,18 @@
 (function () {
     'use strict';
+    var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/')+1);
+    function canonizeUrl(url,urlLocation){
+        if(url){
+            if(url.indexOf('/')===0){
+                return urlLocation+url.substring(1,url.length-1);
+            }
+            if(url.indexOf('../')===0){
+                urlLocation=urlLocation.substring(0,urlLocation.lastIndexOf('/'));
+                return canonizeUrl(url.substring(3,url.length),urlLocation.substring(0,urlLocation.lastIndexOf('/')+1));
+            }
+        }
+        return urlLocation+url;
+    }
     self.port.on("getElements", function () {
         //traverse all items on the page
         function arrayIndexOf(arr, what, index) {
@@ -51,7 +64,6 @@
             }
             return urlsImage;
         }
-
         function startsWith(st, prefix) {
             if (st.indexOf(prefix) === 0) {
                 return true;
@@ -67,10 +79,9 @@
                 elementsToOutPut.push(imagesOnThePage[i].src);
             }
         }
-        var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/')) + '/';
         for (var j = 0; j < elementsToOutPut.length; j++) {
             if (!startsWith(elementsToOutPut[j], 'http')) {
-                elementsToOutPut[j] = loc + elementsToOutPut[j];
+                elementsToOutPut[j] = canonizeUrl(elementsToOutPut[j],loc);
             }
         }
         self.port.emit("gotElement", elementsToOutPut);
