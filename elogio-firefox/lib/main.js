@@ -14,11 +14,14 @@ var sidebar = require("sdk/ui/sidebar").Sidebar({
     onAttach: function (worker) {
         sidebarWorker = worker;
         sidebarWorker.port.on('click-load', function () {
-            console.log('clean list');
             imageStorage = [];
             var workers = workersObject[activeTab.id];
-            for (var i = 0; i < workers.length; i++) {
-                workers[i].port.emit("getElements");
+            if (workers) {
+                for (var i = 0; i < workers.length; i++) {
+                    workers[i].port.emit("getElements");
+                }
+            }else{
+                console.error('sorry but web page is not ready');
             }
         });
     }
@@ -54,7 +57,7 @@ pageMod.PageMod({
         activeTab = worker.tab;
         workersObject[tabId].push(worker);
         worker.on('detach', function () {
-            detachWorker(this, workersObject[this.tab.id]);
+            detachWorker(this, workersObject[activeTab.id]);
         });
         worker.port.on("gotElement", function (imagesFromPage) {
             if (imagesFromPage && imagesFromPage.length > 0) {

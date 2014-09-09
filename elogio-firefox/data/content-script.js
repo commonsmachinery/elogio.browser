@@ -8,12 +8,15 @@
         function canonizeUrl(url, urlLocation) {
             if (url) {
                 if (url.indexOf('/') === 0) {
-                    return urlLocation + url.substring(1, url.length - 1);
+                    return urlLocation + url.substring(1, url.length);
                 }
                 if (url.indexOf('../') === 0) {
                     urlLocation = urlLocation.substring(0, urlLocation.lastIndexOf('/'));
                     return canonizeUrl(url.substring(3, url.length), urlLocation.substring(0, urlLocation.lastIndexOf('/') + 1));
                 }
+            }
+            if(url.indexOf('data')===0){
+                return url;
             }
             return urlLocation + url;
         }
@@ -94,7 +97,6 @@
             if (count === elementsToFiltering.length-1) {
                 self.port.emit("gotElement", imagesToOutPut);
             }
-            console.log(count+'; '+elementsToFiltering.length);
         }
         //we need to filter all images by width*height>limit
         function filterImages(inputImgs) {
@@ -112,6 +114,7 @@
             var imageOnError = function () {
                 this.onerror = '';
                 count++;
+                console.log(this.src);
                 ifReadyThenSend();
                 return true;
             };
