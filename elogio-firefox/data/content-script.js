@@ -14,7 +14,7 @@
                     return canonizeUrl(url.substring(3, url.length), urlLocation.substring(0, urlLocation.lastIndexOf('/') + 1));
                 }
             }
-            if(url.indexOf('data')===0){//if image is base64
+            if (url.indexOf('data') === 0) {//if image is base64
                 return url;
             }
             return urlLocation + url;//if already canonized
@@ -80,23 +80,35 @@
 
         var imagesOnThePage = document.images;//all <img> on the page
         var elementsToFiltering = getAllBackgroundImages();//all urls of images
-        //for loop
-        for (var i = 0; i < imagesOnThePage.length; i++) {
+        var i;//for loop
+        for (i = 0; i < imagesOnThePage.length; i++) {
             if (imagesOnThePage[i].src) {
                 elementsToFiltering.push(imagesOnThePage[i].src);
             }
         }
-        for (var j = 0; j < elementsToFiltering.length; j++) {
-            if (!startsWith(elementsToFiltering[j], 'http')) {
-                elementsToFiltering[j] = canonizeUrl(elementsToFiltering[j], loc);
+        //canonization urls
+        for (i = 0; i < elementsToFiltering.length; i++) {
+            if (!startsWith(elementsToFiltering[i], 'http')) {
+                elementsToFiltering[i] = canonizeUrl(elementsToFiltering[i], loc);
             }
         }
+        //delete repeating urls
+        for (i = elementsToFiltering.length - 1; i > 0; i--) {
+            for (var j = i - 1; j >= 0; j--) {
+                if (elementsToFiltering[i] === elementsToFiltering[j]) {
+                    elementsToFiltering.splice(j, 1);
+                }
+            }
+        }
+
         var imagesToOutPut = [];
+
         function ifReadyThenSend() {//if all images loaded then we need to send it to Main.js
-            if (count === elementsToFiltering.length-1) {
+            if (count === elementsToFiltering.length - 1) {
                 self.port.emit("gotElement", imagesToOutPut);
             }
         }
+
         //we need to filter all images by width*height>limit
         function filterImages(inputImgs) {
             var filteringImages = [];
