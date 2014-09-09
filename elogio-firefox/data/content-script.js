@@ -4,8 +4,8 @@
         //traverse all items on the page
         function arrayIndexOf(arr, what, index) {
             index = index || 0;
-            var L = arr.length;
-            while (index < L) {
+            var lengthOfInputArray = arr.length;
+            while (index < lengthOfInputArray) {
                 if (arr[index] === what) {
                     return index;
                 }
