@@ -3,7 +3,6 @@ $(document).ready(function () {
     var buttonText = 'query';
 
     $('#on').click(function () {
-        console.log('on');
         var myNode = document.getElementById('first');
         myNode.innerHTML = '';
         addon.port.emit('click-load');
@@ -25,7 +24,6 @@ $(document).ready(function () {
                 div.appendChild(button);
                 div.appendChild(br);
                 document.getElementById('first').appendChild(div);
-                console.log(img.src);
             }
         }
     );
