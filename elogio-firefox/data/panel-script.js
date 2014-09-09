@@ -23,6 +23,7 @@ $(document).ready(function () {
                 button.appendChild(t);
                 div.appendChild(button);
                 div.appendChild(br);
+                console.log(img.src);
                 document.getElementById('first').appendChild(div);
             }
         }

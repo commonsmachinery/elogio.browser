@@ -7,18 +7,18 @@
         //canonization of image url
         function canonizeUrl(url, urlLocation) {
             if (url) {
-                if (url.indexOf('/') === 0) {
+                if (url.indexOf('/') === 0) {//if image into deep folder
                     return urlLocation + url.substring(1, url.length);
                 }
-                if (url.indexOf('../') === 0) {
+                if (url.indexOf('../') === 0) {//if image into upper folder
                     urlLocation = urlLocation.substring(0, urlLocation.lastIndexOf('/'));
                     return canonizeUrl(url.substring(3, url.length), urlLocation.substring(0, urlLocation.lastIndexOf('/') + 1));
                 }
             }
-            if(url.indexOf('data')===0){
+            if(url.indexOf('data')===0){//if image is base64
                 return url;
             }
-            return urlLocation + url;
+            return urlLocation + url;//if already canonized
         }
 
         //traverse all items on the page
