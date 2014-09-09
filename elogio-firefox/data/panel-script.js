@@ -1,16 +1,17 @@
-(function () {
+$(document).ready(function () {
     'use strict';
-    var textButton = 'query';
-    document.getElementById('on').addEventListener('click', function () {
+    var buttonText = 'query';
+
+    $('#on').click(function () {
+        console.log("On in getElementById!");
         var myNode = document.getElementById('first');
         myNode.innerHTML = '';
-        console.log('clean');
-        self.port.emit('click-load');
-    }, false);
+        addon.port.emit('click-load');
+    });
 
-    self.port.on("drawItems", function (items) {
+    addon.port.on("drawItems", function (items) {
+            console.log('drawItems');
             for (var i = 0; i < items.length; i++) {
-
                 var elem = items[i];
                 for (var j = 0; j < elem.length; j++) {
                     var img = new Image();
@@ -21,7 +22,7 @@
                     img.height = 50;
                     var br = document.createElement('br');
                     var button = document.createElement('button');
-                    var t = document.createTextNode(textButton);
+                    var t = document.createTextNode(buttonText);
                     button.appendChild(t);
                     div.appendChild(button);
                     div.appendChild(br);
@@ -31,4 +32,4 @@
             }
         }
     );
-})();
+});

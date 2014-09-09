@@ -16,6 +16,8 @@
 
     "predef": [
         "self",
+        "addon",
+        "$",
         "gElementIdAttr",
         "gSubjectAttr",
         "gMetadataAttr",

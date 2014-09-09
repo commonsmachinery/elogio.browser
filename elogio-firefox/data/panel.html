@@ -4,19 +4,23 @@
     <meta charset="UTF-8">
     <title></title>
     <link type="text/css" rel="stylesheet" href="./deps/bootstrap/bootstrap.css"/>
+
+    <script src="deps/jquery/jquery.js" type="text/javascript"></script>
+    <script src="deps/bootstrap/bootstrap.js" type="text/javascript"></script>
+    <script src="./panel-script.js" type="text/javascript"></script>
 </head>
+
 <body class="container">
 
-
 <div class="row">
-    <div class="col-md-12">
+    <div class="col-md-12" id="header-section">
         <h2>Elog.io catalog</h2>
     </div>
 </div>
 <div class="row">
     <div class="col-xs-12 text-center">
         <div class="btn-group">
-            <button class="btn btn-default">Off</button>
+            <button class="btn btn-default" data-toggle="collapse" data-target="#header-section">Off</button>
             <button id="on" class="btn btn-default">On</button>
         </div>
     </div>
