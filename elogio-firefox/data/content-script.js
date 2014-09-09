@@ -2,8 +2,8 @@
     'use strict';
     var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/') + 1);
     var attributeOfElements = 'elogio';
-    var imagesHashMap = {};
-
+    var imagesHashMap = [];
+    var wheel=new Image();
     function startsWith(st, prefix) {
         if (st.indexOf(prefix) === 0) {
             return true;
@@ -116,10 +116,11 @@
         return urlsImage;
     }
 
-    self.port.on("getElements", function (limitPixels) {
+    self.port.on("getElements", function (limitPixels,wheelUrl) {
         var count = 0;
+        wheel.src=wheelUrl;
+        imagesHashMap = [];
         var elementsToFiltering = getAllImages();//all urls of images
-        imagesHashMap = {};
         function ifReadyThenSend() {//if all images loaded then we need to send it to Main.js
             if (count === elementsToFiltering.length - 1) {
                 self.port.emit("gotElement", imagesToOutPut);
@@ -154,7 +155,6 @@
                 filteringImages[i].addEventListener('error', imageOnError);
             }
         }
-
         filterImages(elementsToFiltering);//filter img and send it
     });
 })();

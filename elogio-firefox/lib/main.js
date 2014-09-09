@@ -8,6 +8,7 @@ var activeTab;
 var limitPixels = 200;
 var sidebarWorker = null;
 var workersObject = [];
+var wheelUrl=data.url('overlay.png');
 var sidebar = require("sdk/ui/sidebar").Sidebar({
     id: 'elogio-firefox-plugin',
     title: 'Elog.io Image Catalog',
@@ -19,7 +20,7 @@ var sidebar = require("sdk/ui/sidebar").Sidebar({
             var workers = workersObject[activeTab.id];
             if (workers) {
                 for (var i = 0; i < workers.length; i++) {
-                    workers[i].port.emit("getElements", limitPixels);
+                    workers[i].port.emit("getElements", limitPixels,wheelUrl);
                 }
             } else {
                 console.error('sorry but web page is not ready');
