@@ -1,6 +1,5 @@
 (function () {
     'use strict';
-
     self.port.on("getElements", function () {
         //traverse all items on the page
         function arrayIndexOf(arr, what, index) {
@@ -20,24 +19,24 @@
             if (!who || !who.style) {
                 return '';
             }
-            var sty = css.replace(/\-([a-z])/g, function (a, b) {
+            var elementStyle = css.replace(/\-([a-z])/g, function (a, b) {
                 return b.toUpperCase();
             });
             if (who.currentStyle) {
-                return who.style[sty] || who.currentStyle[sty] || '';
+                return who.style[elementStyle] || who.currentStyle[elementStyle] || '';
             }
-            var dv = document.defaultView || window;
-            if (who.style[sty]) {
-                return who.style[sty];
+            var elementDefaultView = document.defaultView || window;
+            if (who.style[elementStyle]) {
+                return who.style[elementStyle];
             }
-            if (null !== dv.getComputedStyle(who, "")) {
-                if (dv.getComputedStyle(who, "").getPropertyValue(css)) {
-                    return dv.getComputedStyle(who, "").getPropertyValue(css);
+            if (null !== elementDefaultView.getComputedStyle(who, "")) {
+                if (elementDefaultView.getComputedStyle(who, "").getPropertyValue(css)) {
+                    return elementDefaultView.getComputedStyle(who, "").getPropertyValue(css);
                 }
             }
             return '';
         };
-        function getallBgimages() {
+        function getAllBackgroundImages() {
             var url, urlsImage = [], allDomElements = document.getElementsByTagName('*');
             allDomElements = urlsImage.slice.call(allDomElements, 0, allDomElements.length);
             while (allDomElements.length) {
@@ -60,22 +59,20 @@
             return false;
         }
 
-        var imgs = document.images;
-        var els = getallBgimages();
+        var imagesOnThePage = document.images;
+        var elementsToOutPut = getAllBackgroundImages();
         //for loop
-
-        for (var i = 0; i < imgs.length; i++) {
-            if (null !== imgs[i].src && '' !== imgs[i].src) {
-                els.push(imgs[i].src);
+        for (var i = 0; i < imagesOnThePage.length; i++) {
+            if (imagesOnThePage[i].src) {
+                elementsToOutPut.push(imagesOnThePage[i].src);
             }
         }
         var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/')) + '/';
-        for (var j = 0; j < els.length; j++) {
-            if (!startsWith(els[j], 'http')) {
-                els[j] = loc + els[j];
+        for (var j = 0; j < elementsToOutPut.length; j++) {
+            if (!startsWith(elementsToOutPut[j], 'http')) {
+                elementsToOutPut[j] = loc + elementsToOutPut[j];
             }
         }
-        console.log(els.length);
-        self.port.emit("gotElement", els);
+        self.port.emit("gotElement", elementsToOutPut);
     });
 })();

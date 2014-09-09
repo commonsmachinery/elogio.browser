@@ -3,13 +3,10 @@ var buttons = require('sdk/ui/button/action');
 var pageMod = require("sdk/page-mod");
 var data = require('sdk/self').data;
 var tabs = require('sdk/tabs');
-
 var imageStorage = [];
 var activeTab;
-
 var sidebarWorker = null;
 var workersObject = {};
-
 var sidebar = require("sdk/ui/sidebar").Sidebar({
     id: 'elogio-firefox-plugin',
     title: 'Elog.io Image Catalog',
@@ -62,9 +59,9 @@ pageMod.PageMod({
         worker.port.on("gotElement", function (imagesFromPage) {
             if (imagesFromPage && imagesFromPage.length > 0) {
                 imageStorage.push(imagesFromPage);
-            }
-            if (sidebarWorker) {
-                sidebarWorker.port.emit('drawItems', imageStorage);
+                if (sidebarWorker) {
+                    sidebarWorker.port.emit('drawItems', imagesFromPage);
+                }
             }
         });
     }
