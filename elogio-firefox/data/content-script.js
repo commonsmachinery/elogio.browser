@@ -23,7 +23,7 @@
                 s4() + '-' + s4() + s4() + s4();
         };
     })();
-
+    /*
     function getElementByGUID(attribute, id, context) {
         var nodeList = (context || document).getElementsByTagName('*');
         for (var i = 0, n = nodeList.length; i < n; i++) {
@@ -33,7 +33,7 @@
             }
         }
     }
-
+    */
     function attachUrlAndGUID(inElem, url) {
         var id = guid();
         inElem.setAttribute(attributeOfElements, id);
