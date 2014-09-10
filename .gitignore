@@ -1,0 +1,22 @@
+# Temporary and product files and dirs
+*.tmp
+*.xpi
+build
+dist
+node_modules
+bower_components
+elogio-firefox/data/deps
+tmp
+
+# IntelliJ IDEA project files.
+.idea
+*.iml
+
+#Mozilla SDK Stuff
+testpage
+app-extension
+bin
+examples
+python-lib
+test
+lib
