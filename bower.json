@@ -3,6 +3,7 @@
     "version": "0.0.0",
     "dependencies": {
         "jquery": "2.1",
-        "bootstrap": "*"
+        "bootstrap": "3.2.0",
+        "mustache" : "0.8.2"
     }
 }

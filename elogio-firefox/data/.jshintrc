@@ -18,6 +18,7 @@
         "self",
         "addon",
         "$",
+        "Mustache",
         "gElementIdAttr",
         "gSubjectAttr",
         "gMetadataAttr",

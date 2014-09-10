@@ -3,12 +3,10 @@
     var loc = document.location.toString().substring(0, document.location.toString().lastIndexOf('/') + 1);
     var attributeOfElements = 'elogio';
     var imagesHashMap = [];
-    var wheel=new Image();
+    var wheel = new Image();
+
     function startsWith(st, prefix) {
-        if (st.indexOf(prefix) === 0) {
-            return true;
-        }
-        return false;
+        return st.indexOf(prefix) === 0;
     }
 
     var guid = (function () {
@@ -24,16 +22,16 @@
         };
     })();
     /*
-    function getElementByGUID(attribute, id, context) {
-        var nodeList = (context || document).getElementsByTagName('*');
-        for (var i = 0, n = nodeList.length; i < n; i++) {
-            var att = nodeList[i].getAttribute(attribute);
-            if (att && att === id) {
-                return nodeList[i];
-            }
-        }
-    }
-    */
+     function getElementByGUID(attribute, id, context) {
+     var nodeList = (context || document).getElementsByTagName('*');
+     for (var i = 0, n = nodeList.length; i < n; i++) {
+     var att = nodeList[i].getAttribute(attribute);
+     if (att && att === id) {
+     return nodeList[i];
+     }
+     }
+     }
+     */
     function attachUrlAndGUID(inElem, url) {
         var id = guid();
         inElem.setAttribute(attributeOfElements, id);
@@ -116,12 +114,20 @@
         return urlsImage;
     }
 
-    self.port.on("getElements", function (limitPixels,wheelUrl) {
+
+    window.onbeforeunload = function () {
+        self.port.emit('onBeforeUnload');
+    };
+
+
+    self.port.on("getElement", function (limitPixels, wheelUrl) {
+
         var count = 0;
-        wheel.src=wheelUrl;
+        wheel.src = wheelUrl;
         imagesHashMap = [];
         var elementsToFiltering = getAllImages();//all urls of images
         function ifReadyThenSend() {//if all images loaded then we need to send it to Main.js
+            console.log('IfReadyThenSend, count=' + count + 'total = ' + elementsToFiltering.length);
             if (count === elementsToFiltering.length - 1) {
                 self.port.emit("gotElement", imagesToOutPut);
             }
@@ -131,16 +137,17 @@
         //we need to filter all images by width*height>limit
         function filterImages(inputImages) {
             var filteringImages = [];
-            //if img loaded then count++ and save it if width*height of image >limit
+            //if img loaded then count++ and save it if width and height of image >limit
             var onLoadImg = function () {
-                if ((this.width * this.height) >= limitPixels) {
+                if (this.width >= limitPixels && this.height >= limitPixels) {
                     imagesToOutPut.push(this.src);
-                    ifReadyThenSend();
                 }
                 count++;
+                ifReadyThenSend();
                 return true;
             };
-            //if image didn't loaded then we need increase count but wouldn't push it to array
+            //if image isn't loaded then we need increase count but wouldn't push it to array
+            //this also clears the list
             var imageOnError = function () {
                 this.onerror = '';
                 count++;
@@ -148,13 +155,16 @@
                 ifReadyThenSend();
                 return true;
             };
+            // TODO think if we need to query images which are <img> tags, not backgrounds. Guess we already have
+            // info about them?
             for (var i = 0; i < inputImages.length; i++) {
                 filteringImages.push(new Image());
-                filteringImages[i].src = inputImages[i];
                 filteringImages[i].addEventListener('load', onLoadImg);
                 filteringImages[i].addEventListener('error', imageOnError);
+                filteringImages[i].src = inputImages[i];
             }
         }
+
         filterImages(elementsToFiltering);//filter img and send it
     });
 })();
