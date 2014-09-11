@@ -44,9 +44,11 @@ $(document).ready(function () {
     addon.port.emit("panelLoaded");
     addon.port.on('showPictureById', function (id) {
         var elem = $('#' + id);
-        $('html, body').animate({
-            scrollTop: elem.offset().top
-        }, 500);
+        if (elem.offset()) {
+            $('html, body').animate({
+                scrollTop: elem.offset().top
+            }, 500);
+        }
         elem.find('.image-details').toggle();
     });
     addon.port.on("drawItems", function (items) {
@@ -58,7 +60,7 @@ $(document).ready(function () {
             showImageListView();
 
             function toggleDetails(renderedItem) {
-                addon.port.emit('getImageFromContent',renderedItem.attr('id'));
+                addon.port.emit('getImageFromContent', renderedItem.attr('id'));
                 renderedItem.find('.image-details').toggle();
             }
 

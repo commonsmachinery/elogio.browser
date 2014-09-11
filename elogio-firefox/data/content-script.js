@@ -22,8 +22,8 @@
         };
     })();
 
-    function getElementByGUID(attribute, id, context) {
-        var nodeList = (context || document).getElementsByTagName('*');
+    function getElementByGUID(attribute, id) {
+        var nodeList = document.getElementsByTagName('*');
         for (var i = 0, n = nodeList.length; i < n; i++) {
             var att = nodeList[i].getAttribute(attribute);
             if (att && att === id) {
@@ -141,16 +141,17 @@
             elem.scrollIntoView();
         }
     });
-    function setTheWheel(wheel, elem) {
-        wheel.style.position = 'absolute';
-        wheel.setAttribute('id', imagesHashMap[elem.src]);
-        wheel.style.top = cumulativeOffset(elem).top.toString() + 'px';
-        wheel.style.left = cumulativeOffset(elem).left.toString() + 'px';
-        wheel.style.zIndex = '10000';
-        return wheel;
+    function setTheWheel(wheelly, elem) {
+        wheelly.style.position = 'absolute';
+        wheelly.setAttribute('id', imagesHashMap[elem.src]);
+        wheelly.style.top = cumulativeOffset(elem).top.toString() + 'px';
+        wheelly.style.left = cumulativeOffset(elem).left.toString() + 'px';
+        wheelly.style.zIndex = '10000';
+        return wheelly;
     }
 
     self.port.on("getElement", function (limitPixels, wheelUrl) {
+        console.log('get element......');
         var count = 0;
         wheel.src = wheelUrl;
         imagesHashMap = [];
@@ -169,10 +170,12 @@
             var onLoadImg = function () {
                 if (this.width >= limitPixels && this.height >= limitPixels) {
                     var elem = getElementByGUID(attributeOfElements, imagesHashMap[this.src]);
-                    var currentWheel = setTheWheel(wheel.cloneNode(false), elem);
-                    document.body.insertBefore(currentWheel, document.body.firstChild);
-                    currentWheel.addEventListener('click', getSelectedPicture);
-                    imagesToOutPut.push({'src': this.src, 'guid': imagesHashMap[this.src]});
+                    if (elem) {
+                        var currentWheel = setTheWheel(wheel.cloneNode(false), elem);
+                        document.body.appendChild(currentWheel);
+                        currentWheel.addEventListener('click', getSelectedPicture);
+                        imagesToOutPut.push({'src': this.src, 'guid': imagesHashMap[this.src]});
+                    }
                 }
                 count++;
                 ifReadyThenSend();
@@ -190,9 +193,9 @@
             // info about them?
             for (var i = 0; i < inputImages.length; i++) {
                 filteringImages.push(new Image());
+                filteringImages[i].src = inputImages[i];//from cache
                 filteringImages[i].addEventListener('load', onLoadImg);
                 filteringImages[i].addEventListener('error', imageOnError);
-                filteringImages[i].src = inputImages[i];//from cache
             }
         }
 

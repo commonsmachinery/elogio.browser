@@ -80,7 +80,13 @@ pageMod.PageMod({
         }
 
         function getThePicture(uniqueId) {
-            sidebarWorker.port.emit('showPictureById', uniqueId);
+
+            if(!sidebar.isShowing){
+                sidebar.show();
+            }
+            if(sidebarWorker) {
+                sidebarWorker.port.emit('showPictureById', uniqueId);
+            }
         }
 
         function onBeforeUnloadTopPage(tabId) {
