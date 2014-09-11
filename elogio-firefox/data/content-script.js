@@ -21,17 +21,17 @@
                 s4() + '-' + s4() + s4() + s4();
         };
     })();
-    /*
-     function getElementByGUID(attribute, id, context) {
-     var nodeList = (context || document).getElementsByTagName('*');
-     for (var i = 0, n = nodeList.length; i < n; i++) {
-     var att = nodeList[i].getAttribute(attribute);
-     if (att && att === id) {
-     return nodeList[i];
-     }
-     }
-     }
-     */
+
+    function getElementByGUID(attribute, id, context) {
+        var nodeList = (context || document).getElementsByTagName('*');
+        for (var i = 0, n = nodeList.length; i < n; i++) {
+            var att = nodeList[i].getAttribute(attribute);
+            if (att && att === id) {
+                return nodeList[i];
+            }
+        }
+    }
+
     function attachUrlAndGUID(inElem, url) {
         var id = guid();
         inElem.setAttribute(attributeOfElements, id);
@@ -118,17 +118,45 @@
     window.onbeforeunload = function () {
         self.port.emit('onBeforeUnload');
     };
+    var getSelectedPicture = function () {
+        self.port.emit('getPicture', this.getAttribute('id'));
+    };
+    var cumulativeOffset = function (element) {
+        var top = 0, left = 0;
+        do {
+            top += element.offsetTop || 0;
+            left += element.offsetLeft || 0;
+            element = element.offsetParent;
+        } while (element);
 
+        return {
+            top: top,
+            left: left
+        };
+    };
+
+    self.port.on('scrollToImageById', function (id) {
+        var elem = getElementByGUID(attributeOfElements, id);
+        if (elem) {
+            elem.scrollIntoView();
+        }
+    });
+    function setTheWheel(wheel, elem) {
+        wheel.style.position = 'absolute';
+        wheel.setAttribute('id', imagesHashMap[elem.src]);
+        wheel.style.top = cumulativeOffset(elem).top.toString() + 'px';
+        wheel.style.left = cumulativeOffset(elem).left.toString() + 'px';
+        wheel.style.zIndex = '10000';
+        return wheel;
+    }
 
     self.port.on("getElement", function (limitPixels, wheelUrl) {
-
         var count = 0;
         wheel.src = wheelUrl;
         imagesHashMap = [];
         var elementsToFiltering = getAllImages();//all urls of images
         function ifReadyThenSend() {//if all images loaded then we need to send it to Main.js
-            console.log('IfReadyThenSend, count=' + count + 'total = ' + elementsToFiltering.length);
-            if (count === elementsToFiltering.length - 1) {
+            if (count === elementsToFiltering.length) {
                 self.port.emit("gotElement", imagesToOutPut);
             }
         }
@@ -140,7 +168,11 @@
             //if img loaded then count++ and save it if width and height of image >limit
             var onLoadImg = function () {
                 if (this.width >= limitPixels && this.height >= limitPixels) {
-                    imagesToOutPut.push(this.src);
+                    var elem = getElementByGUID(attributeOfElements, imagesHashMap[this.src]);
+                    var currentWheel = setTheWheel(wheel.cloneNode(false), elem);
+                    document.body.insertBefore(currentWheel, document.body.firstChild);
+                    currentWheel.addEventListener('click', getSelectedPicture);
+                    imagesToOutPut.push({'src': this.src, 'guid': imagesHashMap[this.src]});
                 }
                 count++;
                 ifReadyThenSend();
@@ -151,7 +183,6 @@
             var imageOnError = function () {
                 this.onerror = '';
                 count++;
-                console.log(this.src);
                 ifReadyThenSend();
                 return true;
             };
@@ -161,7 +192,7 @@
                 filteringImages.push(new Image());
                 filteringImages[i].addEventListener('load', onLoadImg);
                 filteringImages[i].addEventListener('error', imageOnError);
-                filteringImages[i].src = inputImages[i];
+                filteringImages[i].src = inputImages[i];//from cache
             }
         }
 

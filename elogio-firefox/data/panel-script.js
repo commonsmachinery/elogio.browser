@@ -42,6 +42,13 @@ $(document).ready(function () {
 
 
     addon.port.emit("panelLoaded");
+    addon.port.on('showPictureById', function (id) {
+        var elem = $('#' + id);
+        $('html, body').animate({
+            scrollTop: elem.offset().top
+        }, 500);
+        elem.find('.image-details').toggle();
+    });
     addon.port.on("drawItems", function (items) {
             if (items === null || items === undefined) {
                 showMessage("Loading, please wait...");
@@ -51,12 +58,13 @@ $(document).ready(function () {
             showImageListView();
 
             function toggleDetails(renderedItem) {
+                addon.port.emit('getImageFromContent',renderedItem.attr('id'));
                 renderedItem.find('.image-details').toggle();
             }
 
             for (var i = 0; i < items.length; i++) {
                 var element = items[i];
-                var rendered = $(Mustache.render(template, {"imageURL": element}));
+                var rendered = $(Mustache.render(template, {"imageURL": element.src, "guid": element.guid}));
                 rendered.find('img').on('click', toggleDetails.bind(null, rendered));
                 imageList.append(rendered);
             }

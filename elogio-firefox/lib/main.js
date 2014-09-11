@@ -19,9 +19,14 @@ var sidebar = require("sdk/ui/sidebar").Sidebar({
         sidebarWorker.port.on("panelLoaded", function () {
             sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
         });
+        sidebarWorker.port.on('getImageFromContent', function (inputId) {
+            var workersOfTab = workersObject[activeTab.id];
+            for(var i=0;i<workersOfTab.length;i++){
+                workersOfTab[0].port.emit('scrollToImageById', inputId);
+            }
+        });
     }
 });
-
 buttons.ActionButton({
     id: "elogio-button",
     label: "Get images",
@@ -37,8 +42,10 @@ buttons.ActionButton({
 
 function detachWorker(worker, workerArray) {
     var index = workerArray.indexOf(worker);
+
     if (index !== -1) {
         workerArray.splice(index, 1);
+        console.log('detach');
     }
 }
 pageMod.PageMod({
@@ -54,9 +61,8 @@ pageMod.PageMod({
         activeTab = worker.tab;
         workersObject[tabId].push(worker);
         worker.on('detach', detachWorker.bind(null, worker, workersObject[worker.tab.id]));
-
         function imagesReceived(imagesFromPage) {
-            console.log('Received images for tab id ' + tabId);
+            console.log('Received images for tab id ' + tabId + '; count = ' + imagesFromPage.length);
 
             if (imagesFromPage) {
                 if (!imageStorage[tabId]) {
@@ -73,6 +79,10 @@ pageMod.PageMod({
             }
         }
 
+        function getThePicture(uniqueId) {
+            sidebarWorker.port.emit('showPictureById', uniqueId);
+        }
+
         function onBeforeUnloadTopPage(tabId) {
             imageStorage[tabId] = null;
             if (tabId === activeTab.id) {
@@ -82,6 +92,7 @@ pageMod.PageMod({
 
         worker.port.on("gotElement", imagesReceived.bind(worker));
         worker.port.on("onBeforeUnload", onBeforeUnloadTopPage.bind(null, tabId));
+        worker.port.on("getPicture", getThePicture.bind(worker));
         worker.port.emit("getElement", limitPixels, wheelUrl);
     }
 });
@@ -99,8 +110,10 @@ tabs.on('open', function (tab) {
 
 //if tab was closed the we need to remove all workers of this tab
 tabs.on('close', function (tab) {
-    var index = workersObject.indexOf(tab.id);
-    if (index !== -1) {
-        workersObject.splice(index, 1);
+    if (workersObject[tab.id]) {
+        workersObject[tab.id] = null;
+    }
+    if (imageStorage[tab.id]) {
+        imageStorage[tab.id] = null;
     }
 });
