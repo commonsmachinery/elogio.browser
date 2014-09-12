@@ -18,6 +18,23 @@ module.exports = function (grunt) {
             src: ["<%= buildDir%>" , "<%= distDir %>"]
         },
 
+        "concat": {
+            options: {
+                stripBanners: false,
+                banner: '/*! <%= pkg.name %> modules - v<%= pkg.version %> - ' +
+                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+            },
+            modules: {
+                files: {
+                    '<%= buildDir%>/data/0content-script.js': [
+                        'elogio-firefox/data/js-modules/common.js',
+                        'elogio-firefox/data/js-modules/dom.js',
+                        'elogio-firefox/data/js-modules/image-decorator.js'
+                    ]
+                }
+            }
+        },
+
         "mozilla-addon-sdk": {
             "1_17": {
                 options: {
@@ -118,6 +135,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-bower-task');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
 
     /**
@@ -139,6 +157,12 @@ module.exports = function (grunt) {
 
     grunt.registerTask('run', [
         'bower',
+        'clean',
+        'bower',
+        'lint',
+        'copy:resourcesWithoutJS',
+        'uglify:beautify',
+        'concat:modules',
         'mozilla-addon-sdk',
         'mozilla-cfx']);
 
@@ -148,6 +172,7 @@ module.exports = function (grunt) {
         'lint',
         'copy:resourcesWithoutJS',
         'uglify:beautify',
+        'concat:modules',
         'mozilla-addon-sdk',
         'mozilla-cfx-xpi']);
 
@@ -156,6 +181,7 @@ module.exports = function (grunt) {
         'lint',
         'bower',
         'copy:resourcesWithoutJS',
+        'concat:modules',
         'uglify:minify',
         'mozilla-addon-sdk',
         'mozilla-cfx-xpi']);
