@@ -143,6 +143,7 @@
     });
     function setTheWheel(wheelly, elem) {
         wheelly.style.position = 'absolute';
+        wheelly.style.display = 'none';
         wheelly.setAttribute('id', imagesHashMap[elem.src]);
         wheelly.style.top = cumulativeOffset(elem).top.toString() + 'px';
         wheelly.style.left = cumulativeOffset(elem).left.toString() + 'px';
@@ -150,6 +151,20 @@
         return wheelly;
     }
 
+    var mouseOn = function () {
+        var elem = document.getElementById(imagesHashMap[this.src]);
+        if (elem) {
+            elem.style.left=cumulativeOffset(this).left.toString() + 'px';
+            elem.style.top=cumulativeOffset(this).top.toString() + 'px';
+            elem.style.display = 'block';
+        }
+    };
+    var mouseExit = function () {
+        var elem = document.getElementById(imagesHashMap[this.src]);
+        if (elem) {
+            elem.style.display = 'none';
+        }
+    };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
         console.log('get element......');
         var count = 0;
@@ -171,8 +186,10 @@
                 if (this.width >= limitPixels && this.height >= limitPixels) {
                     var elem = getElementByGUID(attributeOfElements, imagesHashMap[this.src]);
                     if (elem) {
-                        var currentWheel = setTheWheel(wheel.cloneNode(false), elem);
+                        var currentWheel = setTheWheel(wheel.cloneNode(true), elem);
                         document.body.appendChild(currentWheel);
+                        elem.addEventListener('mouseover', mouseOn);
+                        elem.addEventListener('mouseout', mouseExit);
                         currentWheel.addEventListener('click', getSelectedPicture);
                         imagesToOutPut.push({'src': this.src, 'guid': imagesHashMap[this.src]});
                     }
