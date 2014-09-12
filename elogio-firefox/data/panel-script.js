@@ -27,6 +27,8 @@ $(document).ready(function () {
         if (isExtensionEnabled) {
             return;
         }
+        $('#imageListView').show();
+        addon.port.emit("addonSwitchOn");
         isExtensionEnabled = true;
         onButton.addClass("btn-success");
         offButton.removeClass("btn-danger");
@@ -35,6 +37,8 @@ $(document).ready(function () {
         if (!isExtensionEnabled) {
             return;
         }
+        $('#imageListView').hide();
+        addon.port.emit("addonSwitchOff");
         isExtensionEnabled = false;
         offButton.addClass("btn-danger");
         onButton.removeClass("btn-success");
@@ -52,6 +56,10 @@ $(document).ready(function () {
         elem.find('.image-details').toggle();
     });
     addon.port.on("drawItems", function (items) {
+            if(!isExtensionEnabled){
+                showMessage("Please enable extension");
+                return;
+            }
             if (items === null || items === undefined) {
                 showMessage("Loading, please wait...");
                 return;

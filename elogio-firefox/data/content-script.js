@@ -4,11 +4,18 @@
     var attributeOfElements = 'elogio';
     var imagesHashMap = [];
     var wheel = new Image();
-
+    var isExtentionEnabled=true;
+    self.port.on('extensionSwitchOff', function () {
+        console.log('off');
+        isExtentionEnabled = false;
+    });
+    self.port.on('extensionSwitchOn', function () {
+        console.log('on');
+        isExtentionEnabled = true;
+    });
     function startsWith(st, prefix) {
         return st.indexOf(prefix) === 0;
     }
-
     var guid = (function () {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -152,22 +159,26 @@
     }
 
     var mouseOn = function () {
-        var elem = document.getElementById(imagesHashMap[this.src]);
-        if (elem) {
-            elem.style.left=cumulativeOffset(this).left.toString() + 'px';
-            elem.style.top=cumulativeOffset(this).top.toString() + 'px';
-            elem.style.display = 'block';
+        if (isExtentionEnabled===true) {
+            var elem = document.getElementById(imagesHashMap[this.src]);
+            if (elem) {
+                elem.style.left = cumulativeOffset(this).left.toString() + 'px';
+                elem.style.top = cumulativeOffset(this).top.toString() + 'px';
+                elem.style.display = 'block';
+            }
         }
     };
     var mouseExit = function () {
-        var elem = document.getElementById(imagesHashMap[this.src]);
-        if (elem) {
-            elem.style.display = 'none';
+        if (isExtentionEnabled===true) {
+            var elem = document.getElementById(imagesHashMap[this.src]);
+            if (elem) {
+                elem.style.display = 'none';
+            }
         }
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
-        console.log('get element......');
         var count = 0;
+        isExtentionEnabled=true;
         wheel.src = wheelUrl;
         imagesHashMap = [];
         var elementsToFiltering = getAllImages();//all urls of images

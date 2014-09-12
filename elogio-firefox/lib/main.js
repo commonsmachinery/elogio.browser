@@ -9,19 +9,38 @@ var sidebarWorker = null;
 var imageStorage = {};
 var workersObject = {};
 var wheelUrl = data.url('overlay.png');
-
+var isExtensionEnabled = false;
 var sidebar = require("sdk/ui/sidebar").Sidebar({
     id: 'elogio-firefox-plugin',
     title: 'Elog.io Image Catalog',
     url: require("sdk/self").data.url("panel.html"),
     onAttach: function (worker) {
         sidebarWorker = worker;
+        isExtensionEnabled = true;
         sidebarWorker.port.on("panelLoaded", function () {
-            sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+            if (isExtensionEnabled) {
+                sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+            }else{
+                sidebarWorker.port.emit('drawItems', []);
+            }
+        });
+        sidebarWorker.port.on('addonSwitchOn', function () {
+            var workersArray=workersObject[activeTab.id];
+            for(var i=0;i<workersArray.length;i++){
+                workersArray[i].port.emit('extensionSwitchOn');
+            }
+            isExtensionEnabled = true;
+        });
+        sidebarWorker.port.on('addonSwitchOff', function () {
+            var workersArray=workersObject[activeTab.id];
+            for(var i=0;i<workersArray.length;i++){
+                workersArray[i].port.emit('extensionSwitchOff');
+            }
+            isExtensionEnabled = false;
         });
         sidebarWorker.port.on('getImageFromContent', function (inputId) {
             var workersOfTab = workersObject[activeTab.id];
-            for(var i=0;i<workersOfTab.length;i++){
+            for (var i = 0; i < workersOfTab.length; i++) {
                 workersOfTab[0].port.emit('scrollToImageById', inputId);
             }
         });
@@ -42,19 +61,17 @@ buttons.ActionButton({
 
 function detachWorker(worker, workerArray) {
     var index = workerArray.indexOf(worker);
-
     if (index !== -1) {
         workerArray.splice(index, 1);
-        console.log('detach');
     }
 }
+
 pageMod.PageMod({
     include: "*",
     contentScriptFile: [data.url("content-script.js")],
     attachTo: 'top',
     onAttach: function (worker) {
         var tabId = worker.tab.id;
-        console.log('OnAttach for tab ' + tabId);
         if (!workersObject[tabId]) {
             workersObject[tabId] = [];
         }
@@ -62,8 +79,6 @@ pageMod.PageMod({
         workersObject[tabId].push(worker);
         worker.on('detach', detachWorker.bind(null, worker, workersObject[worker.tab.id]));
         function imagesReceived(imagesFromPage) {
-            console.log('Received images for tab id ' + tabId + '; count = ' + imagesFromPage.length);
-
             if (imagesFromPage) {
                 if (!imageStorage[tabId]) {
                     imageStorage[tabId] = [];
@@ -71,7 +86,6 @@ pageMod.PageMod({
                 for (var i = 0; i < imagesFromPage.length; i++) {
                     imageStorage[tabId].push(imagesFromPage[i]);
                 }
-
                 if (sidebarWorker && tabId === activeTab.id) {
                     console.log('Going to draw for ' + tabId + '  ' + imageStorage[tabId].length + ' images.');
                     sidebarWorker.port.emit('drawItems', imageStorage[tabId]);
@@ -81,10 +95,10 @@ pageMod.PageMod({
 
         function getThePicture(uniqueId) {
 
-            if(!sidebar.isShowing){
+            if (!sidebar.isShowing) {
                 sidebar.show();
             }
-            if(sidebarWorker) {
+            if (sidebarWorker) {
                 sidebarWorker.port.emit('showPictureById', uniqueId);
             }
         }
@@ -96,21 +110,24 @@ pageMod.PageMod({
             }
         }
 
-        worker.port.on("gotElement", imagesReceived.bind(worker));
-        worker.port.on("onBeforeUnload", onBeforeUnloadTopPage.bind(null, tabId));
-        worker.port.on("getPicture", getThePicture.bind(worker));
-        worker.port.emit("getElement", limitPixels, wheelUrl);
+        if (isExtensionEnabled) {
+            worker.port.on("gotElement", imagesReceived.bind(worker));
+            worker.port.on("onBeforeUnload", onBeforeUnloadTopPage.bind(null, tabId));
+            worker.port.on("getPicture", getThePicture.bind(worker));
+            worker.port.emit("getElement", limitPixels, wheelUrl);
+        }
     }
 });
 tabs.on('activate', function (tab) {
     activeTab = tab;
     if (sidebarWorker) {
-        sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+        if (isExtensionEnabled) {
+            sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+        }
     }
 });
 
 tabs.on('open', function (tab) {
-    console.log('Tab On OPEN for tab id = ' + tab.id);
     imageStorage[tab.id] = null;
 });
 
