@@ -1,8 +1,14 @@
 /**
  * Created by LOGICIFY\corvis on 9/12/14.
  */
-Elogio.modules.imageDecorator = Elogio('dom', 'someOtherModule', function (modules) {
+Elogio.modules.imageDecorator = function (modules) {
     'use strict';
+    /*
+     =======================
+     REQUIREMENTS
+     =======================
+     */
+    var dom = modules.getModule('dom');
     /*
      =======================
      PUBLIC MEMBERS
@@ -12,4 +18,4 @@ Elogio.modules.imageDecorator = Elogio('dom', 'someOtherModule', function (modul
         // Implement me
     };
 
-});
+};

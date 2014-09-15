@@ -8,7 +8,7 @@ var limitPixels = 100;
 var sidebarWorker = null;
 var imageStorage = {};
 var workersObject = {};
-var wheelUrl = data.url('overlay.png');
+var wheelUrl = data.url('img/settings-icon.png');
 var isExtensionEnabled = false;
 var sidebar = require("sdk/ui/sidebar").Sidebar({
     id: 'elogio-firefox-plugin',
@@ -49,11 +49,7 @@ var sidebar = require("sdk/ui/sidebar").Sidebar({
 buttons.ActionButton({
     id: "elogio-button",
     label: "Get images",
-    icon: {
-        "16": "./icon-16.png",
-        "32": "./icon-32.png",
-        "64": "./icon-64.png"
-    },
+    icon: data.url("img/icon-72.png"),
     onClick: function () {
         sidebar.show();
     }
@@ -68,7 +64,7 @@ function detachWorker(worker, workerArray) {
 
 pageMod.PageMod({
     include: "*",
-    contentScriptFile: [data.url("content-script.js")],
+    contentScriptFile: [data.url("js/common-lib.js"), data.url("content-script.js")],
     attachTo: 'top',
     onAttach: function (worker) {
         var tabId = worker.tab.id;

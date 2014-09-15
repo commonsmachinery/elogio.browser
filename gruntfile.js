@@ -26,10 +26,8 @@ module.exports = function (grunt) {
             },
             modules: {
                 files: {
-                    '<%= buildDir%>/data/0content-script.js': [
-                        'elogio-firefox/data/js-modules/common.js',
-                        'elogio-firefox/data/js-modules/dom.js',
-                        'elogio-firefox/data/js-modules/image-decorator.js'
+                    '<%= buildDir%>/data/js/common-lib.js': [
+                        'elogio-firefox/data/js-modules/*.js'
                     ]
                 }
             }
@@ -47,8 +45,9 @@ module.exports = function (grunt) {
             "stable": {
                 options: {
                     "mozilla-addon-sdk": "1_17",
-                    extension_dir: "elogio-firefox",
-                    command: "run"
+                    extension_dir: "<%= buildDir%>",
+                    command: "run",
+                    arguments: '-p /home/LOGICIFY/corvis/.mozilla/firefox/6zixhfbc.dev'
                 }
             }
         },
