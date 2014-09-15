@@ -46,8 +46,7 @@ module.exports = function (grunt) {
                 options: {
                     "mozilla-addon-sdk": "1_17",
                     extension_dir: "<%= buildDir%>",
-                    command: "run",
-                    arguments: '-p /home/LOGICIFY/corvis/.mozilla/firefox/6zixhfbc.dev'
+                    command: "run"
                 }
             }
         },

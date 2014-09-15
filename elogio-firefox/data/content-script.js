@@ -177,6 +177,13 @@
         }
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
+        Elogio('utils', 'dom', 'imageDecorator', 'locator', function(modules) {
+            var locator = modules.getModule('locator');
+            locator.findImages(document, function(){
+                console.log(arguments);
+            });
+        });
+
         var count = 0;
         isExtentionEnabled=true;
         wheel.src = wheelUrl;

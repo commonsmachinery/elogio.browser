@@ -43,6 +43,10 @@ Elogio.modules.locator = function(modules) {
      PUBLIC MEMBERS
      =======================
      */
+    this.config = {
+        imageMinHeight: 100,
+        imageMinWidth: 100
+    };
 
     /**
      * Array of filters which will be applied to the HTML nodes found by this module
@@ -67,7 +71,8 @@ Elogio.modules.locator = function(modules) {
     this.imageFilters = [
         // Min size is 100*100px
         function(img) {
-            return true; // TODO: Implement filter
+            return img.width >= this.config.imageMinWidth &&
+                   img.height >= this.config.imageMinHeight;
         }
     ];
 
