@@ -142,7 +142,7 @@ Elogio.modules.locator = function(modules) {
                         uri: src,
                         uuid: imageUuid
                     };
-                    onError(imgObj,  'Error Message fshould be there!!'); // TODO: Error message!
+                    onError(imgObj,  'Error Message should be there!!'); // TODO: Error message!
                 }
             };
 
@@ -162,11 +162,12 @@ Elogio.modules.locator = function(modules) {
             //         Thus we need to load it first. The only way which comes to mind - create IMG tag and
             //         wait for onLoad event
             currentImageTag = new Image();
+            currentImageTag.setAttribute('sourceElement', uuid);
             temporaryImageTags[uuid] = currentImageTag;
             currentImageTag.addEventListener('load', onTempImageLoadedHandler);
             currentImageTag.addEventListener('error', onTempImageErrorHandler);
-            currentImageTag.setAttribute('sourceElement', uuid);
             currentImageTag.src = imageUrl;
+            console.log('Found image ' + imageUrl + ': ' + uuid);
         }
         return temporaryImageTags.length;
     };

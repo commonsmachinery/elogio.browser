@@ -189,16 +189,19 @@
                 imageDecorator = modules.getModule('imageDecorator'),
                 dom = modules.getModule('dom');
             locator.findImages(document, function(imageObj) {
-                console.log(imageObj);
                 var element = dom.getElementByUUID(imageObj.uuid);
+                console.log(imageObj);
+                console.log('Element: ' + element);
                 if (element) {
                     console.log('Decorating ' + imageObj.uuid);
-                    imageDecorator.decorate(element);
+                    imageDecorator.decorate(element, document, function () {
+                        alert('Icon clicked!');
+                    });
 
                 }
             });
         });
-
+        return;
         var count = 0;
         isExtentionEnabled = true;
         wheel.src = wheelUrl;

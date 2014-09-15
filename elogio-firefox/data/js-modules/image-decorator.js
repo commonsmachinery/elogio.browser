@@ -18,7 +18,7 @@ Elogio.modules.imageDecorator = function (modules) {
      */
 
     function buildIdForIcon(imageUuid) {
-        return 'elogioIgon_' + imageUuid;
+        return 'elogioico_' + imageUuid;
     }
 
     function buildIconElement(element) {
@@ -48,8 +48,11 @@ Elogio.modules.imageDecorator = function (modules) {
      * Draws Elogio icon on top of the given element.
      * @param element - target element
      * @param document - DOM root
+     * @param callback - callback function which will act as an action handler (e.g. OnClick event of the icon).
+     *                   Signature: callback(uuid)
+     *                   uuid{String} - UUID of the related image
      */
-    this.decorate = function(element, document) {
+    this.decorate = function(element, document, callback) {
         var iconElement, uuid = dom.getUUIDofElement(element),
             position, iconAlreadyCreated = false;
         // Get or build icon element
@@ -58,28 +61,43 @@ Elogio.modules.imageDecorator = function (modules) {
             iconAlreadyCreated = true;
         } else {
             iconElement = buildIconElement(element);
+            // Append icon to the body
+            document.body.appendChild(iconElement);
+            // Show on mouse in
+            element.addEventListener('mouseover', function() {
+                self.decorate(this, document);
+            });
+            // Hide icon on mouse out
+            element.addEventListener('mouseout', function () {
+                var uuid = dom.getUUIDofElement(this),
+                    iconElement;
+                iconElement = document.getElementById(buildIdForIcon(uuid));
+                if (iconElement) {
+                    iconElement.style.display = 'none';
+                }
+            });
+            iconElement.addEventListener('mouseout', function(){
+                this.style.display = 'none';
+            });
+            // Prevent bubbling of the mouseover event
+            iconElement.addEventListener('mouseover', function(e) {
+                e.bubble = false;
+                if (iconElement.style.display === 'none') {
+                    iconElement.style.display = 'block';
+                }
+            });
+            if (callback) {
+                iconElement.addEventListener('click', function() {
+                    callback(uuid);
+                });
+            }
         }
-        // Append icon to the body
-        document.body.appendChild(iconElement);
         // Position icon on the element
         position = dom.getAbsolutePosition(element);
-        iconElement.style.top = position.top;
-        iconElement.style.left = position.left;
+        iconElement.style.top = position.top + 'px';
+        iconElement.style.left = position.left + 'px';
         // Hide element if this is very first call.
         iconElement.style.display = iconAlreadyCreated ? 'block' : 'none';
-        // Show on mouse in
-        iconElement.addEventListener('mouseover', function() {
-            self.decorate(this);
-        });
-        // Hide icon on mouse out
-        iconElement.addEventListener('mouseout', function() {
-            var uuid = dom.getUUIDofElement(this),
-                iconElement;
-            iconElement = document.getElementById(buildIdForIcon(uuid));
-            if (iconElement) {
-                iconElement.style.display = 'none';
-            }
-        });
     };
 
     this.undecorate = function(element, document) {
@@ -89,6 +107,6 @@ Elogio.modules.imageDecorator = function (modules) {
         if (iconElement) {
             document.body.removeChild(iconElement);
         }
-    }
+    };
 
 };
