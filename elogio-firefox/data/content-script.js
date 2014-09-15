@@ -59,9 +59,9 @@
         }
     }
 
-    function attachUrlAndGUID(inElem, url) {
+    function attachUrlAndGUID(inputElem, url) {
         var id = guid();
-        inElem.setAttribute(attributeOfElements, id);
+        inputElem.setAttribute(attributeOfElements, id);
         imagesHashMap[url] = id;
     }
 
@@ -88,11 +88,14 @@
     };
     function canonizeUrl(url, urlLocation) {
         if (url) {
-            if (startsWith(url, 'http') || startsWith(url, 'www')) {
+            if (startsWith(url, 'http')) {
+                return url;
+            }
+            if (startsWith(url, 'chrome')) {
                 return url;
             }
             if (startsWith(url, '/')) {//if image into deep folder
-                return urlLocation + url.substring(1, url.length);
+                return ('http://' + urlLocation + url.substring(1, url.length));
             }
             if (startsWith(url, '../')) {//if image into upper folder
                 urlLocation = urlLocation.substring(0, urlLocation.lastIndexOf('/'));
@@ -104,20 +107,9 @@
         } else {
             return false;
         }
-        return urlLocation + url;//if already canonized
+        return 'http://' + urlLocation + url;//if already canonized
     }
 
-    function arrayIndexOf(arr, what, index) {
-        index = index || 0;
-        var lengthOfInputArray = arr.length;
-        while (index < lengthOfInputArray) {
-            if (arr[index] === what) {
-                return index;
-            }
-            ++index;
-        }
-        return -1;
-    }
 
     function getAllImages() {
         var url, current, urlsImage = [], allDomElements = document.getElementsByTagName('*');
@@ -133,7 +125,7 @@
                 }
                 url = canonizeUrl(url[1], loc);
             }
-            if (url && -1 === arrayIndexOf(urlsImage, url)) {
+            if (url && -1 === urlsImage.indexOf(url)) {
                 attachUrlAndGUID(current, url);
                 urlsImage[urlsImage.length] = url;
             }

@@ -72,20 +72,23 @@ $(document).ready(function () {
                 addon.port.emit('getImageFromContent', renderedItem.attr('id'));
                 //todo add request for image
                 var jsonData = $(Mustache.render(jsonTemplate, {'data': 'from server'}));
-                if(renderedItem.find('.json-details')!==null){
+                if (renderedItem.find('.json-details') !== null) {
                     renderedItem.find('.json-details').remove();
                     renderedItem.find('.image-details').append(jsonData);
-                }else{
+                } else {
                     renderedItem.find('.image-details').append(jsonData);
                 }
                 renderedItem.find('.image-details').toggle();
             }
 
-            for (var i = 0; i < items.length; i++) {
-                var element = items[i];
-                var rendered = $(Mustache.render(template, {"imageURL": element.src, "guid": element.guid}));
-                rendered.find('img').on('click', toggleDetails.bind(null, rendered));
-                imageList.append(rendered);
+            for (var j = 0; j < items.length; j++) {
+                var item=items[j];
+                for (var i = 0; i < item.length; i++) {
+                    var element = item[i];
+                    var rendered = $(Mustache.render(template, {"imageURL": element.src, "guid": element.guid}));
+                    rendered.find('img').on('click', toggleDetails.bind(null, rendered));
+                    imageList.append(rendered);
+                }
             }
         }
     );

@@ -1,10 +1,10 @@
-(function() {
+(function () {
     'use strict';
     var buttons = require('sdk/ui/button/action');
     var pageMod = require("sdk/page-mod");
     var data = require('sdk/self').data;
     var tabs = require('sdk/tabs');
-    var activeTab=tabs.activateTab;
+    var activeTab = tabs.activateTab;
     var limitPixels = 100;
     var sidebarWorker = null;
     var imageStorage = {};
@@ -20,7 +20,7 @@
             isExtensionEnabled = true;
             sidebarWorker.port.on("panelLoaded", function () {
                 if (isExtensionEnabled) {
-                    if(activeTab) {
+                    if (activeTab) {
                         sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
                     }
                 } else {
@@ -28,11 +28,14 @@
                 }
             });
             sidebarWorker.port.on('addonSwitchOn', function () {
-                var workersArray = workersObject[activeTab.id];
-                for (var i = 0; i < workersArray.length; i++) {
-                    workersArray[i].port.emit('extensionSwitchOn');
+                if (activeTab) {
+                    var workersArray = workersObject[activeTab.id];
+                    for (var i = 0; i < workersArray.length; i++) {
+                        workersArray[i].port.emit('extensionSwitchOn');
+                    }
                 }
                 isExtensionEnabled = true;
+
             });
             sidebarWorker.port.on('addonSwitchOff', function () {
                 var workersArray = workersObject[activeTab.id];
@@ -72,7 +75,8 @@
     pageMod.PageMod({
         include: "*",
         contentScriptFile: [data.url("content-script.js")],
-        attachTo: 'top',
+        contentScriptWhen: "ready",
+        attachTo:'top',
         onAttach: function (worker) {
             var tabId = worker.tab.id;
             if (!workersObject[tabId]) {
@@ -86,9 +90,7 @@
                     if (!imageStorage[tabId]) {
                         imageStorage[tabId] = [];
                     }
-                    for (var i = 0; i < imagesFromPage.length; i++) {
-                        imageStorage[tabId].push(imagesFromPage[i]);
-                    }
+                    imageStorage[tabId].push(imagesFromPage);
                     if (sidebarWorker && tabId === activeTab.id) {
                         sidebarWorker.port.emit('drawItems', imageStorage[tabId]);
                     }
@@ -101,7 +103,6 @@
                     sidebar.show();
                 }
                 if (sidebarWorker) {
-                    console.log(uniqueId);
                     sidebarWorker.port.emit('showPictureById', uniqueId);
                 }
             }
