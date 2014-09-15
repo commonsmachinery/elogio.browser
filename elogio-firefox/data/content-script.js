@@ -4,18 +4,38 @@
     var attributeOfElements = 'elogio';
     var imagesHashMap = [];
     var wheel = new Image();
-    var isExtentionEnabled=true;
+    var isExtentionEnabled = true;
+    var imagesToOutPut = [];
     self.port.on('extensionSwitchOff', function () {
-        console.log('off');
+        if (imagesToOutPut && imagesToOutPut.length && isExtentionEnabled) {
+            for (var i = 0; i < imagesToOutPut.length; i++) {
+                var elem = getElementByGUID(imagesToOutPut[i].src);
+                console.log('key=' + imagesToOutPut[i].src + '; value=' + imagesToOutPut[i].guid);
+                if (elem) {
+                    elem.removeEventListener('mouseover', mouseOn);
+                    elem.removeEventListener('mouseout', mouseExit);
+                }
+            }
+        }
         isExtentionEnabled = false;
     });
     self.port.on('extensionSwitchOn', function () {
-        console.log('on');
+        if (imagesToOutPut && imagesToOutPut.length && !isExtentionEnabled) {
+            for (var i = 0; i < imagesToOutPut.length; i++) {
+                var elem = getElementByGUID(imagesToOutPut[i].src);
+                console.log('key=' + imagesToOutPut[i].src + '; value=' + imagesToOutPut[i].guid);
+                if (elem) {
+                    elem.addEventListener('mouseover', mouseOn);
+                    elem.addEventListener('mouseout', mouseExit);
+                }
+            }
+        }
         isExtentionEnabled = true;
     });
     function startsWith(st, prefix) {
         return st.indexOf(prefix) === 0;
     }
+
     var guid = (function () {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -159,7 +179,7 @@
     }
 
     var mouseOn = function () {
-        if (isExtentionEnabled===true) {
+        if (isExtentionEnabled === true) {
             var elem = document.getElementById(imagesHashMap[this.src]);
             if (elem) {
                 elem.style.left = cumulativeOffset(this).left.toString() + 'px';
@@ -169,7 +189,7 @@
         }
     };
     var mouseExit = function () {
-        if (isExtentionEnabled===true) {
+        if (isExtentionEnabled === true) {
             var elem = document.getElementById(imagesHashMap[this.src]);
             if (elem) {
                 elem.style.display = 'none';
@@ -178,7 +198,7 @@
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
         var count = 0;
-        isExtentionEnabled=true;
+        isExtentionEnabled = true;
         wheel.src = wheelUrl;
         imagesHashMap = [];
         var elementsToFiltering = getAllImages();//all urls of images
@@ -188,7 +208,7 @@
             }
         }
 
-        var imagesToOutPut = [];
+        imagesToOutPut = [];
         //we need to filter all images by width*height>limit
         function filterImages(inputImages) {
             var filteringImages = [];
