@@ -6,32 +6,7 @@
     var wheel = new Image();
     var isExtentionEnabled = true;
     var imagesToOutPut = [];
-    self.port.on('extensionSwitchOff', function () {
-        if (imagesToOutPut && imagesToOutPut.length && isExtentionEnabled) {
-            for (var i = 0; i < imagesToOutPut.length; i++) {
-                var elem = getElementByGUID(imagesToOutPut[i].src);
-                console.log('key=' + imagesToOutPut[i].src + '; value=' + imagesToOutPut[i].guid);
-                if (elem) {
-                    elem.removeEventListener('mouseover', mouseOn);
-                    elem.removeEventListener('mouseout', mouseExit);
-                }
-            }
-        }
-        isExtentionEnabled = false;
-    });
-    self.port.on('extensionSwitchOn', function () {
-        if (imagesToOutPut && imagesToOutPut.length && !isExtentionEnabled) {
-            for (var i = 0; i < imagesToOutPut.length; i++) {
-                var elem = getElementByGUID(imagesToOutPut[i].src);
-                console.log('key=' + imagesToOutPut[i].src + '; value=' + imagesToOutPut[i].guid);
-                if (elem) {
-                    elem.addEventListener('mouseover', mouseOn);
-                    elem.addEventListener('mouseout', mouseExit);
-                }
-            }
-        }
-        isExtentionEnabled = true;
-    });
+
     function startsWith(st, prefix) {
         return st.indexOf(prefix) === 0;
     }
@@ -58,6 +33,30 @@
             }
         }
     }
+    self.port.on('extensionSwitchOff', function () {
+        if (imagesToOutPut&&isExtentionEnabled) {
+            for (var i = 0; i < imagesToOutPut.length; i++) {
+                var elem = getElementByGUID(attributeOfElements,imagesToOutPut[i].guid);
+                if (elem) {
+                    elem.removeEventListener('mouseover', mouseOn);
+                    elem.removeEventListener('mouseout', mouseExit);
+                }
+            }
+        }
+        isExtentionEnabled = false;
+    });
+    self.port.on('extensionSwitchOn', function () {
+        if (imagesToOutPut&&!isExtentionEnabled) {
+            for (var i = 0; i < imagesToOutPut.length; i++) {
+                var elem = getElementByGUID(attributeOfElements,imagesToOutPut[i].guid);
+                if (elem) {
+                    elem.addEventListener('mouseover', mouseOn);
+                    elem.addEventListener('mouseout', mouseExit);
+                }
+            }
+        }
+        isExtentionEnabled = true;
+    });
 
     function attachUrlAndGUID(inputElem, url) {
         var id = guid();
@@ -170,22 +169,18 @@
         return wheelly;
     }
 
-    var mouseOn = function () {
-        if (isExtentionEnabled === true) {
-            var elem = document.getElementById(imagesHashMap[this.src]);
-            if (elem) {
-                elem.style.left = cumulativeOffset(this).left.toString() + 'px';
-                elem.style.top = cumulativeOffset(this).top.toString() + 'px';
-                elem.style.display = 'block';
-            }
+    var mouseOn = function (event) {
+        var elem = document.getElementById(imagesHashMap[this.src]);
+        if (elem) {
+            elem.style.left = cumulativeOffset(this).left.toString() + 'px';
+            elem.style.top = cumulativeOffset(this).top.toString() + 'px';
+            elem.style.display = 'block';
         }
     };
     var mouseExit = function () {
-        if (isExtentionEnabled === true) {
-            var elem = document.getElementById(imagesHashMap[this.src]);
-            if (elem) {
-                elem.style.display = 'none';
-            }
+        var elem = document.getElementById(imagesHashMap[this.src]);
+        if (elem) {
+            elem.style.display = 'none';
         }
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
