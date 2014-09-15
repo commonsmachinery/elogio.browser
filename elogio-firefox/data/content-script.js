@@ -185,9 +185,17 @@
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
         Elogio('utils', 'dom', 'imageDecorator', 'locator', function(modules) {
-            var locator = modules.getModule('locator');
-            locator.findImages(document, function(){
-                console.log(arguments);
+            var locator = modules.getModule('locator'),
+                imageDecorator = modules.getModule('imageDecorator'),
+                dom = modules.getModule('dom');
+            locator.findImages(document, function(imageObj) {
+                console.log(imageObj);
+                var element = dom.getElementByUUID(imageObj.uuid);
+                if (element) {
+                    console.log('Decorating ' + imageObj.uuid);
+                    imageDecorator.decorate(element);
+
+                }
             });
         });
 
