@@ -4,7 +4,6 @@
 
 function Elogio() {
     "use strict";
-    var a = 1;
     console.log('Elogio sandbox');
     // convert arguments to real array
     var args = Array.prototype.slice.call(arguments),

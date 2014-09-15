@@ -27,6 +27,8 @@ module.exports = function (grunt) {
             modules: {
                 files: {
                     '<%= buildDir%>/data/js/common-lib.js': [
+                        'elogio-firefox/data/js/common.js',
+                        'elogio-firefox/data/js/config.js',
                         'elogio-firefox/data/js-modules/*.js'
                     ]
                 }
@@ -72,7 +74,7 @@ module.exports = function (grunt) {
                     }
                 ],
                 options: {
-                    jshintrc: './elogio-firefox/data/.jshintrc'
+                    jshintrc: './elogio-firefox/data/js/.jshintrc'
                 }
             },
 

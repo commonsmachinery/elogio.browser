@@ -10,7 +10,6 @@ Elogio.modules.dom = function(modules) {
      REQUIREMENTS
      =======================
      */
-    var utils = modules.getModule('utils');
 
     /*
      =======================
@@ -75,7 +74,6 @@ Elogio.modules.dom = function(modules) {
             top: yPosition,
             left: xPosition
         };
-    }
-
+    };
 
 };

@@ -9,7 +9,8 @@ Elogio.modules.imageDecorator = function (modules) {
      REQUIREMENTS
      =======================
      */
-    var dom = modules.getModule('dom');
+    var dom = modules.getModule('dom'),
+        config = modules.getModule('config');
 
     /*
      =======================
@@ -29,6 +30,7 @@ Elogio.modules.imageDecorator = function (modules) {
         iconElement.style.position = 'absolute';
         iconElement.style.display = 'none';
         iconElement.style.zIndex = '10000';
+        iconElement.style.cursor = 'pointer';
         iconElement.id = buildIdForIcon(dom.getUUIDofElement(element));
         return iconElement;
     }
@@ -38,11 +40,7 @@ Elogio.modules.imageDecorator = function (modules) {
      PUBLIC MEMBERS
      =======================
      */
-    this.config = {
-        iconUrl: '',
-        iconWidth: 20,
-        iconHeight: 20
-    };
+    this.config = config.ui.imageDecorator;
 
     /**
      * Draws Elogio icon on top of the given element.

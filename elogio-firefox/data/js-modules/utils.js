@@ -4,7 +4,6 @@
 
 Elogio.modules.utils = function(modules) {
     'use strict';
-    var self = this;
     /*
      =======================
      REQUIREMENTS

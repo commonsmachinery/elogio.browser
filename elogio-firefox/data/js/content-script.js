@@ -33,10 +33,11 @@
             }
         }
     }
+
     self.port.on('extensionSwitchOff', function () {
-        if (imagesToOutPut&&isExtentionEnabled) {
+        if (imagesToOutPut && isExtentionEnabled) {
             for (var i = 0; i < imagesToOutPut.length; i++) {
-                var elem = getElementByGUID(attributeOfElements,imagesToOutPut[i].guid);
+                var elem = getElementByGUID(attributeOfElements, imagesToOutPut[i].guid);
                 if (elem) {
                     elem.removeEventListener('mouseover', mouseOn);
                     elem.removeEventListener('mouseout', mouseExit);
@@ -46,9 +47,9 @@
         isExtentionEnabled = false;
     });
     self.port.on('extensionSwitchOn', function () {
-        if (imagesToOutPut&&!isExtentionEnabled) {
+        if (imagesToOutPut && !isExtentionEnabled) {
             for (var i = 0; i < imagesToOutPut.length; i++) {
-                var elem = getElementByGUID(attributeOfElements,imagesToOutPut[i].guid);
+                var elem = getElementByGUID(attributeOfElements, imagesToOutPut[i].guid);
                 if (elem) {
                     elem.addEventListener('mouseover', mouseOn);
                     elem.addEventListener('mouseout', mouseExit);
@@ -184,22 +185,29 @@
         }
     };
     self.port.on("getElement", function (limitPixels, wheelUrl) {
-        Elogio('utils', 'dom', 'imageDecorator', 'locator', function(modules) {
-            var locator = modules.getModule('locator'),
-                imageDecorator = modules.getModule('imageDecorator'),
-                dom = modules.getModule('dom');
-            locator.findImages(document, function(imageObj) {
-                var element = dom.getElementByUUID(imageObj.uuid);
-                console.log(imageObj);
-                console.log('Element: ' + element);
-                if (element) {
-                    console.log('Decorating ' + imageObj.uuid);
-                    imageDecorator.decorate(element, document, function () {
-                        alert('Icon clicked!');
-                    });
+        new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'],
+            function (modules) {
+                var locator = modules.getModule('locator'),
+                    imageDecorator = modules.getModule('imageDecorator'),
+                    dom = modules.getModule('dom'),
+                    config = modules.getModule('config'),
+                    bridge = modules.getModule('bridge');
+                // Initialize bridge
+                bridge.init(self.port);
+                // Configure client part
+                config.ui.imageDecorator.iconUrl = wheelUrl;
+                locator.findImages(document, function (imageObj) {
+                    var element = dom.getElementByUUID(imageObj.uuid);
+                    console.log(imageObj);
+                    console.log('Element: ' + element);
+                    if (element) {
+                        console.log('Decorating ' + imageObj.uuid);
+                        imageDecorator.decorate(element, document, function () {
+                            alert('Icon clicked!');
+                        });
 
-                }
-            });
+                    }
+                });
         });
         return;
         var count = 0;

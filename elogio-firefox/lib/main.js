@@ -14,7 +14,7 @@
     var sidebar = require("sdk/ui/sidebar").Sidebar({
         id: 'elogio-firefox-plugin',
         title: 'Elog.io Image Catalog',
-        url: require("sdk/self").data.url("panel.html"),
+        url: require("sdk/self").data.url("html/panel.html"),
         onAttach: function (worker) {
             sidebarWorker = worker;
             isExtensionEnabled = true;
@@ -70,7 +70,7 @@
 
     pageMod.PageMod({
         include: "*",
-        contentScriptFile: [data.url("js/common-lib.js"), data.url("content-script.js")],
+        contentScriptFile: [data.url("js/common-lib.js"), data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo:'top',
         onAttach: function (worker) {
