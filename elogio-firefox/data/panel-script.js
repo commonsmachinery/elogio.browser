@@ -10,8 +10,9 @@ $(document).ready(function () {
     var messageView = $("#messageView");
     var messageLabel = $("#messageText");
     var template = $("#image-template").html();
+    var jsonTemplate = $('#json-template').html();
     Mustache.parse(template);
-
+    Mustache.parse(jsonTemplate);
     function showMessage(messageText) {
         messageView.show();
         imageListView.hide();
@@ -56,7 +57,7 @@ $(document).ready(function () {
         elem.find('.image-details').toggle();
     });
     addon.port.on("drawItems", function (items) {
-            if(!isExtensionEnabled){
+            if (!isExtensionEnabled) {
                 showMessage("Please enable extension");
                 return;
             }
@@ -69,14 +70,25 @@ $(document).ready(function () {
 
             function toggleDetails(renderedItem) {
                 addon.port.emit('getImageFromContent', renderedItem.attr('id'));
+                //todo add request for image
+                var jsonData = $(Mustache.render(jsonTemplate, {'data': 'from server'}));
+                if (renderedItem.find('.json-details') !== null) {
+                    renderedItem.find('.json-details').remove();
+                    renderedItem.find('.image-details').append(jsonData);
+                } else {
+                    renderedItem.find('.image-details').append(jsonData);
+                }
                 renderedItem.find('.image-details').toggle();
             }
 
-            for (var i = 0; i < items.length; i++) {
-                var element = items[i];
-                var rendered = $(Mustache.render(template, {"imageURL": element.src, "guid": element.guid}));
-                rendered.find('img').on('click', toggleDetails.bind(null, rendered));
-                imageList.append(rendered);
+            for (var j = 0; j < items.length; j++) {
+                var item=items[j];
+                for (var i = 0; i < item.length; i++) {
+                    var element = item[i];
+                    var rendered = $(Mustache.render(template, {"imageURL": element.src, "guid": element.guid}));
+                    rendered.find('img').on('click', toggleDetails.bind(null, rendered));
+                    imageList.append(rendered);
+                }
             }
         }
     );
