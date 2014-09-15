@@ -20,7 +20,9 @@
             isExtensionEnabled = true;
             sidebarWorker.port.on("panelLoaded", function () {
                 if (isExtensionEnabled) {
-                    sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+                    if(activeTab) {
+                        sidebarWorker.port.emit('drawItems', imageStorage[activeTab.id]);
+                    }
                 } else {
                     sidebarWorker.port.emit('drawItems', []);
                 }
@@ -42,7 +44,6 @@
             sidebarWorker.port.on('getImageFromContent', function (inputId) {
                 var workersOfTab = workersObject[activeTab.id];
                 for (var i = 0; i < workersOfTab.length; i++) {
-                    console.log(inputId);
                     workersOfTab[i].port.emit('scrollToImageById', inputId);
                 }
             });
