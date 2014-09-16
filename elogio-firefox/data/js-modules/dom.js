@@ -76,4 +76,21 @@ Elogio.modules.dom = function(modules) {
         };
     };
 
+
+    // If JQuery is in context - extend it with some useful plugins
+    if (typeof jQuery !== 'undefined') {
+        // Highlight effect
+        if (!jQuery.fn.highlight) {
+            jQuery.fn.highlight = function() {
+                $(this).each(function() {
+                    var el = $(this),
+                        originalColor = el.css('background-color');
+
+                    el.animate( { backgroundColor: "#ffffcc" }, 1 )
+                      .animate( { backgroundColor: originalColor }, 1500 );
+                });
+            };
+        }
+    }
+
 };

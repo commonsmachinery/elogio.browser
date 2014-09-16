@@ -7,13 +7,15 @@ $(document).ready(function () {
             var object = {
                 onButton: $('#on'),
                 offButton: $('#off'),
-                imageListView: $("#imageListView")
+                imageListView: $("#imageListView"),
+                messageBox: $('#messageText')
             };
             var template = {
                 imageItem: $("#image-template").html()
             };
-            var eventHandlers = {};
-            var self = {};
+            var eventHandlers = {},
+                self = {},
+                isPluginEnabled = null;
 
             self.on = function (eventName, callback) {
                 eventHandlers[eventName] = callback;
@@ -23,6 +25,16 @@ $(document).ready(function () {
                 if (eventHandlers[eventName]) {
                     eventHandlers[eventName](argument);
                 }
+            };
+
+            self.showMessage = function(html) {
+                object.messageBox.html(html);
+                object.messageBox.fadeIn('fast');
+            };
+
+            self.hideMessage = function() {
+                object.messageBox.html('');
+                object.messageBox.hide();
             };
 
             self.addImageCard = function (imageObj) {
@@ -63,6 +75,7 @@ $(document).ready(function () {
                 $('html, body').animate({
                     scrollTop: $("#"+imageUUID).offset().top
                 }, 500);
+                imageCard.highlight();
 
                 bridge.emit(bridge.events.imageDetailsRequired, imageObj);
             };
@@ -75,11 +88,14 @@ $(document).ready(function () {
                     self.addImageCard(imageObj);
                 });
                 bridge.on(bridge.events.pluginActivated, function (imageObj) {
+                    isPluginEnabled = true;
+                    self.hideMessage();
                     object.onButton.hide();
                     object.offButton.show();
                     self.startPlugin();
                 });
                 bridge.on(bridge.events.pluginStopped, function (imageObj) {
+                    isPluginEnabled = false;
                     object.onButton.show();
                     object.offButton.hide();
                     self.stopPlugin();
@@ -103,6 +119,10 @@ $(document).ready(function () {
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
                 object.offButton.hide();
+                // If plugin was initialized after page load - show notification
+                if (isPluginEnabled === null) {
+                    self.showMessage("Refresh the page to start");
+                }
             };
 
             return self;

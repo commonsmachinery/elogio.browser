@@ -106,7 +106,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             bridge.on(bridge.events.pluginStopped, function () {
                 if (pluginState.isEnabled) {
                     pluginState.isEnabled = false;
-                    imageStorage = []; // Clenup local storage
+                    imageStorage = []; // Cleanup local storage
                     notifyPluginState(contentWorker.port);
                 }
             });

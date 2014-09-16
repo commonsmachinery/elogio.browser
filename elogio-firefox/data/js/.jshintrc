@@ -18,6 +18,7 @@
         "self",
         "addon",
         "$",
+        "jQuery",
         "Mustache",
         "gElementIdAttr",
         "gSubjectAttr",
