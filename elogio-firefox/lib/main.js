@@ -43,12 +43,12 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            var currentTab = worker.tab;
+            var currentTab = contentWorker.tab;
             contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
-                var imageStorageForTab = imageStorage[activeTab.id];
+                var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
-                if (currentTab == activeTab) {
+                if (currentTab === activeTab) {
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
@@ -58,6 +58,7 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
                 imageStorage[activeTab.id] = [];
                 contentWorker.port.emit(bridge.events.startPageProcessing);
             });
+            bridge.emit(bridge.events.pluginActivated);
         }
     });
 
@@ -69,6 +70,8 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
 
     tabs.on('activate', function (tab) {
         activeTab = tab;
+        var images = imageStorage[activeTab.id];
+        bridge.emit(bridge.events.tabSwitched, images || []);
     });
 
     // Create UI Button

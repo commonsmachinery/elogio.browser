@@ -65,8 +65,14 @@ $(document).ready(function () {
                 stateController.currentState = StateController.State.STOPPED;
             };
 
-            this.loadImages = function() {
-
+            this.loadImages = function(imageObjects) {
+                var i;
+                // Clear list
+                object.imageListView.empty();
+                // Add all objects
+                for (i = 0; i < imageObjects.length; i += 1) {
+                    this.addImageCard(imageObjects[i]);
+                }
             };
 
             this.init = function () {
@@ -78,6 +84,9 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.pluginActivated, function (imageObj) {
                     self.startPlugin();
+                });
+                bridge.on(bridge.events.tabSwitched, function (imageObjects) {
+                    self.loadImages(imageObjects);
                 });
                 object.onButton.on('click', this.startPlugin);
                 object.offButton.on('click', this.stopPlugin);

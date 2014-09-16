@@ -58,7 +58,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires each time when plugin finds new image on the page (during processing)
          */
-        newImageFound: 'newImageFound'
+        newImageFound: 'newImageFound',
+        /**
+         * Fires each time when user switches tab in browser
+         */
+        tabSwitched: 'tabSwitched'
     };
 
     this.registerClient = function(transportObj, name) {
