@@ -38,6 +38,7 @@ Elogio.modules.locator = function(modules) {
         }
         return result;
     }
+
     function getBackgroundUrl(node){
         var css='background-image';
         var url;
