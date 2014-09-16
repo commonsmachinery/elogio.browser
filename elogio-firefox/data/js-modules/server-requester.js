@@ -1,7 +1,7 @@
 /**
  * Created by TEMA on 16.09.2014.
  */
-Elogio.modules.lookup = function (modules) {
+Elogio.modules.serverRequester = function (modules) {
     'use strict';
     var self = this;
     var Json = [
