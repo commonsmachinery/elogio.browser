@@ -50,8 +50,13 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
                 if (currentTab === tabs.activeTab) {
-                    console.log('!!!!!!!!!!! added new image');
                     bridge.emit(bridge.events.newImageFound, imageObject);
+                }
+            });
+            // When user click on the elogio icon near the image
+            contentWorker.port.on(bridge.events.onImageAction, function(imageObject) {
+                if (currentTab === tabs.activeTab) {
+                    bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
 

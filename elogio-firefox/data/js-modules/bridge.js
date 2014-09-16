@@ -62,7 +62,12 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires each time when user switches tab in browser
          */
-        tabSwitched: 'tabSwitched'
+        tabSwitched: 'tabSwitched',
+
+        /**
+         * Fired when someone preform an action on an image
+         */
+        onImageAction: 'onImageAction'
     };
 
     this.registerClient = function(transportObj, name) {

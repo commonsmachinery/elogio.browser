@@ -15,11 +15,11 @@
 
 <body class="container-fluid">
 <script id="image-template" type="x-tmpl-mustache">
-    <div class="row" id="{{guid}}">
-        <div class="col-xs-12 thumbnail-image">
-            <img src="{{imageObj.uri}}" style="width: 100%; height: auto;" class="pull-left"/>
+    <div class="image-card" id="{{imageObj.uuid}}">
+        <div class="thumbnail-image">
+            <img src="{{imageObj.uri}}" class="picture"/>
         </div>
-        <div class="col-xs-12 image-details " style="display:none">
+        <div class="image-details " style="display:none">
             <p>
                 <strong>Cat #1144</strong>
             </p>
@@ -48,7 +48,7 @@
 </div>
 
 
-<div id="imageListView" class="row">
+<div id="imageListView" class="row image-card-container">
     <div class="col-xs-12">
         <div id="imageList">
         </div>

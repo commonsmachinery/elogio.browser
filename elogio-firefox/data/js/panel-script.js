@@ -75,6 +75,10 @@ $(document).ready(function () {
                 }
             };
 
+            this.openImage = function(imageUUID) {
+
+            };
+
             this.init = function () {
                 // Compile mustache templates
                 //Mustache.parse(template.imageItem);
@@ -87,6 +91,9 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.tabSwitched, function (imageObjects) {
                     self.loadImages(imageObjects);
+                });
+                bridge.on(bridge.events.onImageAction, function (imageObject) {
+                    self.openImage(imageObject.uuid);
                 });
                 object.onButton.on('click', this.startPlugin);
                 object.offButton.on('click', this.stopPlugin);

@@ -34,7 +34,8 @@ module.exports = function (grunt) {
                     '<%= buildDir%>/lib/common-chrome-lib.js': [
                         'elogio-firefox/data/js/common.js',
                         'elogio-firefox/data/js/config.js',
-                        'elogio-firefox/data/js-modules/*.js'
+                        'elogio-firefox/data/js-modules/*.js',
+                        'elogio-firefox/data/js-modules/chrome/*.js'
                     ]
                 }
             }
