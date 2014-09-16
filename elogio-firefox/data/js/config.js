@@ -5,7 +5,14 @@
 Elogio.modules.config = function(modules) {
     'use strict';
     this.global = {
-
+        lookUp:{
+            serverUrl:'http://www.google.com.ua',
+            method:'get'
+        },
+        locator:{
+            limitImageHeight:100,
+            limitImageWidth:100
+        }
     };
 
     this.ui = {
@@ -15,7 +22,6 @@ Elogio.modules.config = function(modules) {
             iconHeight: 20
         }
     };
-
     this.logging = {
 
     };

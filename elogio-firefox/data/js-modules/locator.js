@@ -11,7 +11,8 @@ Elogio.modules.locator = function(modules) {
      =======================
      */
     var dom = modules.getModule('dom'),
-        utils = modules.getModule('utils');
+        utils = modules.getModule('utils'),
+        config = modules.getModule('config');
 
     /*
      =======================
@@ -73,10 +74,6 @@ Elogio.modules.locator = function(modules) {
      PUBLIC MEMBERS
      =======================
      */
-    this.config = {
-        imageMinHeight: 100,
-        imageMinWidth: 100
-    };
 
     /**
      * Array of filters which will be applied to the HTML nodes found by this module
@@ -101,8 +98,8 @@ Elogio.modules.locator = function(modules) {
     this.imageFilters = [
         // Min size is 100*100px
         function(img) {
-            return img.width >= this.config.imageMinWidth &&
-                   img.height >= this.config.imageMinHeight;
+            return img.width >= config.global.locator.limitImageWidth &&
+                   img.height >= config.global.locator.limitImageWidth;
         }
     ];
 
@@ -200,7 +197,7 @@ Elogio.modules.locator = function(modules) {
             currentImageTag.addEventListener('load', onTempImageLoadedHandler);
             currentImageTag.addEventListener('error', onTempImageErrorHandler);
             currentImageTag.src = imageUrl;
-            console.log('Found image ' + imageUrl + ': ' + uuid);
+            console.log('Found image ' + imageUrl + ' : ' + uuid);
         }
         return temporaryImageTags.length;
     };
