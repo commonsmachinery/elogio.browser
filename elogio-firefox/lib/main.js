@@ -15,7 +15,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         config       = modules.getModule('config');
 
     var sidebarWorker, elogioSidebar,
-        imageStorage = {};
+        imageStorage = {},
+        pluginState = {
+            isEnabled: true
+        };
 
     /*
      =======================
@@ -34,6 +37,14 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         return false;
     }
 
+    function notifyPluginState(destination) {
+        if (pluginState.isEnabled) {
+            destination.emit(bridge.events.pluginActivated);
+        } else {
+            destination.emit(bridge.events.pluginStopped);
+        }
+    }
+
     // Update config
     config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
 
@@ -45,7 +56,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         onAttach: function (worker) {
             bridge.registerClient(worker.port);
             sidebarWorker = worker;
-            bridge.emit(bridge.events.pluginActivated, config);
         }
     });
 
@@ -55,7 +65,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            console.log('Attached to page');
             var currentTab = contentWorker.tab;
             contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
@@ -84,6 +93,21 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     contentWorker.port.emit(bridge.events.startPageProcessing);
                 }
             });
+            // When plugin is turned on we need to update state and notify content script
+            bridge.on(bridge.events.pluginActivated, function() {
+                if (!pluginState.isEnabled) {
+                    pluginState.isEnabled = true;
+                    notifyPluginState(contentWorker.port);
+                }
+            });
+            // When plugin is turned off we need to update state and notify content script
+            bridge.on(bridge.events.pluginStopped, function() {
+                if (pluginState.isEnabled) {
+                    pluginState.isEnabled = false;
+                    imageStorage = []; // Clenup local storage
+                    notifyPluginState(contentWorker.port);
+                }
+            });
             // When panel requires image details from server - perform request and notify panel on result
             bridge.on(bridge.events.imageDetailsRequired, function(imageObj) {
                 elogioServer.getAnnotationsForImage(imageObj.uri,
@@ -101,7 +125,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     }
                 )
             });
-            bridge.emit(bridge.events.pluginActivated);
+            // Notify panel about current plugin state
+            notifyPluginState(bridge);
+            // Notify content script about current plugin state
+            notifyPluginState(contentWorker.port);
         }
     });
 
@@ -119,7 +146,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     // Create UI Button
     buttons.ActionButton({
         id: "elogio-button",
-        label: "Get images",
+        label: "Elog.io",
         icon: self.data.url("img/icon-72.png"),
         onClick: function () {
             elogioSidebar.show();

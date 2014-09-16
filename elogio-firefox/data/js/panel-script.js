@@ -57,13 +57,14 @@ $(document).ready(function () {
 
             this.startPlugin = function () {
                 // Clear existing list of
-                stateController.currentState = StateController.State.STARTED;
                 object.imageListView.empty();
+                bridge.emit(bridge.events.pluginActivated);
                 bridge.emit(bridge.events.startPageProcessing);
             };
 
             this.stopPlugin = function () {
-                stateController.currentState = StateController.State.STOPPED;
+                object.imageListView.empty();
+                bridge.emit(bridge.events.pluginStopped);
             };
 
             this.loadImages = function(imageObjects) {
