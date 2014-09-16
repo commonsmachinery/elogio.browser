@@ -11,15 +11,14 @@ Elogio.modules.bridge = function (modules) {
      REQUIREMENTS
      =======================
      */
-    var dom = modules.getModule('dom'),
-        config = modules.getModule('config');
+    var config = modules.getModule('config');
 
     /*
      =======================
      PRIVATE MEMBERS
      =======================
      */
-    var transport, isInitialized;
+    var bus = {}, defaultTransportName = 'default';
 
     function checkEventName(eventName) {
         if (!self.events.hasOwnProperty(eventName)) {
@@ -62,28 +61,50 @@ Elogio.modules.bridge = function (modules) {
         newImageFound: 'newImageFound'
     };
 
-    this.init = function(transportObj) {
-        transport = transportObj;
-        isInitialized = true;
+    this.registerClient = function(transportObj, name) {
+        if (!transportObj.on || !transportObj.emit) {
+            console.error('Unable to register transport. Transport object should provide "on" and "emit" methods.')
+        }
+        bus[name || defaultTransportName] = transportObj;
     };
 
-    this.on = function(eventName, callback) {
-        if (!isInitialized) {
-            console.error('Bridge is not initialized');
-            return;
+    this.on = function(eventName, callback, source) {
+        var i, transport;
+        if (source === '*') {
+            source = Object.getOwnPropertyNames(bus);
+        } else {
+            source = source || [defaultTransportName];
         }
         if (checkEventName(eventName)) {
-            transport.on(eventName, callback);
+            for (i = 0; i < source.length; i += 1) {
+                transport =  bus[source[i]];
+                if (transport) {
+                    if (callback) {
+                        transport.on(eventName, callback);
+                    }
+                } else {
+                    console.error('Unknown transport: ' + source[i]);
+                }
+            }
         }
     };
 
-    this.emit =function(eventName, arg) {
-        if (!isInitialized) {
-            console.error('Bridge is not initialized');
-            return;
+    this.emit =function(eventName, arg, destination) {
+        var i, transport;
+        if (destination === 'default') {
+            destination = [defaultTransportName];
+        } else {
+            destination = destination || Object.getOwnPropertyNames(bus);
         }
         if (checkEventName(eventName)) {
-            transport.emit(eventName, callback);
+            for (i = 0; i < destination.length; i += 1) {
+                transport =  bus[destination[i]];
+                if (transport) {
+                    transport.emit(eventName, arg);
+                } else {
+                    console.error('Unknown transport: ' + destination[i]);
+                }
+            }
         }
     };
 };

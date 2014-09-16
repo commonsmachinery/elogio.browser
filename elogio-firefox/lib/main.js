@@ -1,9 +1,77 @@
+'use strict';
+var Elogio = require('./common-chrome-lib.js').Elogio;
+
+new Elogio(['config', 'bridge', 'utils'], function (modules) {
+    // FF modules
+    var buttons = require('sdk/ui/button/action'),
+        pageMod = require("sdk/page-mod"),
+        self = require('sdk/self'),
+        tabs = require('sdk/tabs'),
+        Sidebar = require("sdk/ui/sidebar").Sidebar;
+
+    // Elogio Modules
+    var bridge = modules.getModule('bridge'),
+        config = modules.getModule('config');
+
+    var activeTab, sidebarWorker, elogioSidebar,
+        imageStorage = {};
+
+    /*
+     =======================
+     PRIVATE MEMBERS
+     =======================
+     */
+
+    // Update config
+    config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
+
+    // Create sidebar
+    elogioSidebar = Sidebar({
+        id: 'elogio-firefox-plugin',
+        title: 'Elog.io Image Catalog',
+        url: self.data.url("html/panel.html"),
+        onAttach: function (worker) {
+            bridge.registerClient(worker.port);
+            sidebarWorker = worker;
+            bridge.emit(bridge.events.pluginActivated, config);
+        }
+    });
+
+    pageMod.PageMod({
+        include: "*",
+        contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
+        contentScriptWhen: "ready",
+        attachTo: 'top',
+        onAttach: function (contentWorker) {
+            contentWorker.port.emit(bridge.events.configUpdated, config);
+            contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
+
+            });
+
+            // Proxy startPageProcessing signal to content script
+            bridge.on(bridge.events.startPageProcessing,
+                contentWorker.port.emit.bind(null, bridge.events.startPageProcessing));
+        }
+    });
+
+    // Create UI Button
+    buttons.ActionButton({
+        id: "elogio-button",
+        label: "Get images",
+        icon: self.data.url("img/icon-72.png"),
+        onClick: function () {
+            elogioSidebar.show();
+        }
+    });
+});
+
 (function () {
-    'use strict';
+
     var buttons = require('sdk/ui/button/action');
     var pageMod = require("sdk/page-mod");
     var data = require('sdk/self').data;
     var tabs = require('sdk/tabs');
+
     var activeTab = tabs.activateTab;
     var sidebarWorker = null;
     var imageStorage = {};
@@ -70,7 +138,7 @@
         include: "*",
         contentScriptFile: [data.url("js/common-lib.js"), data.url("js/content-script.js")],
         contentScriptWhen: "ready",
-        attachTo:'top',
+        attachTo: 'top',
         onAttach: function (worker) {
             var tabId = worker.tab.id;
             if (!workersObject[tabId]) {
@@ -138,4 +206,4 @@
             imageStorage[tab.id] = null;
         }
     });
-})();
+});

@@ -38,3 +38,8 @@ Elogio.prototype.getModule = function(moduleName) {
         return null;
     }
 };
+
+// If module is used in Chrome context
+if (typeof exports !== 'undefined') {
+    exports.Elogio = Elogio;
+}
