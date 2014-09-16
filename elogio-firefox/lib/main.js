@@ -5,11 +5,9 @@
     var data = require('sdk/self').data;
     var tabs = require('sdk/tabs');
     var activeTab = tabs.activateTab;
-    var limitPixels = 100;
     var sidebarWorker = null;
     var imageStorage = {};
     var workersObject = {};
-    var wheelUrl = data.url('img/settings-icon.png');
     var isExtensionEnabled = false;
     var sidebar = require("sdk/ui/sidebar").Sidebar({
         id: 'elogio-firefox-plugin',
@@ -114,7 +112,7 @@
                 worker.port.on("gotElement", imagesReceived.bind(worker));
                 worker.port.on("onBeforeUnload", onBeforeUnloadTopPage.bind(null, tabId));
                 worker.port.on("getPicture", getThePicture.bind(worker));
-                worker.port.emit("getElement", limitPixels, wheelUrl);
+                worker.port.emit("getElement");
             }
         }
     });

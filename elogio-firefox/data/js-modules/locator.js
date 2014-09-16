@@ -38,6 +38,35 @@ Elogio.modules.locator = function(modules) {
         }
         return result;
     }
+    function getBackgroundUrl(node){
+        var css='background-image';
+        var url;
+        if (!node || !node.style) {
+            return null;
+        }
+        var elementStyle = css.replace(/\-([a-z])/g, function (a, b) {
+            url= b.toUpperCase();
+        });
+        if (node.currentStyle) {
+            url= node.style[elementStyle] || node.currentStyle[elementStyle] || '';
+            url = /url\(['"]?([^")]+)/.exec(url) || [];
+            return url[1];
+        }
+        var elementDefaultView = document.defaultView || window;
+        if (node.style[elementStyle]) {
+            url=node.style[elementStyle];
+            url = /url\(['"]?([^")]+)/.exec(url) || [];
+            return url[1];
+        }
+        if (null !== elementDefaultView.getComputedStyle(node, "")) {
+            if (elementDefaultView.getComputedStyle(node, "").getPropertyValue(css)) {
+                url= elementDefaultView.getComputedStyle(node, "").getPropertyValue(css);
+                url = /url\(['"]?([^")]+)/.exec(url) || [];
+                return url[1];
+            }
+        }
+        return null;
+    }
     /*
      =======================
      PUBLIC MEMBERS
@@ -64,7 +93,7 @@ Elogio.modules.locator = function(modules) {
         },
         // Any tag with background-url
         function(node) {
-            return false;
+            return getBackgroundUrl(node);
         }
     ];
 
@@ -82,9 +111,12 @@ Elogio.modules.locator = function(modules) {
         if (node instanceof HTMLImageElement) {
             return utils.canonizeUrl(node.src, currentLocation);
         }
+        var url=getBackgroundUrl(node);
+        if(url){
+            return utils.canonizeUrl(url,currentLocation);
+        }
         return false;
     };
-
     /**
      * Returns a list of nodes which should be processed (all nodes which match <code>this.nodeFilters</code>)
      * @param document - document referrence
