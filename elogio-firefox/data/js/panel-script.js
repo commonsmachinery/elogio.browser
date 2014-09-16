@@ -33,7 +33,7 @@ $(document).ready(function () {
                 imageListView: $("#imageListView")
             };
             var template = {
-                imageItem: $("#image-template")
+                imageItem: $("#image-template").html()
             };
             var eventHandlers = {},
                 stateController = state;
@@ -50,12 +50,14 @@ $(document).ready(function () {
             };
 
             this.addImageCard = function (imageObj) {
-                console.log('New image!');
+                var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
+                object.imageListView.append(cardElement);
             };
 
             this.startPlugin = function () {
                 // Clear existing list of
                 stateController.currentState = StateController.State.STARTED;
+                object.imageListView.empty();
                 bridge.emit(bridge.events.startPageProcessing);
             };
 
@@ -63,8 +65,13 @@ $(document).ready(function () {
                 stateController.currentState = StateController.State.STOPPED;
             };
 
+            this.loadImages = function() {
+
+            };
 
             this.init = function () {
+                // Compile mustache templates
+                //Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
                     self.addImageCard(imageObj);

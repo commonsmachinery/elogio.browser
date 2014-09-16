@@ -43,15 +43,32 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
+            var currentTab = worker.tab;
             contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
-
+                var imageStorageForTab = imageStorage[activeTab.id];
+                imageStorageForTab[imageStorageForTab.length] = imageObject;
+                if (currentTab == activeTab) {
+                    bridge.emit(bridge.events.newImageFound, imageObject);
+                }
             });
 
             // Proxy startPageProcessing signal to content script
-            bridge.on(bridge.events.startPageProcessing,
-                contentWorker.port.emit.bind(null, bridge.events.startPageProcessing));
+            bridge.on(bridge.events.startPageProcessing, function() {
+                imageStorage[activeTab.id] = [];
+                contentWorker.port.emit(bridge.events.startPageProcessing);
+            });
         }
+    });
+
+    tabs.on('close', function (tab) {
+        if (imageStorage[tab.id]) {
+            delete imageStorage[tab.id];
+        }
+    });
+
+    tabs.on('activate', function (tab) {
+        activeTab = tab;
     });
 
     // Create UI Button

@@ -17,7 +17,7 @@
 <script id="image-template" type="x-tmpl-mustache">
     <div class="row" id="{{guid}}">
         <div class="col-xs-12 thumbnail-image">
-            <img src="{{imageURL}}" style="width: 100%; height: auto;" class="pull-left"/>
+            <img src="{{imageObj.uri}}" style="width: 100%; height: auto;" class="pull-left"/>
         </div>
         <div class="col-xs-12 image-details " style="display:none">
             <p>
@@ -35,20 +35,14 @@
         </div>
     </div>
 </script>
-<script id="json-template" type="x-tmpl-mustache">
-    <div class="json-details">
-    {{data}}
-    </div>
-</script>
 <div class="row">
     <div class="col-xs-12 text-center sidebar-header">
         <div class="pull-left">
             Elog.io Plugin:
         </div>
         <div class="btn-group pull-right">
-            <button id="off" class="btn-default btn btn-sm" data-toggle="collapse" data-target="#header-section">Off
-            </button>
-            <button id="on" class="btn-default btn btn-sm btn-success">On</button>
+            <button id="off" class="btn-default btn btn-sm" data-toggle="collapse" data-target="#header-section">Off</button>
+            <button id="on" class="btn-default btn btn-sm">On</button>
         </div>
     </div>
 </div>
