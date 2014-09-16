@@ -13,7 +13,7 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
     var bridge = modules.getModule('bridge'),
         config = modules.getModule('config');
 
-    var activeTab, sidebarWorker, elogioSidebar,
+    var sidebarWorker, elogioSidebar,
         imageStorage = {};
 
     /*
@@ -48,14 +48,14 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
             contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
-                if (currentTab === activeTab) {
+                if (currentTab === tabs.activeTab) {
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
 
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function() {
-                imageStorage[activeTab.id] = [];
+                imageStorage[tabs.activeTab.id] = [];
                 contentWorker.port.emit(bridge.events.startPageProcessing);
             });
             bridge.emit(bridge.events.pluginActivated);
@@ -69,8 +69,7 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
     });
 
     tabs.on('activate', function (tab) {
-        activeTab = tab;
-        var images = imageStorage[activeTab.id];
+        var images = imageStorage[tabs.activeTab.id];
         bridge.emit(bridge.events.tabSwitched, images || []);
     });
 
