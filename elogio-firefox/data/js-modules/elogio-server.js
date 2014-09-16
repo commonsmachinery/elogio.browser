@@ -1,7 +1,7 @@
 /**
  * Created by TEMA on 16.09.2014.
  */
-Elogio.modules.serverRequester = function (modules) {
+Elogio.modules.elogioServer = function (modules) {
     'use strict';
     var self = this;
     var Json = [
@@ -184,7 +184,7 @@ Elogio.modules.serverRequester = function (modules) {
      * @param onError - callback which called when error
      * @param options - there is options of url request for annotation request
      */
-    this.getFullInfo = function (imageUrl, onLoad, onError, options) {
+    this.getAnnotationsForImage = function (imageUrl, onLoad, onError, options) {
         this.lookupQuery(imageUrl, function (data) {
             if (data[0].href) {
                 self.annotationsQuery(data[0].href, function (data) {
