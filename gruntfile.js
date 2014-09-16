@@ -14,11 +14,22 @@ module.exports = function (grunt) {
             }
         },
 
-        "clean": {
+        clean: {
             src: ["<%= buildDir%>" , "<%= distDir %>"]
         },
 
-        "concat": {
+        less: {
+            compile: {
+                options: {
+                    paths: ["elogio-firefox/data/less"]
+                },
+                files: {
+                    "<%= buildDir%>/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less"
+                }
+            }
+        },
+
+        concat: {
             options: {
                 stripBanners: false,
                 banner: '/*! <%= pkg.name %> modules - v<%= pkg.version %> - ' +
@@ -139,6 +150,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-mozilla-addon-sdk');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-concat');
@@ -162,9 +174,10 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('run', [
-        //'clean',
-        //'bower',
+        'clean',
+        'bower',
         'lint',
+        'less',
         'copy:resourcesWithoutJS',
         'uglify:beautify',
         'concat:modules',
@@ -183,8 +196,9 @@ module.exports = function (grunt) {
 
     grunt.registerTask('dist-minified', [
         'clean',
-        'lint',
         'bower',
+        'lint',
+        'less',
         'copy:resourcesWithoutJS',
         'concat:modules',
         'uglify:minify',

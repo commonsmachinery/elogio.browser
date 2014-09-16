@@ -30,6 +30,8 @@
         "gOverlayIdAttr",
         "gOverlaySubjectAttr",
         "gOverlayElementSelectorAttr",
-        "Elogio"
+        "Elogio",
+        "exports",
+        "require"
     ]
 }

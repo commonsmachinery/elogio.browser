@@ -11,7 +11,7 @@ Elogio.modules.bridge = function (modules) {
      REQUIREMENTS
      =======================
      */
-    var config = modules.getModule('config');
+    //var config = modules.getModule('config');
 
     /*
      =======================
@@ -83,7 +83,7 @@ Elogio.modules.bridge = function (modules) {
 
     this.registerClient = function(transportObj, name) {
         if (!transportObj.on || !transportObj.emit) {
-            console.error('Unable to register transport. Transport object should provide "on" and "emit" methods.')
+            console.error('Unable to register transport. Transport object should provide "on" and "emit" methods.');
         }
         bus[name || defaultTransportName] = transportObj;
     };

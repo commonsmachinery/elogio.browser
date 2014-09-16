@@ -115,7 +115,8 @@ Elogio.modules.elogioServer = function (modules) {
      REQUIREMENTS
      =======================
      */
-    var config = modules.getModule('config'),Request=require('sdk/request').Request;
+    var config = modules.getModule('config')/*,
+        request=require('sdk/request').Request*/;
     /*
      =======================
      PRIVATE MEMBERS
@@ -129,10 +130,11 @@ Elogio.modules.elogioServer = function (modules) {
      * @param method - HTTP method to be used
      */
     function sendRequest(url, onSuccess, onError, method) {
-        method = method || 'GET';
         url = url || config.global.apiServer.serverUrl;
-        var request= {};
-        /*switch (method) {
+
+        /*
+         method = method || 'GET';
+        switch (method) {
             case 'GET': request.get();
                 break;
             case 'GET': request.post();
@@ -205,5 +207,5 @@ Elogio.modules.elogioServer = function (modules) {
                 }, onError, options);
             }
         }, onError);
-    }
+    };
 };

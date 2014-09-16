@@ -1,32 +1,9 @@
 $(document).ready(function () {
     'use strict';
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'], function (modules) {
-        var locator = modules.getModule('locator'),
-            imageDecorator = modules.getModule('imageDecorator'),
-            dom = modules.getModule('dom'),
-            config = modules.getModule('config'),
-            bridge = modules.getModule('bridge');
+        var bridge = modules.getModule('bridge');
 
-        function StateController() {
-            this.currentState = StateController.State.STOPPED;
-            this.isStarted = function () {
-                return currentState === StateController.State.STARTED || StateController.State.PAGE_PROCESSING;
-            };
-            this.isStopped = function () {
-                return currentState === StateController.State.STOPPED;
-            };
-            this.pageProcessingIsInProgress = function () {
-                return currentState === StateController.State.PAGE_PROCESSING;
-            };
-        }
-
-        StateController.State = {
-            STOPPED: 0,
-            STARTED: 1,
-            PAGE_PROCESSING: 2
-        };
-
-        var panelController = new (function (state) {
+        var panelController = (function () {
             var object = {
                 onButton: $('#on'),
                 offButton: $('#off'),
@@ -35,53 +12,52 @@ $(document).ready(function () {
             var template = {
                 imageItem: $("#image-template").html()
             };
-            var eventHandlers = {},
-                stateController = state;
-            var self = this;
+            var eventHandlers = {};
+            var self = {};
 
-            this.on = function (eventName, callback) {
+            self.on = function (eventName, callback) {
                 eventHandlers[eventName] = callback;
             };
 
-            this.emit = function (eventName, argument) {
+            self.emit = function (eventName, argument) {
                 if (eventHandlers[eventName]) {
                     eventHandlers[eventName](argument);
                 }
             };
 
-            this.addImageCard = function (imageObj) {
+            self.addImageCard = function (imageObj) {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
                 cardElement.data('imageObj', imageObj);
                 object.imageListView.append(cardElement);
             };
 
-            this.startPlugin = function () {
+            self.startPlugin = function () {
                 // Clear existing list of
                 object.imageListView.empty();
                 bridge.emit(bridge.events.pluginActivated);
                 bridge.emit(bridge.events.startPageProcessing);
             };
 
-            this.stopPlugin = function () {
+            self.stopPlugin = function () {
                 object.imageListView.empty();
                 bridge.emit(bridge.events.pluginStopped);
             };
 
-            this.loadImages = function(imageObjects) {
+            self.loadImages = function(imageObjects) {
                 var i;
                 // Clear list
                 object.imageListView.empty();
                 // Add all objects
                 for (i = 0; i < imageObjects.length; i += 1) {
-                    this.addImageCard(imageObjects[i]);
+                    self.addImageCard(imageObjects[i]);
                 }
             };
 
-            this.recievedIMageDataFromServer = function(imageObj) {
+            self.recievedIMageDataFromServer = function(imageObj) {
 
             };
 
-            this.openImage = function(imageUUID) {
+            self.openImage = function(imageUUID) {
                 var imageCard = $("#"+imageUUID);
                 var imageObj = imageCard.data('imageObj');
                 $('html, body').animate({
@@ -91,15 +67,22 @@ $(document).ready(function () {
                 bridge.emit(bridge.events.imageDetailsRequired, imageObj);
             };
 
-            this.init = function () {
+            self.init = function () {
                 // Compile mustache templates
-                //Mustache.parse(template.imageItem);
+                Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
                     self.addImageCard(imageObj);
                 });
                 bridge.on(bridge.events.pluginActivated, function (imageObj) {
+                    object.onButton.hide();
+                    object.offButton.show();
                     self.startPlugin();
+                });
+                bridge.on(bridge.events.pluginStopped, function (imageObj) {
+                    object.onButton.show();
+                    object.offButton.hide();
+                    self.stopPlugin();
                 });
                 bridge.on(bridge.events.tabSwitched, function (imageObjects) {
                     self.loadImages(imageObjects);
@@ -110,16 +93,20 @@ $(document).ready(function () {
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     console.log('Image details received');
                 });
-                object.onButton.on('click', this.startPlugin);
-                object.offButton.on('click', this.stopPlugin);
+                object.onButton.on('click', self.startPlugin);
+                object.offButton.on('click', self.stopPlugin);
                 object.imageListView.on('click','.image-card',function(){
-                    var imageObj = $(this).data('imageObj');
+                    var imageObj = $(self).data('imageObj');
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
                 });
+                // Hide action buttons since state is not determined yet
+                object.onButton.hide();
+                object.offButton.hide();
             };
 
-        })(new StateController());
+            return self;
+        })();
 
         // Initialize bridge
         bridge.registerClient(addon.port);               // Default transport: link chrome

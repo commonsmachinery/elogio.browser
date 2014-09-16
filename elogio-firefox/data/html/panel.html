@@ -13,7 +13,7 @@
     <script src="../js/panel-script.js" type="text/javascript"></script>
 </head>
 
-<body class="container-fluid">
+<body class="container-fluid sidebar">
 <script id="image-template" type="x-tmpl-mustache">
     <div class="image-card" id="{{imageObj.uuid}}">
         <div class="thumbnail-image">
@@ -34,25 +34,23 @@
             </p>
         </div>
     </div>
+
+
 </script>
-<div class="row">
-    <div class="col-xs-12 text-center sidebar-header">
-        <div class="pull-left">
-            Elog.io Plugin:
-        </div>
-        <div class="btn-group pull-right">
-            <button id="off" class="btn-default btn btn-sm" data-toggle="collapse" data-target="#header-section">Off</button>
-            <button id="on" class="btn-default btn btn-sm">On</button>
-        </div>
+
+<div class="header">
+    <div class="pull-left">
+        Elog.io Plugin:
     </div>
+    <div class="pull-right">
+        <button id="on" class="btn-success btn btn-sm">Enable</button>
+        <button id="off" class="btn-danger btn btn-sm">Disable</button>
+    </div>
+    <div class="clearfix"></div>
 </div>
 
 
 <div id="imageListView" class="row image-card-container">
-    <div class="col-xs-12">
-        <div id="imageList">
-        </div>
-    </div>
 </div>
 
 <div id="messageView" class="row">
