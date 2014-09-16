@@ -43,12 +43,14 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
+            console.log('Attached to page');
             var currentTab = contentWorker.tab;
             contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.newImageFound, function(imageObject) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
                 if (currentTab === tabs.activeTab) {
+                    console.log('!!!!!!!!!!! added new image');
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
@@ -56,7 +58,9 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function() {
                 imageStorage[tabs.activeTab.id] = [];
-                contentWorker.port.emit(bridge.events.startPageProcessing);
+                if (currentTab === tabs.activeTab) {
+                    contentWorker.port.emit(bridge.events.startPageProcessing);
+                }
             });
             bridge.emit(bridge.events.pluginActivated);
         }

@@ -197,7 +197,6 @@ Elogio.modules.locator = function(modules) {
             currentImageTag.addEventListener('load', onTempImageLoadedHandler);
             currentImageTag.addEventListener('error', onTempImageErrorHandler);
             currentImageTag.src = imageUrl;
-            console.log('Found image ' + imageUrl + ' : ' + uuid);
         }
         return temporaryImageTags.length;
     };
