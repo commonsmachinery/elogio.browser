@@ -115,7 +115,7 @@ Elogio.modules.elogioServer = function (modules) {
      REQUIREMENTS
      =======================
      */
-    var config = modules.getModule('config');
+    var config = modules.getModule('config'),Request=require('sdk/request').Request;
     /*
      =======================
      PRIVATE MEMBERS

@@ -59,7 +59,9 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
                     bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
-
+            bridge.on(bridge.events.onImageAction,function(imageObj){
+                contentWorker.port.emit(bridge.events.onImageAction,imageObj);
+            });
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function() {
                 imageStorage[tabs.activeTab.id] = [];

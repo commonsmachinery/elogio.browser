@@ -14,13 +14,18 @@ new Elogio(
         bridge.on(bridge.events.configUpdated, function(updatedConfig){
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
         });
-
+        bridge.on(bridge.events.onImageAction,function(imageObj){
+            var elem = dom.getElementByUUID(imageObj.uuid);
+            if (elem) {
+                elem.scrollIntoView();
+            }
+        });
         bridge.on(bridge.events.startPageProcessing, function(){
             locator.findImages(document, function (imageObj) {
                 var element = dom.getElementByUUID(imageObj.uuid);
                 if (element) {
                     imageDecorator.decorate(element, document, function () {
-                        alert('Icon clicked!');
+                        bridge.emit(bridge.events.onImageAction,imageObj);
                     });
                     bridge.emit(bridge.events.newImageFound, imageObj);
                 }

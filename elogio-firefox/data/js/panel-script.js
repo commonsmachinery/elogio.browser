@@ -51,6 +51,7 @@ $(document).ready(function () {
 
             this.addImageCard = function (imageObj) {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
+                cardElement.data('imageObj', imageObj);
                 object.imageListView.append(cardElement);
             };
 
@@ -76,7 +77,9 @@ $(document).ready(function () {
             };
 
             this.openImage = function(imageUUID) {
-
+                $('html, body').animate({
+                    scrollTop: $("#"+imageUUID).offset().top
+                }, 500);
             };
 
             this.init = function () {
@@ -97,6 +100,9 @@ $(document).ready(function () {
                 });
                 object.onButton.on('click', this.startPlugin);
                 object.offButton.on('click', this.stopPlugin);
+                object.imageListView.on('click','.image-card',function(){
+                    bridge.emit(bridge.events.onImageAction,$(this).data('imageObj'));
+                });
             };
 
         })(new StateController());
