@@ -76,10 +76,18 @@ $(document).ready(function () {
                 }
             };
 
+            this.recievedIMageDataFromServer = function(imageObj) {
+
+            };
+
             this.openImage = function(imageUUID) {
+                var imageCard = $("#"+imageUUID);
+                var imageObj = imageCard.data('imageObj');
                 $('html, body').animate({
                     scrollTop: $("#"+imageUUID).offset().top
                 }, 500);
+
+                bridge.emit(bridge.events.imageDetailsRequired, imageObj);
             };
 
             this.init = function () {
@@ -98,10 +106,15 @@ $(document).ready(function () {
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
                 });
+                bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
+                    console.log('Image details received');
+                });
                 object.onButton.on('click', this.startPlugin);
                 object.offButton.on('click', this.stopPlugin);
                 object.imageListView.on('click','.image-card',function(){
-                    bridge.emit(bridge.events.onImageAction,$(this).data('imageObj'));
+                    var imageObj = $(this).data('imageObj');
+                    bridge.emit(bridge.events.onImageAction, imageObj);
+                    self.openImage(imageObj.uuid);
                 });
             };
 

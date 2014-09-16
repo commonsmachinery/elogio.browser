@@ -67,7 +67,18 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fired when someone preform an action on an image
          */
-        onImageAction: 'onImageAction'
+        onImageAction: 'onImageAction',
+        /**
+         * Fires when it is needed to load image details. Image UUID will be passed as argument
+         */
+        imageDetailsRequired: "imageDetailsRequired",
+        /**
+         * Fires application receives image details from server.
+         * Arguments: imageDetails
+         *            error - will be false if request was successful, otherwise will contain an object
+         *                    of the following structure: { code: 1, msg: "" }
+         */
+        imageDetailsReceived: "imageDetailsReceived"
     };
 
     this.registerClient = function(transportObj, name) {

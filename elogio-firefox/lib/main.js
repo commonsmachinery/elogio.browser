@@ -1,7 +1,7 @@
 'use strict';
 var Elogio = require('./common-chrome-lib.js').Elogio;
 
-new Elogio(['config', 'bridge', 'utils'], function (modules) {
+new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     // FF modules
     var buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
@@ -10,8 +10,9 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
         Sidebar = require("sdk/ui/sidebar").Sidebar;
 
     // Elogio Modules
-    var bridge = modules.getModule('bridge'),
-        config = modules.getModule('config');
+    var bridge       = modules.getModule('bridge'),
+        elogioServer = modules.getModule('elogioServer'),
+        config       = modules.getModule('config');
 
     var sidebarWorker, elogioSidebar,
         imageStorage = {};
@@ -21,6 +22,17 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
      PRIVATE MEMBERS
      =======================
      */
+
+    function findImageInStorage(tabId, uuid) {
+        var storage = imageStorage[tabId], i;
+        if (!storage) return false;
+        for (i = 0; i<storage.length; i += 1) {
+            if (storage[i].uuid === uuid) {
+                return storage[i];
+            }
+        }
+        return false;
+    }
 
     // Update config
     config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
@@ -59,8 +71,11 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
                     bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
+            // When user clicks on the image from the panel - proxy event to the content script
             bridge.on(bridge.events.onImageAction,function(imageObj){
-                contentWorker.port.emit(bridge.events.onImageAction,imageObj);
+                if (currentTab === tabs.activeTab) {
+                    contentWorker.port.emit(bridge.events.onImageAction,imageObj);
+                }
             });
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function() {
@@ -68,6 +83,23 @@ new Elogio(['config', 'bridge', 'utils'], function (modules) {
                 if (currentTab === tabs.activeTab) {
                     contentWorker.port.emit(bridge.events.startPageProcessing);
                 }
+            });
+            // When panel requires image details from server - perform request and notify panel on result
+            bridge.on(bridge.events.imageDetailsRequired, function(imageObj) {
+                elogioServer.getAnnotationsForImage(imageObj.uri,
+                    function(annotationsJson) {
+                        var imageObjFromStorage = findImageInStorage(currentTab.id, imageObj.uuid);
+                        if (imageObjFromStorage) {
+                            imageObjFromStorage.details = annotationsJson;
+                            bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                        } else {
+                            console.log("Can't find image in storage: " + imageObj.uuid);
+                        }
+                    },
+                    function() {
+                        // TODO: Implement on error handler!
+                    }
+                )
             });
             bridge.emit(bridge.events.pluginActivated);
         }

@@ -5,9 +5,8 @@
 Elogio.modules.config = function(modules) {
     'use strict';
     this.global = {
-        lookUp:{
-            serverUrl:'http://www.google.com.ua',
-            method:'get'
+        apiServer:{
+            serverUrl:'http://www.google.com.ua'
         },
         locator:{
             limitImageHeight:100,

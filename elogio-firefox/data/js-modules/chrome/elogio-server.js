@@ -18,7 +18,7 @@ Elogio.modules.elogioServer = function (modules) {
                 "uri": "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg"
             }
         ],
-        jsonAnnotations = {
+        annotationsJson = {
             "_perms" : {
                 "read" : true
             },
@@ -126,15 +126,26 @@ Elogio.modules.elogioServer = function (modules) {
      * @param url - unnecessary parameter, there is the server url where sending request
      * @param onSuccess - callback function for success request
      * @param onError - callback function which calls on error
+     * @param method - HTTP method to be used
      */
-    function sendRequest(url, onSuccess, onError) {
-        var method = config.global.lookup.method;
-        url = url || config.global.lookup.serverUrl;
+    function sendRequest(url, onSuccess, onError, method) {
+        method = method || 'GET';
+        url = url || config.global.apiServer.serverUrl;
         var request= {};
-        switch (method) {
-            case 'get': request.get();
+        /*switch (method) {
+            case 'GET': request.get();
                 break;
-            case 'post': request.post();
+            case 'GET': request.post();
+        }*/
+        // TODO: test code!
+        if (url.indexOf('localhost:8004')) {
+            if (onSuccess) {
+                onSuccess(Json);
+            }
+        } else {
+            if (onSuccess) {
+                onSuccess(annotationsJson);
+            }
         }
     }
 
@@ -160,7 +171,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrl, onLoad, onError) {
-        var url = config.global.lookUp.serverUrl + '?uri=' + imageUrl;
+        var url = config.global.apiServer.serverUrl + '?uri=' + imageUrl;
         sendRequest(url, onLoad, onError);
     };
     /**
