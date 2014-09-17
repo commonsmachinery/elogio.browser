@@ -6,7 +6,7 @@ Elogio.modules.config = function(modules) {
     'use strict';
     this.global = {
         apiServer:{
-            serverUrl:'http://www.google.com.ua'
+            serverUrl:'http://localhost:8080'
         },
         locator:{
             limitImageHeight:100,

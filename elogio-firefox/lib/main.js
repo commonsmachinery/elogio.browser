@@ -73,7 +73,16 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
                 if (currentTab === tabs.activeTab) {
-                    bridge.emit(bridge.events.newImageFound, imageObject);
+                    elogioServer.lookupQuery(imageObject.uri,
+                        function (lookupJson) {
+                            //todo at here we need get real data
+                            imageObject.lookup=lookupJson[0];
+                            bridge.emit(bridge.events.newImageFound, imageObject);
+                        },
+                        function () {
+                            // TODO: Implement on error handler!
+                        }
+                    );
                 }
             });
             // When user click on the elogio icon near the image

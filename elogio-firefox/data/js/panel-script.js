@@ -43,6 +43,9 @@ $(document).ready(function () {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
                 cardElement.data(constants.imageObject, imageObj);
                 object.imageListView.append(cardElement);
+                if(!imageObj.lookup){
+                    cardElement.find('.lookup').hide();
+                }
             };
 
             self.startPlugin = function () {
