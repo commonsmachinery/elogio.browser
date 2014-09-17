@@ -10,6 +10,9 @@ $(document).ready(function () {
                 imageListView: $("#imageListView"),
                 messageBox: $('#messageText')
             };
+            var constants = {
+                imageObject: 'imageObj'
+            };
             var template = {
                 imageItem: $("#image-template").html()
             };
@@ -20,26 +23,25 @@ $(document).ready(function () {
             self.on = function (eventName, callback) {
                 eventHandlers[eventName] = callback;
             };
-
             self.emit = function (eventName, argument) {
                 if (eventHandlers[eventName]) {
                     eventHandlers[eventName](argument);
                 }
             };
 
-            self.showMessage = function(html) {
+            self.showMessage = function (html) {
                 object.messageBox.html(html);
                 object.messageBox.fadeIn('fast');
             };
 
-            self.hideMessage = function() {
+            self.hideMessage = function () {
                 object.messageBox.html('');
                 object.messageBox.hide();
             };
 
             self.addImageCard = function (imageObj) {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
-                cardElement.data('imageObj', imageObj);
+                cardElement.data(constants.imageObject, imageObj);
                 object.imageListView.append(cardElement);
             };
 
@@ -55,7 +57,7 @@ $(document).ready(function () {
                 bridge.emit(bridge.events.pluginStopped);
             };
 
-            self.loadImages = function(imageObjects) {
+            self.loadImages = function (imageObjects) {
                 var i;
                 // Clear list
                 object.imageListView.empty();
@@ -65,19 +67,32 @@ $(document).ready(function () {
                 }
             };
 
-            self.recievedIMageDataFromServer = function(imageObj) {
-
+            self.receivedImageDataFromServer = function (imageObj) {
+                var currentImageObj = getImageCardByUUID(imageObj.uuid).data(constants.imageObject);
+                currentImageObj.details = imageObj.details;
+                self.openImage(imageObj.uuid);
             };
+            function getImageCardByUUID(uuid) {
+                return $('#' + uuid);
+            }
 
-            self.openImage = function(imageUUID) {
-                var imageCard = $("#"+imageUUID);
-                var imageObj = imageCard.data('imageObj');
+            self.openImage = function (imageUUID) {
+                var imageCard = getImageCardByUUID(imageUUID);
+                var imageObj = imageCard.data(constants.imageObject);
                 $('html, body').animate({
-                    scrollTop: $("#"+imageUUID).offset().top
+                    scrollTop: imageCard.offset().top
                 }, 500);
                 imageCard.highlight();
-
-                bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                var details = imageCard.find('.image-details');
+                var loadIndicator = imageCard.find('.loading');
+                if (imageObj.details) {
+                    loadIndicator.hide();//if details exist then always indicator hide
+                    details.toggle(); //and info we must toggle
+                } else {
+                    loadIndicator.show();//if no info for image then indicator always show
+                    details.hide(); //and details hide
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                }
             };
 
             self.init = function () {
@@ -107,12 +122,12 @@ $(document).ready(function () {
                     self.openImage(imageObject.uuid);
                 });
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
-                    console.log('Image details received');
+                    self.receivedImageDataFromServer(imageObject);
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
-                object.imageListView.on('click','.image-card',function(){
-                    var imageObj = $(self).data('imageObj');
+                object.imageListView.on('click', '.image-card', function () {
+                    var imageObj = $(this).data('imageObj');
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
                 });

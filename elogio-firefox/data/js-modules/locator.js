@@ -19,6 +19,7 @@ Elogio.modules.locator = function(modules) {
      PRIVATE MEMBERS
      =======================
      */
+    var urlStorage=[];//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
@@ -94,10 +95,13 @@ Elogio.modules.locator = function(modules) {
             return getBackgroundUrl(node);
         }
     ];
-
     this.imageFilters = [
         // Min size is 100*100px
         function(img) {
+            if(urlStorage.indexOf(img.src)!==-1){
+                return false;
+            }
+            urlStorage.push(img.src);
             return img.width >= config.global.locator.limitImageWidth &&
                    img.height >= config.global.locator.limitImageWidth;
         }
@@ -147,6 +151,7 @@ Elogio.modules.locator = function(modules) {
      * @returns{Integer} Returns qty of images it was founded BEFORE applying image filters. Note: Final qty of
      */
     this.findImages = function(document, onImageFound, onError) {
+        urlStorage=[];//every request to find images we need to delete all of urls saved before
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {
                 var imageUuid = this.getAttribute('sourceElement'),
