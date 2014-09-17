@@ -108,7 +108,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             bridge.on(bridge.events.pluginActivated, function () {
                 if (!pluginState.isEnabled) {
                     pluginState.isEnabled = true;
-                    notifyPluginState(contentWorker.port);
+                    contentWorker.port.emit(bridge.events.startPageProcessing);
+                    notifyPluginState(bridge);
                 }
             });
             // When plugin is turned off we need to update state and notify content script
@@ -117,6 +118,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     pluginState.isEnabled = false;
                     imageStorage = []; // Cleanup local storage
                     notifyPluginState(contentWorker.port);
+                    notifyPluginState(bridge);
                 }
             });
             // When panel requires image details from server - perform request and notify panel on result

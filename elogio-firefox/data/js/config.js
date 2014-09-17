@@ -14,12 +14,16 @@ Elogio.modules.config = function(modules) {
         }
     };
 
+
     this.ui = {
         imageDecorator: {
             iconUrl: '',
             iconWidth: 20,
             iconHeight: 20
-        }
+        },
+        dataAttributeName: 'elogio',
+        decoratedItemAttribute:'elogiodecorated',
+        undecoratedItemAttribute:'elogioundecorated'
     };
     this.logging = {
 

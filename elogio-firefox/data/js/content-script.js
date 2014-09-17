@@ -16,6 +16,15 @@ new Elogio(
         bridge.on(bridge.events.configUpdated, function(updatedConfig){
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
         });
+        //on
+        bridge.on(bridge.events.pluginStopped, function(){
+            var elements=dom.getAllDecoratedElements();
+            for(var i= 0,n = elements.length;i<n;i++){
+                console.log('plugin undecorate '+elements[i].getAttribute(config.ui.dataAttributeName));
+                imageDecorator.undecorate(elements[i],document);
+            }
+        });
+
         bridge.on(bridge.events.onImageAction,function(imageObj){
             var elem = dom.getElementByUUID(imageObj.uuid);
             if (elem) {

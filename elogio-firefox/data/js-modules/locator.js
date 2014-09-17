@@ -10,8 +10,7 @@ Elogio.modules.locator = function(modules) {
      REQUIREMENTS
      =======================
      */
-    var dom = modules.getModule('dom'),
-        utils = modules.getModule('utils'),
+    var utils = modules.getModule('utils'),
         config = modules.getModule('config');
 
     /*
@@ -186,7 +185,7 @@ Elogio.modules.locator = function(modules) {
         for (i=0; i < nodes.length; i += 1) {
             // Mark node with special attribute containing unique ID which will be used internally
             uuid = utils.generateUUID();
-            nodes[i].setAttribute(dom.config.dataAttributeName, uuid);
+            nodes[i].setAttribute(config.ui.dataAttributeName, uuid);
             // Step 2. Get image URL from the node
             imageUrl = this.getImageUrlForNode(nodes[i], document.location.href);
             if (!imageUrl) {

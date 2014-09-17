@@ -4,12 +4,12 @@
 
 Elogio.modules.dom = function(modules) {
     'use strict';
-    var self = this;
     /*
      =======================
      REQUIREMENTS
      =======================
      */
+    var config = modules.getModule('config');
 
     /*
      =======================
@@ -25,9 +25,7 @@ Elogio.modules.dom = function(modules) {
     */
 
     // Module configuration
-    this.config = {
-        dataAttributeName: 'elogio'
-    };
+
 
     /**
      * Returns DOM element by given internal UUID.
@@ -37,15 +35,36 @@ Elogio.modules.dom = function(modules) {
     this.getElementByUUID = function(guid) {
         // Efficient implementation which uses querySelector method
         if (document.querySelectorAll) {
-            return document.querySelector('[' + self.config.dataAttributeName + '="' + guid + '"]');
+            return document.querySelector('[' + config.ui.dataAttributeName + '="' + guid + '"]');
         } else { // If querySelector is not supported - fallback to the legacy method
             var nodeList = document.getElementsByTagName('*');
             for (var i = 0, n = nodeList.length; i < n; i++) {
-                var att = nodeList[i].getAttribute(self.config.dataAttributeName);
+                var att = nodeList[i].getAttribute(config.ui.dataAttributeName);
                 if (att && att === guid) {
                     return nodeList[i];
                 }
             }
+        }
+    };
+    /**
+     * this function needs for getting all elements which decorated on the page
+     *
+     * @returns {*}
+     */
+    this.getAllDecoratedElements=function(){
+        if (document.querySelectorAll) {
+            var domElements=document.querySelectorAll('[' +config.ui.decoratedItemAttribute+']');
+            return Array.prototype.slice.call(domElements,0,domElements.length);
+        } else { // If querySelector is not supported - fallback to the legacy method
+            var nodeList = document.getElementsByTagName('*'),
+            nodeArray=[];
+            for (var i = 0, n = nodeList.length; i < n; i++) {
+                var att = nodeList[i].getAttribute(config.ui.decoratedItemAttribute);
+                if (att) {
+                   nodeArray.push(nodeList[i]);
+                }
+            }
+            return nodeArray;
         }
     };
 
@@ -54,7 +73,7 @@ Elogio.modules.dom = function(modules) {
      * @param element - target DOM element
      */
     this.getUUIDofElement = function(element) {
-        return element.getAttribute(this.config.dataAttributeName);
+        return element.getAttribute(config.ui.dataAttributeName);
     };
 
     /**
