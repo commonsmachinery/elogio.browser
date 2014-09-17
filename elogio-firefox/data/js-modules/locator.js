@@ -148,13 +148,18 @@ Elogio.modules.locator = function(modules) {
      *                                 imageObject{Object} - see above
      *                                 error{String} - error message
      * @returns{Integer} Returns qty of images it was founded BEFORE applying image filters. Note: Final qty of
+     * @param processFinished - calls if all images loaded
      */
-    this.findImages = function(document, onImageFound, onError) {
+
+    this.findImages = function(document, onImageFound, onError,processFinished) {
         urlStorage=[];//every request to find images we need to delete all of urls saved before
+        var countOfProcessedImages=0;
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {
                 var imageUuid = this.getAttribute('sourceElement'),
                     src = this.src;
+                //
+                countOfProcessedImages++;
                 // Apply filters:
                 var result = applyFilters([this], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
@@ -166,22 +171,32 @@ Elogio.modules.locator = function(modules) {
                     };
                     onImageFound(imgObj);
                 }
+                if(countNodes===countOfProcessedImages){
+                    processFinished();
+                }
             },
             onTempImageErrorHandler = function (error) {
                 var imageUuid = this.getAttribute('sourceElement'),
                     src = this.src;
+                countOfProcessedImages++;
                 delete temporaryImageTags[imageUuid];
                 if (onError) {
                     var imgObj = {
                         uri: src,
                         uuid: imageUuid
                     };
+                    if(countNodes===countOfProcessedImages){
+                        processFinished(imageUuid);
+                    }
                     onError(imgObj,  'Error Message should be there!!'); // TODO: Error message!
+                }
+                if(countNodes===countOfProcessedImages){
+                    processFinished();
                 }
             };
 
         // Step 1. We need to get all nodes which potentially contains suitable image.
-        var nodes = this.findNodes(document);
+        var nodes = this.findNodes(document),countNodes=0;
         for (i=0; i < nodes.length; i += 1) {
             // Mark node with special attribute containing unique ID which will be used internally
             uuid = utils.generateUUID();
@@ -195,6 +210,8 @@ Elogio.modules.locator = function(modules) {
             // Step 3. We need to analise image properties and apply additional filters.
             //         Thus we need to load it first. The only way which comes to mind - create IMG tag and
             //         wait for onLoad event
+            //count of nodes needs to calculate all nodes which trying to load
+            countNodes++;
             currentImageTag = new Image();
             currentImageTag.setAttribute('sourceElement', uuid);
             temporaryImageTags[uuid] = currentImageTag;

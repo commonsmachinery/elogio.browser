@@ -78,7 +78,11 @@ Elogio.modules.bridge = function (modules) {
          *            error - will be false if request was successful, otherwise will contain an object
          *                    of the following structure: { code: 1, msg: "" }
          */
-        imageDetailsReceived: "imageDetailsReceived"
+        imageDetailsReceived: "imageDetailsReceived",
+        /**
+         * Fires application receives lookup details from server.
+         */
+        lookupReceived:"lookupReceived"
     };
 
     this.registerClient = function(transportObj, name) {

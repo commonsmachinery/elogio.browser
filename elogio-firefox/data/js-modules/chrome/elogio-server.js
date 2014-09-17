@@ -173,7 +173,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrl, onLoad, onError) {
-        var url = config.global.apiServer.serverUrl + '?uri=' + imageUrl;
+        var url = config.global.apiServer.serverUrl + imageUrl;
         sendRequest(url, onLoad, onError);
     };
     /**

@@ -14,7 +14,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var sidebarWorker, elogioSidebar,
+    var sidebarWorker, elogioSidebar, lookupImageObjStorage = [], tabPageProcessingState = [],pageProcessingIsFinished,
         imageStorage = {},
         pluginState = {
             isEnabled: true
@@ -25,6 +25,26 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
      PRIVATE MEMBERS
      =======================
      */
+
+    function lookupQuery() {
+        var parameters = '?';
+        //setup parameter string
+        for (var i = 0; i < lookupImageObjStorage.length; i++) {
+            parameters += 'uri=' + lookupImageObjStorage[i].uri + '&';
+        }
+        //and delete all elements which already send
+        lookupImageObjStorage = [];
+        parameters = parameters.substring(0, parameters.length - 1);
+        elogioServer.lookupQuery(parameters,
+            function (lookupJson) {
+                bridge.emit(bridge.events.lookupReceived, lookupJson);
+            },
+            function () {
+                //TODO: Implement on error handler!
+            }
+        );
+
+    }
 
     function findImageInStorage(tabId, uuid) {
         var storage = imageStorage[tabId], i;
@@ -69,20 +89,22 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         onAttach: function (contentWorker) {
             var currentTab = contentWorker.tab;
             contentWorker.port.emit(bridge.events.configUpdated, config);
+            //when page processing is finished then we need remember it for current tab
+            contentWorker.port.on(bridge.events.pageProcessingFinished,function(){
+                tabPageProcessingState[currentTab.id]=true;
+                pageProcessingIsFinished=true;
+                console.log('images loading is finished');
+            });
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
                 if (currentTab === tabs.activeTab) {
-                    elogioServer.lookupQuery(imageObject.uri,
-                        function (lookupJson) {
-                            //todo at here we need get real data
-                            imageObject.lookup=lookupJson[0];
-                            bridge.emit(bridge.events.newImageFound, imageObject);
-                        },
-                        function () {
-                            // TODO: Implement on error handler!
-                        }
-                    );
+                    //if image was found then we need to check if lookup storage is ready for query
+                    if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages||tabPageProcessingState[currentTab.id]) {
+                        lookupQuery();
+                    }
+                    lookupImageObjStorage.push(imageObject);
+                    bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
             // When user click on the elogio icon near the image
@@ -149,10 +171,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         if (imageStorage[tab.id]) {
             delete imageStorage[tab.id];
         }
+        if (tabPageProcessingState[tab.id]) {
+            delete  tabPageProcessingState[tab.id];
+        }
     });
 
     tabs.on('activate', function (tab) {
         var images = imageStorage[tabs.activeTab.id];
+        // remember the state page processing of this tab
+        pageProcessingIsFinished=tabPageProcessingState[tab.id]||false;
         bridge.emit(bridge.events.tabSwitched, images || []);
     });
 

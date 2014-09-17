@@ -45,6 +45,7 @@ $(document).ready(function () {
                 object.imageListView.append(cardElement);
                 if(!imageObj.lookup){
                     cardElement.find('.lookup').hide();
+                    cardElement.find('.loading').show();
                 }
             };
 
