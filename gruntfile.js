@@ -174,8 +174,8 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('run', [
-        'clean',
-        'bower',
+        /*'clean',
+        'bower',*/
         'lint',
         'less',
         'copy:resourcesWithoutJS',

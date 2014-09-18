@@ -39,11 +39,27 @@ Elogio.prototype.getModule = function (moduleName) {
     }
 };
 
-Elogio.inherit = function (C, P) {
+/*Elogio.inherit = function (C, P) {
     "use strict";
     C.prototype = new P();
     C.superClass = P.prototype;
     C.prototype.constructor = C;
+};*/
+
+Elogio.inherit = function (obj, parent) {
+    "use strict";
+    obj._super = parent;
+    var propertyNames = Object.getOwnPropertyNames(parent);
+    for (var i = 0; i<propertyNames.length; i += 1) {
+        if (parent.hasOwnProperty(propertyNames[i]) && propertyNames[i] !== '_super') {
+            obj[propertyNames[i]] = obj._super[propertyNames[i]];
+            /*if (obj._super[property] && obj._super[property].bind) {
+                obj[property] = obj._super[property].bind(obj._super);
+            } else {
+                obj[property] = obj._super[property];
+            }*/
+        }
+    }
 };
 
 Elogio.Observable = function () {
@@ -52,7 +68,7 @@ Elogio.Observable = function () {
 
     function validateEventName(eventName, self) {
         if (self.events.indexOf(eventName) === -1) {
-            console.error('Event ' + eventName + 'is not supported by ' + self.constructor.name);
+            console.error('Event ' + eventName + ' is not supported by ' + self.constructor.name);
             return false;
         }
         return true;
@@ -90,6 +106,7 @@ Elogio.Observable = function () {
  */
 Elogio.StateController = function (initialState) {
     "use strict";
+    Elogio.inherit(this, new Elogio.Observable());
     var state = {};
 
     this.isObservable = false;
@@ -109,6 +126,21 @@ Elogio.StateController = function (initialState) {
         }
     };
 
+
+    this.propertyExists = function(propertyName) {
+        return state.hasOwnProperty(propertyName);
+    };
+
+    this.dropProperty = function(propertyName) {
+        if (this.propertyExists(propertyName)) {
+            delete state[propertyName];
+        }
+    };
+
+    this.getAllPropertyNames = function() {
+        return Object.getOwnPropertyNames(state);
+    };
+
     if (initialState) {
         state = initialState || {};
         if (this.isObservable) {
@@ -121,7 +153,6 @@ Elogio.StateController.events = {
     onPropertyChanged:  'onChanged',
     onInitialized:      'onInitialized'
 };
-Elogio.inherit(Elogio.StateController, Elogio.Observable);
 
 // If module is used in Chrome context
 if (typeof exports !== 'undefined') {

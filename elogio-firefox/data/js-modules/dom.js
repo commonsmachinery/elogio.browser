@@ -104,9 +104,14 @@ Elogio.modules.dom = function(modules) {
                 $(this).each(function() {
                     var el = $(this),
                         originalColor = el.css('background-color');
-
+                    if (el.hasClass('jqHighlight')) {
+                        return;
+                    }
+                    el.addClass('jqHighlight');
                     el.animate( { backgroundColor: "#ffffcc" }, 1 )
-                      .animate( { backgroundColor: originalColor }, 1500 );
+                      .animate( { backgroundColor: originalColor }, 1500, function() {
+                            $(this).removeClass('jqHighlight')
+                        });
                 });
             };
         }

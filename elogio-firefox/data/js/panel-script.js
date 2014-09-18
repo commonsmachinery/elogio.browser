@@ -39,13 +39,40 @@ $(document).ready(function () {
                 object.messageBox.hide();
             };
 
-            self.addImageCard = function (imageObj) {
-                var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
-                cardElement.find('.loading').show();// firstly we show indicator, if data received then we don't need forget for hide it
-                cardElement.data(constants.imageObject, imageObj);
-                object.imageListView.append(cardElement);
-                cardElement.find('.loading').show();
-
+            self.addOrUpdateImageCard = function (imageObj) {
+                // Try to find existing card and create the new one if it wasn't rendered before
+                var cardElement = getImageCardByUUID(imageObj.uuid);
+                if (!cardElement.length) {
+                    cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
+                    cardElement.data(constants.imageObject, imageObj);
+                    object.imageListView.append(cardElement);
+                }
+                // If we didn't send lookup query before - show loading
+                if (!imageObj.hasOwnProperty('lookup')) {
+                    cardElement.find('.loading').show();
+                    return; // Waiting for lookup....
+                } else {
+                    cardElement.find('.loading').hide();
+                    cardElement.find('.message-area').hide();
+                }
+                // If there is lookup data available check if there is image details
+                if (imageObj.lookup && imageObj.lookup.href) {
+                    if (imageObj.hasOwnProperty(imageObj.details)) { // If annotations were loaded...
+                        if (imageObj.details) { // If we were abe to get annotations - populate details
+                            cardElement.find('.elogio-owner').text('Owner');
+                            cardElement.find('.elogio-addedAt').text('Added at');
+                            cardElement.find('.elogio-annotations').text('Annotations');
+                            cardElement.find('.image-details').show();
+                        } else { // Otherwise - show message
+                            cardElement.find('.message-area').text('Sorry, no data available').show();
+                        }
+                    } else {
+                        // Nothing to do hear just waiting when user clicks on image to query details
+                    }
+                } else { // Show Query button
+                    cardElement.find('.image-details').hide();
+                    cardElement.find('.no-lookup-data').show();
+                }
             };
 
             self.startPlugin = function () {
@@ -66,47 +93,18 @@ $(document).ready(function () {
                 object.imageListView.empty();
                 // Add all objects
                 for (i = 0; i < imageObjects.length; i += 1) {
-                    self.addImageCard(imageObjects[i]);
+                    self.addOrUpdateImageCard(imageObjects[i]);
                 }
             };
 
             self.receivedImageDataFromServer = function (imageObj) {
-                var currentImageObj = getImageCardByUUID(imageObj.uuid).data(constants.imageObject);
-                currentImageObj.details = imageObj.details;
+                getImageCardByUUID(imageObj.uuid).data(constants.imageObject, imageObj);
                 self.openImage(imageObj.uuid);
             };
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
             }
 
-            function addLookupDataToCard(card, imageObj) {
-                var lookupData = card.find('.lookup');
-                if (typeof imageObj === 'string' || imageObj instanceof String) {//if imageObj is a string with 'data was not founded'
-                    lookupData.append("<p>" + imageObj + "</p>");
-                    lookupData.append('<button class="query">Query to Elog.io</button>');
-                } else {
-                    lookupData.append('<p>Data founded</p>');
-                }
-                lookupData.show();
-            }
-
-            function updateAnnotations(card, details) {
-                var cardDetailsObj = card.find('.image-details');
-                cardDetailsObj.find('.elogio-owner').html(details.owner.org.added_by);
-                cardDetailsObj.find('.elogio-addedAt').html(details.owner.org.updated_at);
-                cardDetailsObj.find('.elogio-annotations').html(details.annotations.title[0].property.titleLabel);
-            }
-
-            self.updateImageCard = function (imageObj) {
-                var card = getImageCardByUUID(imageObj.uuid);
-                var indicatorProcess = card.find('.loading');
-                if (imageObj.lookup) {
-                    addLookupDataToCard(card, imageObj);
-                } else {
-                    addLookupDataToCard(card, 'No information found');
-                }
-                indicatorProcess.hide();
-            };
             self.openImage = function (imageUUID) {
                 var imageCard = getImageCardByUUID(imageUUID);
                 var imageObj = imageCard.data(constants.imageObject);
@@ -115,7 +113,7 @@ $(document).ready(function () {
                     scrollTop: imageCard.offset().top
                 }, 500);
                 imageCard.highlight();
-                var details = imageCard.find('.image-details');
+                /*var details = imageCard.find('.image-details');
                 var loadIndicator = imageCard.find('.loading');
                 if (imageObj.details) {
                     loadIndicator.hide();//if details exist then always indicator hide
@@ -125,19 +123,14 @@ $(document).ready(function () {
                     loadIndicator.hide();
                     details.hide(); //and details hide
                     lookup.show();
-                }
+                }*/
             };
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
-                    var card = getImageCardByUUID(imageObj.uuid);
-                    if (card.length) {
-                        self.updateImageCard(imageObj);//if it fired and card already exist then we need to update
-                    } else {
-                        self.addImageCard(imageObj);//if it fired and card doesn't exist then add it
-                    }
+                    self.addOrUpdateImageCard(imageObj)
                 });
                 bridge.on(bridge.events.pluginActivated, function () {
                     isPluginEnabled = true;
@@ -171,6 +164,13 @@ $(document).ready(function () {
                     }
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
+                });
+                object.imageListView.on('click', '.image-card .query-button', function () {
+                    var imageCard = $(this).closest('.image-card');
+                    var imageObj = imageCard.data(constants.imageObject);
+                    imageCard.find('.loading').show();
+                    imageCard.find('.no-lookup-data').hide();
+                    alert('TODO: Perform query request for ' + imageObj.uuid);
                 });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();

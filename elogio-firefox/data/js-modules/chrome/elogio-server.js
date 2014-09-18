@@ -8,7 +8,7 @@ Elogio.modules.elogioServer = function (modules) {
             {
                 "href": "http://www.google.com.ua",
                 "score": 0,
-                "uri": "http://vk.com/images/join/prof_m.png?4",
+                "uri": "http://vk.com/images/join/prof_vk_m.png?4",
                 "property": "identifier"
             },
             {
