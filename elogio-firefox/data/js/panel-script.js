@@ -88,7 +88,7 @@ $(document).ready(function () {
                     lookupData.append("<p>"+imageObj+"</p>");
                     lookupData.append('<a href="' + config.global.apiServer.serverUrl + '">Query to Elog.io</a>');
                 }else{
-                    lookupData.append('<a href="' + imageObj.lookup.href + '">Data was founded</a>');
+                    lookupData.append('<a href="' + imageObj.lookup.href + '">information found</a>');
                 }
                 lookupData.show();
             }
@@ -98,7 +98,7 @@ $(document).ready(function () {
                 if(imageObj.lookup){
                     addLookupDataToCard(card,imageObj);
                 }else{
-                    addLookupDataToCard(card,'data was not founded');
+                    addLookupDataToCard(card,'No information found');
                 }
                 indicatorProcess.hide();
             };
