@@ -36,7 +36,6 @@ new Elogio(
                     imageDecorator.decorate(element, document, function () {
                         bridge.emit(bridge.events.onImageAction, imageObj);
                     });
-                    console.log('image loaded');
                     bridge.emit(bridge.events.newImageFound, imageObj);
                 }
             },function(){

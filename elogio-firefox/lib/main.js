@@ -14,7 +14,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var sidebarWorker, elogioSidebar, tabPageProcessingState = [],pageProcessingIsFinished,
+    var sidebarWorker, elogioSidebar, tabPageProcessingState = [], pageProcessingIsFinished,
         imageStorage = {},
         pluginState = {
             isEnabled: true
@@ -38,6 +38,39 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             }
         }
         return false;
+    }
+
+    /**
+     * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
+     * @param lookupImageObjStorage - it's imageObj storage for lookup request
+     */
+    function lookupQuery(lookupImageObjStorage) {
+        var localStore = lookupImageObjStorage, dictionary = {uri: []};
+        //create dictionary
+        for (var i = 0; i < localStore.length; i++) {
+            dictionary.uri.push(localStore.uri);
+        }
+        elogioServer.lookupQuery(dictionary,
+            function (lookupJson) {
+                for (var i = 0; i < localStore.length; i++) {               // get imageObj
+                    var sent = false;                                       //before we believe what bridge.emit didn't fired
+                    for (var j = 0; j < lookupJson.length; j++) {           //get lookupObj from response json
+                        if (localStore[i].uri === lookupJson[j].uri) {      //if imageObj founded itself in json response
+                            localStore[i].lookup = lookupJson[j];           // then we need to add it data to imageObj and send it
+                            sent = true;
+                            bridge.emit(bridge.events.newImageFound, localStore[i]);
+                        }
+                    }
+                    if (!sent) {//if imageObj didn't find itself in response json then we need to send imageObj without lookup data
+                        bridge.emit(bridge.events.newImageFound, localStore[i]);
+                        sent = true;
+                    }
+                }
+            },
+            function () {
+                //TODO: Implement on error handler!
+            }
+        );
     }
 
     function notifyPluginState(destination) {
@@ -68,34 +101,28 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            function lookupQuery() {
-                elogioServer.lookupQuery(lookupImageObjStorage,
-                    function (lookupJson) {
-                        bridge.emit(bridge.events.lookupReceived, lookupJson);
-                    },
-                    function () {
-                        //TODO: Implement on error handler!
-                    }
-                );
-                lookupImageObjStorage = {uri:[]};//cleanup uris
-            }
             var currentTab = contentWorker.tab;
-            var lookupImageObjStorage = {uri:[]};
+            var lookupImageObjStorage = [];
             contentWorker.port.emit(bridge.events.configUpdated, config);
             //when page processing is finished then we need remember it for current tab
-            contentWorker.port.on(bridge.events.pageProcessingFinished,function(){
-                tabPageProcessingState[currentTab.id]=true;
-                pageProcessingIsFinished=true;
+            contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
+                tabPageProcessingState[currentTab.id] = true;
+                //if page processing finished we need to check if all lookup objects was sended to elogio server
+                if (lookupImageObjStorage.length > 0) {
+                    lookupQuery(lookupImageObjStorage);
+                    lookupImageObjStorage = [];
+                }
             });
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
                 var imageStorageForTab = imageStorage[currentTab.id];
                 imageStorageForTab[imageStorageForTab.length] = imageObject;
                 if (currentTab === tabs.activeTab) {
                     //if image was found then we need to check if lookup storage is ready for query
-                    if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages||tabPageProcessingState[currentTab.id]) {
-                        lookupQuery();
+                    if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages) {
+                        lookupQuery(lookupImageObjStorage);
+                        lookupImageObjStorage = [];
                     }
-                    lookupImageObjStorage.uri.push(imageObject.uri);
+                    lookupImageObjStorage.push(imageObject);
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
@@ -114,7 +141,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function () {
                 imageStorage[tabs.activeTab.id] = [];
-                lookupImageObjStorage={uri:[]};//cleanup and initialize uri storage before start
+                lookupImageObjStorage = [];//cleanup and initialize uri storage before start
                 if (currentTab === tabs.activeTab) {
                     contentWorker.port.emit(bridge.events.startPageProcessing);
                 }
@@ -172,7 +199,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     tabs.on('activate', function (tab) {
         var images = imageStorage[tabs.activeTab.id];
         // remember the state page processing of this tab
-        pageProcessingIsFinished=tabPageProcessingState[tab.id]||false;
+        pageProcessingIsFinished = tabPageProcessingState[tab.id] || false;
         bridge.emit(bridge.events.tabSwitched, images || []);
     });
 

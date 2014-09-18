@@ -8,7 +8,7 @@ Elogio.modules.elogioServer = function (modules) {
             {
                 "href": "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
                 "score": 0,
-                "uri": "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg",
+                "uri": "http://vk.com/images/join/prof_m.png?4",
                 "property": "identifier"
             },
             {
@@ -142,6 +142,7 @@ Elogio.modules.elogioServer = function (modules) {
         // TODO: test code!
         if (url.indexOf('localhost:8004')) {
             if (onSuccess) {
+                console.log('request sended');
                 onSuccess(Json);
             }
         } else {

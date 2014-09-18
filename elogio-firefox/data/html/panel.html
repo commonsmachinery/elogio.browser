@@ -16,7 +16,7 @@
 
 <body class="container-fluid sidebar">
 <script id="image-template" type="x-tmpl-mustache">
-    <div class="image-card" id="{{imageObj.uuid}}">
+    <div class="image-card" id="{{imageObj.uuid}}" >
         <div class="thumbnail-image">
             <img src="{{imageObj.uri}}" class="picture"/>
         </div>
@@ -24,14 +24,12 @@
             <p>
                 <strong>Cat #1144</strong>
             </p>
-
-            <p class="lookup">
-                 License: <strong>CC BY-NC-ND</strong>   </br>
-                <a href="{{imageObj.lookup.href}}">Data found</a>
-            </p>
+        </div>
+        <div class="lookup">
         </div>
         <div class="loading" style="display:none">Please wait...</div>
     </div>
+
 
 
 </script>
@@ -53,7 +51,6 @@
 
 <div id="imageListView" class="image-card-container">
 </div>
-
 
 
 </body>

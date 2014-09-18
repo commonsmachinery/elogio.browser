@@ -1,7 +1,7 @@
 $(document).ready(function () {
     'use strict';
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'], function (modules) {
-        var bridge = modules.getModule('bridge');
+        var bridge = modules.getModule('bridge'),config=modules.getModule('config');
 
         var panelController = (function () {
             var object = {
@@ -43,10 +43,13 @@ $(document).ready(function () {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
                 cardElement.data(constants.imageObject, imageObj);
                 object.imageListView.append(cardElement);
-                if(!imageObj.lookup){
-                    cardElement.find('.lookup').hide();
-                    cardElement.find('.loading').show();
-                }
+                cardElement.find('.loading').show();
+                cardElement.find('img').on('click', function () {
+                    var imageObj = $(this).closest('.image-card').data('imageObj');
+                    bridge.emit(bridge.events.onImageAction, imageObj);
+                    self.openImage(imageObj.uuid);
+                });
+
             };
 
             self.startPlugin = function () {
@@ -79,7 +82,26 @@ $(document).ready(function () {
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
             }
-
+            function addLookupDataToCard(card,imageObj){
+                var lookupData = card.find('.lookup');
+                if(typeof imageObj === 'string' || imageObj instanceof String){//if imageObj is a string with 'data was not founded'
+                    lookupData.append("<p>"+imageObj+"</p>");
+                    lookupData.append('<a href="' + config.global.apiServer.serverUrl + '">Query to Elog.io</a>');
+                }else{
+                    lookupData.append('<a href="' + imageObj.lookup.href + '">Data was founded</a>');
+                }
+                lookupData.show();
+            }
+            self.updateImageCard = function (imageObj) {
+                var card = getImageCardByUUID(imageObj.uuid);
+                var indicatorProcess = card.find('.loading');
+                if(imageObj.lookup){
+                    addLookupDataToCard(card,imageObj);
+                }else{
+                    addLookupDataToCard(card,'data was not founded');
+                }
+                indicatorProcess.hide();
+            };
             self.openImage = function (imageUUID) {
                 var imageCard = getImageCardByUUID(imageUUID);
                 var imageObj = imageCard.data(constants.imageObject);
@@ -98,22 +120,26 @@ $(document).ready(function () {
                     bridge.emit(bridge.events.imageDetailsRequired, imageObj);
                 }
             };
-
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
-                    self.addImageCard(imageObj);
+                    var card=getImageCardByUUID(imageObj.uuid);
+                    if (card.length) {
+                        self.updateImageCard(imageObj);//if it fired and card already exist then we need to update
+                    } else {
+                        self.addImageCard(imageObj);//if it fired and card doesn't exist then add it
+                    }
                 });
-                bridge.on(bridge.events.pluginActivated, function (imageObj) {
+                bridge.on(bridge.events.pluginActivated, function () {
                     isPluginEnabled = true;
                     self.hideMessage();
                     object.onButton.hide();
                     object.offButton.show();
                     self.startPlugin();
                 });
-                bridge.on(bridge.events.pluginStopped, function (imageObj) {
+                bridge.on(bridge.events.pluginStopped, function () {
                     isPluginEnabled = false;
                     object.onButton.show();
                     object.offButton.hide();
@@ -130,11 +156,6 @@ $(document).ready(function () {
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
-                object.imageListView.on('click', '.image-card', function () {
-                    var imageObj = $(this).data('imageObj');
-                    bridge.emit(bridge.events.onImageAction, imageObj);
-                    self.openImage(imageObj.uuid);
-                });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
                 object.offButton.hide();
