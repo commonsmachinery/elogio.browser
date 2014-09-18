@@ -43,12 +43,14 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     /**
      * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
      * @param lookupImageObjStorage - it's imageObj storage for lookup request
+     * @param destination
      */
+
     function lookupQuery(lookupImageObjStorage,destination) {
         var localStore = lookupImageObjStorage, dictionary = {uri: []};
         //create dictionary
         for (var i = 0; i < localStore.length; i++) {
-            dictionary.uri.push(localStore.uri);
+            dictionary.uri.push(localStore[i].uri);
         }
         elogioServer.lookupQuery(dictionary,
             function (lookupJson) {
@@ -59,7 +61,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                             localStore[i].lookup = lookupJson[j];           // then we need to add it data to imageObj and send it
                             sent = true;
                             bridge.emit(bridge.events.newImageFound, localStore[i]);
-                            destination.emit(bridge.events.highLightImage,localStore[i]);//emit to content draw border around founded images in lookup
+                            destination.emit(bridge.events.onImageAction,localStore[i]);//emit to content draw border around founded images in lookup
                         }
                     }
                     if (!sent) {//if imageObj didn't find itself in response json then we need to send imageObj without lookup data
@@ -166,7 +168,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             });
             // When panel requires image details from server - perform request and notify panel on result
             bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
-                elogioServer.getAnnotationsForImage(imageObj.uri,
+                elogioServer.annotationsQuery(imageObj.lookup.href,
                     function (annotationsJson) {
                         var imageObjFromStorage = findImageInStorage(currentTab.id, imageObj.uuid);
                         if (imageObjFromStorage) {

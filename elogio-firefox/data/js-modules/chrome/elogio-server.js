@@ -6,7 +6,7 @@ Elogio.modules.elogioServer = function (modules) {
     var self = this;
     var Json = [
             {
-                "href": "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
+                "href": "http://www.google.com.ua",
                 "score": 0,
                 "uri": "http://vk.com/images/join/prof_m.png?4",
                 "property": "identifier"
@@ -19,92 +19,92 @@ Elogio.modules.elogioServer = function (modules) {
             }
         ],
         annotationsJson = {
-            "_perms" : {
-                "read" : true
+            "_perms": {
+                "read": true
             },
-            "id" : "5412c76b793c7f383db4bc7c",
-            "href" : "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
-            "owner" : {
-                "org" : {
-                    "version" : 0,
-                    "added_by" : "53bd6e811322215e36bfcf3d",
-                    "profile" : {
-                        "gravatar_hash" : "575ebd54fa00f99d17cecee5abf37f9a"
+            "id": "5412c76b793c7f383db4bc7c",
+            "href": "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
+            "owner": {
+                "org": {
+                    "version": 0,
+                    "added_by": "53bd6e811322215e36bfcf3d",
+                    "profile": {
+                        "gravatar_hash": "575ebd54fa00f99d17cecee5abf37f9a"
                     },
-                    "_perms" : {},
-                    "updated_by" : "53bd6e811322215e36bfcf3d",
-                    "href" : "http://localhost:8004/org/5412c6af8edd1ab73cf80281",
-                    "alias" : "cm",
-                    "updated_at" : "2014-09-12T10:10:55.659Z",
-                    "id" : "5412c6af8edd1ab73cf80281",
-                    "added_at" : "2014-09-12T10:10:55.659Z",
-                    "owners" : [
+                    "_perms": {},
+                    "updated_by": "53bd6e811322215e36bfcf3d",
+                    "href": "http://localhost:8004/org/5412c6af8edd1ab73cf80281",
+                    "alias": "cm",
+                    "updated_at": "2014-09-12T10:10:55.659Z",
+                    "id": "5412c6af8edd1ab73cf80281",
+                    "added_at": "2014-09-12T10:10:55.659Z",
+                    "owners": [
                         "53bd6e811322215e36bfcf3d"
                     ]
                 }
             },
-            "version" : 8,
-            "annotations" : {
-                "title" : [
+            "version": 8,
+            "annotations": {
+                "title": [
                     {
-                        "property" : {
-                            "titleLabel" : "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
-                            "propertyName" : "title",
-                            "value" : "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
-                            "language" : "en"
+                        "property": {
+                            "titleLabel": "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
+                            "propertyName": "title",
+                            "value": "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
+                            "language": "en"
                         },
-                        "updated_by" : {
-                            "id" : "53bd6e811322215e36bfcf3d",
-                            "href" : "http://localhost:8004/users/53bd6e811322215e36bfcf3d"
+                        "updated_by": {
+                            "id": "53bd6e811322215e36bfcf3d",
+                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d"
                         },
-                        "id" : "5412c76b793c7f383db4bc7f",
-                        "updated_at" : "2014-09-12T10:14:03.102Z",
-                        "score" : 0
+                        "id": "5412c76b793c7f383db4bc7f",
+                        "updated_at": "2014-09-12T10:14:03.102Z",
+                        "score": 0
                     }
                 ],
-                "policy" : [
+                "policy": [
                     {
-                        "score" : 0,
-                        "property" : {
-                            "propertyName" : "policy",
-                            "statementLabel" : "Public domain",
-                            "value" : "Public domain"
+                        "score": 0,
+                        "property": {
+                            "propertyName": "policy",
+                            "statementLabel": "Public domain",
+                            "value": "Public domain"
                         },
-                        "updated_at" : "2014-09-12T10:14:03.129Z",
-                        "id" : "5412c76b793c7f383db4bc88",
-                        "updated_by" : {
-                            "href" : "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id" : "53bd6e811322215e36bfcf3d"
+                        "updated_at": "2014-09-12T10:14:03.129Z",
+                        "id": "5412c76b793c7f383db4bc88",
+                        "updated_by": {
+                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
+                            "id": "53bd6e811322215e36bfcf3d"
                         }
                     }
                 ],
-                "locator" : [
+                "locator": [
                     {
-                        "score" : 0,
-                        "updated_at" : "2014-09-12T10:14:03.119Z",
-                        "id" : "5412c76b793c7f383db4bc85",
-                        "updated_by" : {
-                            "href" : "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id" : "53bd6e811322215e36bfcf3d"
+                        "score": 0,
+                        "updated_at": "2014-09-12T10:14:03.119Z",
+                        "id": "5412c76b793c7f383db4bc85",
+                        "updated_by": {
+                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
+                            "id": "53bd6e811322215e36bfcf3d"
                         },
-                        "property" : {
-                            "locatorLink" : "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg",
-                            "propertyName" : "locator",
-                            "value" : "http://commons.wikimedia.org/wiki/File:Sean_O%27Keefe.jpg"
+                        "property": {
+                            "locatorLink": "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg",
+                            "propertyName": "locator",
+                            "value": "http://commons.wikimedia.org/wiki/File:Sean_O%27Keefe.jpg"
                         }
                     },
                     {
-                        "score" : 0,
-                        "id" : "5412c76b793c7f383db4bc91",
-                        "updated_at" : "2014-09-12T10:14:03.154Z",
-                        "updated_by" : {
-                            "href" : "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id" : "53bd6e811322215e36bfcf3d"
+                        "score": 0,
+                        "id": "5412c76b793c7f383db4bc91",
+                        "updated_at": "2014-09-12T10:14:03.154Z",
+                        "updated_by": {
+                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
+                            "id": "53bd6e811322215e36bfcf3d"
                         },
-                        "property" : {
-                            "propertyName" : "locator",
-                            "value" : "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O%27Keefe.jpg/640px-Sean_O%27Keefe.jpg",
-                            "locatorLink" : "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O'Keefe.jpg/640px-Sean_O'Keefe.jpg"
+                        "property": {
+                            "propertyName": "locator",
+                            "value": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O%27Keefe.jpg/640px-Sean_O%27Keefe.jpg",
+                            "locatorLink": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O'Keefe.jpg/640px-Sean_O'Keefe.jpg"
                         }
                     }
                 ]
@@ -116,7 +116,7 @@ Elogio.modules.elogioServer = function (modules) {
      =======================
      */
     var config = modules.getModule('config')/*,
-        request=require('sdk/request').Request*/;
+     request=require('sdk/request').Request*/;
     /*
      =======================
      PRIVATE MEMBERS
@@ -131,18 +131,16 @@ Elogio.modules.elogioServer = function (modules) {
      */
     function sendRequest(url, onSuccess, onError, method) {
         url = url || config.global.apiServer.serverUrl;
-
         /*
          method = method || 'GET';
-        switch (method) {
-            case 'GET': request.get();
-                break;
-            case 'GET': request.post();
-        }*/
+         switch (method) {
+         case 'GET': request.get();
+         break;
+         case 'GET': request.post();
+         }*/
         // TODO: test code!
-        if (url.indexOf('localhost:8004')) {
+        if (url.indexOf('http://localhost:8080')===0) {
             if (onSuccess) {
-                console.log('request sended');
                 onSuccess(Json);
             }
         } else {
@@ -152,16 +150,20 @@ Elogio.modules.elogioServer = function (modules) {
         }
     }
 
-    function urlHelperBuilder(options){
-        var url='?';
-        for(var key in options){
-            if(options.hasOwnProperty(key)){
-                for(var j=0;j<options[key].length;j++){
-                    url+=key+'='+options[key][j]+'&';
+    function urlHelperBuilder(options) {
+        var url = '?';
+        for (var key in options) {
+            if (options.hasOwnProperty(key)) {
+                if (Object.prototype.toString.call(options[key]) === '[object Array]') { //if array
+                    for (var j = 0; j < options[key].length; j++) {
+                        url += key + '=' + '"' + options[key][j] + '"' + '&';
+                    }
+                }else{ //if string or number
+                    url += key + '=' + '"' + options[key] + '"' + '&';
                 }
             }
         }
-        return config.global.apiServer.serverUrl+url.substring(0,url.length-1);
+        return url.substring(0, url.length - 1);
     }
 
     /*
@@ -176,7 +178,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
-        var url =  urlHelperBuilder(imageUrlOrUrls);
+        var url = config.global.apiServer.serverUrl + urlHelperBuilder(imageUrlOrUrls);
         sendRequest(url, onLoad, onError);
     };
     /**
@@ -187,7 +189,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param options - there is parameters of request;
      */
     this.annotationsQuery = function (url, onLoad, onError, options) {
-        options = options || {include:'owner',fields:'annotations',annotations:'title.locator.policy'};
+        options = options || {include: ['owner'], fields: ['annotations'], annotations: ['title.locator.policy']};
         url += urlHelperBuilder(options);
         sendRequest(url, onLoad, onError);
     };

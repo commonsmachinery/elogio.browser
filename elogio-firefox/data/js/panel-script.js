@@ -1,7 +1,7 @@
 $(document).ready(function () {
     'use strict';
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'], function (modules) {
-        var bridge = modules.getModule('bridge'),config=modules.getModule('config');
+        var bridge = modules.getModule('bridge');
 
         var panelController = (function () {
             var object = {
@@ -41,14 +41,10 @@ $(document).ready(function () {
 
             self.addImageCard = function (imageObj) {
                 var cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
+                cardElement.find('.loading').show();// firstly we show indicator, if data received then we don't need forget for hide it
                 cardElement.data(constants.imageObject, imageObj);
                 object.imageListView.append(cardElement);
                 cardElement.find('.loading').show();
-                cardElement.find('img').on('click', function () {
-                    var imageObj = $(this).closest('.image-card').data('imageObj');
-                    bridge.emit(bridge.events.onImageAction, imageObj);
-                    self.openImage(imageObj.uuid);
-                });
 
             };
 
@@ -82,29 +78,39 @@ $(document).ready(function () {
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
             }
-            function addLookupDataToCard(card,imageObj){
+
+            function addLookupDataToCard(card, imageObj) {
                 var lookupData = card.find('.lookup');
-                if(typeof imageObj === 'string' || imageObj instanceof String){//if imageObj is a string with 'data was not founded'
-                    lookupData.append("<p>"+imageObj+"</p>");
-                    lookupData.append('<a href="' + config.global.apiServer.serverUrl + '">Query to Elog.io</a>');
-                }else{
-                    lookupData.append('<a href="' + imageObj.lookup.href + '">information found</a>');
+                if (typeof imageObj === 'string' || imageObj instanceof String) {//if imageObj is a string with 'data was not founded'
+                    lookupData.append("<p>" + imageObj + "</p>");
+                    lookupData.append('<button class="query">Query to Elog.io</button>');
+                } else {
+                    lookupData.append('<p>Data founded</p>');
                 }
                 lookupData.show();
             }
+
+            function updateAnnotations(card, details) {
+                var cardDetailsObj = card.find('.image-details');
+                cardDetailsObj.find('.elogio-owner').html(details.owner.org.added_by);
+                cardDetailsObj.find('.elogio-addedAt').html(details.owner.org.updated_at);
+                cardDetailsObj.find('.elogio-annotations').html(details.annotations.title[0].property.titleLabel);
+            }
+
             self.updateImageCard = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 var indicatorProcess = card.find('.loading');
-                if(imageObj.lookup){
-                    addLookupDataToCard(card,imageObj);
-                }else{
-                    addLookupDataToCard(card,'No information found');
+                if (imageObj.lookup) {
+                    addLookupDataToCard(card, imageObj);
+                } else {
+                    addLookupDataToCard(card, 'No information found');
                 }
                 indicatorProcess.hide();
             };
             self.openImage = function (imageUUID) {
                 var imageCard = getImageCardByUUID(imageUUID);
                 var imageObj = imageCard.data(constants.imageObject);
+                var lookup=imageCard.find('.lookup');
                 $('html, body').animate({
                     scrollTop: imageCard.offset().top
                 }, 500);
@@ -113,11 +119,12 @@ $(document).ready(function () {
                 var loadIndicator = imageCard.find('.loading');
                 if (imageObj.details) {
                     loadIndicator.hide();//if details exist then always indicator hide
+                    updateAnnotations(imageCard, imageObj.details);
                     details.toggle(); //and info we must toggle
-                } else {
-                    loadIndicator.show();//if no info for image then indicator always show
+                } else if (imageObj.lookup) {
+                    loadIndicator.hide();
                     details.hide(); //and details hide
-                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                    lookup.show();
                 }
             };
             self.init = function () {
@@ -125,7 +132,7 @@ $(document).ready(function () {
                 Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
-                    var card=getImageCardByUUID(imageObj.uuid);
+                    var card = getImageCardByUUID(imageObj.uuid);
                     if (card.length) {
                         self.updateImageCard(imageObj);//if it fired and card already exist then we need to update
                     } else {
@@ -156,6 +163,15 @@ $(document).ready(function () {
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
+                object.imageListView.on('click', '.image-card img', function () {
+                    var imageObj = $(this).closest().data(constants.imageObject);
+                    console.log(imageObj);
+                    if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
+                        bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                    }
+                    bridge.emit(bridge.events.onImageAction, imageObj);
+                    self.openImage(imageObj.uuid);
+                });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
                 object.offButton.hide();

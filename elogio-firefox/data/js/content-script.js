@@ -22,12 +22,10 @@ new Elogio(
                 imageDecorator.undecorate(elements[i], document);
             }
         });
-        bridge.on(bridge.events.highLightImage,function(imageObj){
-            var elem=dom.getElementByUUID(imageObj.uuid);
-            elem.style.border="thick solid #0000FF";
-        });
+
         bridge.on(bridge.events.onImageAction, function (imageObj) {
             var elem = dom.getElementByUUID(imageObj.uuid);
+            elem.style.border="thick solid #0000FF";
             if (elem) {
                 elem.scrollIntoView();
             }
