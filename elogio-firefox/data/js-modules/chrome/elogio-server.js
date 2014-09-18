@@ -151,14 +151,16 @@ Elogio.modules.elogioServer = function (modules) {
         }
     }
 
-    function optionsToUrlParams(options){
+    function urlHelperBuilder(options){
         var url='?';
         for(var key in options){
             if(options.hasOwnProperty(key)){
-                url+=key+'='+options[key]+'&';
+                for(var j=0;j<options[key].length;j++){
+                    url+=key+'='+options[key][j]+'&';
+                }
             }
         }
-        return url.substring(0,url.length-1);
+        return config.global.apiServer.serverUrl+url.substring(0,url.length-1);
     }
 
     /*
@@ -168,12 +170,12 @@ Elogio.modules.elogioServer = function (modules) {
      */
 
     /**
-     * @param{String} imageUrl - url of image from page, there is a request param
+     * @param{String} imageUrlOrUrls - url of image from page, there is a request param
      * @param{Function} onLoad - callback method which will be invoked on event onLoad data from site.
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
-    this.lookupQuery = function (imageUrl, onLoad, onError) {
-        var url = config.global.apiServer.serverUrl + imageUrl;
+    this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
+        var url =  urlHelperBuilder(imageUrlOrUrls);
         sendRequest(url, onLoad, onError);
     };
     /**
@@ -185,7 +187,7 @@ Elogio.modules.elogioServer = function (modules) {
      */
     this.annotationsQuery = function (url, onLoad, onError, options) {
         options = options || {include:'owner',fields:'annotations',annotations:'title.locator.policy'};
-        url += optionsToUrlParams(options);
+        url += urlHelperBuilder(options);
         sendRequest(url, onLoad, onError);
     };
     /**

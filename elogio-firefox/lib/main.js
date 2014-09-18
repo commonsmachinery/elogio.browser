@@ -14,7 +14,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var sidebarWorker, elogioSidebar, lookupImageObjStorage = [], tabPageProcessingState = [],pageProcessingIsFinished,
+    var sidebarWorker, elogioSidebar, tabPageProcessingState = [],pageProcessingIsFinished,
         imageStorage = {},
         pluginState = {
             isEnabled: true
@@ -26,25 +26,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
      =======================
      */
 
-    function lookupQuery() {
-        var parameters = '?';
-        //setup parameter string
-        for (var i = 0; i < lookupImageObjStorage.length; i++) {
-            parameters += 'uri=' + lookupImageObjStorage[i].uri + '&';
-        }
-        //and delete all elements which already send
-        lookupImageObjStorage = [];
-        parameters = parameters.substring(0, parameters.length - 1);
-        elogioServer.lookupQuery(parameters,
-            function (lookupJson) {
-                bridge.emit(bridge.events.lookupReceived, lookupJson);
-            },
-            function () {
-                //TODO: Implement on error handler!
-            }
-        );
-
-    }
 
     function findImageInStorage(tabId, uuid) {
         var storage = imageStorage[tabId], i;
@@ -87,13 +68,24 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
+            function lookupQuery() {
+                elogioServer.lookupQuery(lookupImageObjStorage,
+                    function (lookupJson) {
+                        bridge.emit(bridge.events.lookupReceived, lookupJson);
+                    },
+                    function () {
+                        //TODO: Implement on error handler!
+                    }
+                );
+                lookupImageObjStorage = {uri:[]};//cleanup uris
+            }
             var currentTab = contentWorker.tab;
+            var lookupImageObjStorage = {uri:[]};
             contentWorker.port.emit(bridge.events.configUpdated, config);
             //when page processing is finished then we need remember it for current tab
             contentWorker.port.on(bridge.events.pageProcessingFinished,function(){
                 tabPageProcessingState[currentTab.id]=true;
                 pageProcessingIsFinished=true;
-                console.log('images loading is finished');
             });
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
                 var imageStorageForTab = imageStorage[currentTab.id];
@@ -103,7 +95,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages||tabPageProcessingState[currentTab.id]) {
                         lookupQuery();
                     }
-                    lookupImageObjStorage.push(imageObject);
+                    lookupImageObjStorage.uri.push(imageObject.uri);
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
@@ -122,6 +114,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // Proxy startPageProcessing signal to content script
             bridge.on(bridge.events.startPageProcessing, function () {
                 imageStorage[tabs.activeTab.id] = [];
+                lookupImageObjStorage={uri:[]};//cleanup and initialize uri storage before start
                 if (currentTab === tabs.activeTab) {
                     contentWorker.port.emit(bridge.events.startPageProcessing);
                 }
