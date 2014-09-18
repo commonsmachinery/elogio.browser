@@ -164,7 +164,7 @@ $(document).ready(function () {
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
                 object.imageListView.on('click', '.image-card img', function () {
-                    var imageObj = $(this).closest().data(constants.imageObject);
+                    var imageObj = $(this).closest('.image-card').data(constants.imageObject);
                     console.log(imageObj);
                     if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
                         bridge.emit(bridge.events.imageDetailsRequired, imageObj);
