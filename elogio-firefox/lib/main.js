@@ -44,7 +44,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
      * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
      * @param lookupImageObjStorage - it's imageObj storage for lookup request
      */
-    function lookupQuery(lookupImageObjStorage) {
+    function lookupQuery(lookupImageObjStorage,destination) {
         var localStore = lookupImageObjStorage, dictionary = {uri: []};
         //create dictionary
         for (var i = 0; i < localStore.length; i++) {
@@ -59,6 +59,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                             localStore[i].lookup = lookupJson[j];           // then we need to add it data to imageObj and send it
                             sent = true;
                             bridge.emit(bridge.events.newImageFound, localStore[i]);
+                            destination.emit(bridge.events.highLightImage,localStore[i]);//emit to content draw border around founded images in lookup
                         }
                     }
                     if (!sent) {//if imageObj didn't find itself in response json then we need to send imageObj without lookup data
@@ -109,7 +110,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 tabPageProcessingState[currentTab.id] = true;
                 //if page processing finished we need to check if all lookup objects was sended to elogio server
                 if (lookupImageObjStorage.length > 0) {
-                    lookupQuery(lookupImageObjStorage);
+                    lookupQuery(lookupImageObjStorage,contentWorker.port);
                     lookupImageObjStorage = [];
                 }
             });
@@ -119,7 +120,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 if (currentTab === tabs.activeTab) {
                     //if image was found then we need to check if lookup storage is ready for query
                     if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages) {
-                        lookupQuery(lookupImageObjStorage);
+                        lookupQuery(lookupImageObjStorage,contentWorker.port);
                         lookupImageObjStorage = [];
                     }
                     lookupImageObjStorage.push(imageObject);
