@@ -72,6 +72,7 @@ Elogio.modules.imageDecorator = function (modules) {
                 //if element marked as 'undecorated' then we need remove this event listener
                 if (this.hasAttribute(config.ui.undecoratedItemAttribute)) {
                     this.removeEventListener('mouseover', e.callee);
+                    this.removeAttribute(config.ui.undecoratedItemAttribute);
                 } else {
                     self.decorate(this, document);
                 }
@@ -81,6 +82,7 @@ Elogio.modules.imageDecorator = function (modules) {
                 //if element marked as 'undecorated' then we need remove this event listener
                 if (this.hasAttribute(config.ui.undecoratedItemAttribute)) {
                     this.removeEventListener('mouseout', e.callee);
+                    this.removeAttribute(config.ui.undecoratedItemAttribute);
                 } else {
                     var uuid = dom.getUUIDofElement(this),
                         iconElement;
@@ -127,6 +129,8 @@ Elogio.modules.imageDecorator = function (modules) {
         if (iconElement) {
             document.body.removeChild(iconElement);
         }
+        // also we need to remove uuid
+        element.removeAttribute(config.ui.dataAttributeName);
     };
 
 };
