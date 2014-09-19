@@ -170,7 +170,7 @@ $(document).ready(function () {
                     imageCard.find('.loading').show();
                     imageCard.find('.no-lookup-data').hide();
                     alert('TODO: Perform query request for ' + imageObj.uuid);
-                    imageCard.find('.hide').show();
+                    imageCard.find('.loading').hide();
                 });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();

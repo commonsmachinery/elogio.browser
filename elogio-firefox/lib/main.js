@@ -7,6 +7,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         pageMod = require("sdk/page-mod"),
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
+        prefs = require("sdk/simple-prefs").prefs,
         Sidebar = require("sdk/ui/sidebar").Sidebar;
 
     // Elogio Modules
@@ -14,7 +15,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var sidebarWorker, elogioSidebar,
+    var elogioSidebar,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: true
@@ -82,8 +83,19 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         }
     }
 
-    // Update config
-    config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
+    function loadApplicationPreferences(changedPropertyName) {
+        var tabsState = appState.getAllTabState(), i, tabWorker;
+        config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
+        config.ui.highlightRecognizedImages = prefs.highlightRecognizedImages;
+        bridge.emit(bridge.events.configUpdated, config);
+        // TODO: Notify all content tab workers about changes
+        for (i =0; i < tabsState.length; i += 1) {
+            tabWorker = tabsState[i].getWorker();
+            if (tabWorker) {
+                tabWorker.emit(bridge.events.configUpdated, config);
+            }
+        }
+    }
 
     // Create sidebar
     elogioSidebar = Sidebar({
@@ -92,7 +104,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         url: self.data.url("html/panel.html"),
         onAttach: function (worker) {
             bridge.registerClient(worker.port);
-            sidebarWorker = worker;
+            // Update config with settings from the Preferences module
+            loadApplicationPreferences();
+            // ... and subscribe for upcoming changes
+            prefs.on('', loadApplicationPreferences);
         }
     });
 
@@ -103,6 +118,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         attachTo: 'top',
         onAttach: function (contentWorker) {
             var currentTab = contentWorker.tab;
+            appState.getTabState(currentTab.id).attachWorker(contentWorker);
             var lookupImageObjStorage = [];
             contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {

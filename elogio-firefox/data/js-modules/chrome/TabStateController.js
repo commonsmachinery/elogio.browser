@@ -32,6 +32,7 @@ Elogio.TabStateController = function () {
     Elogio.inherit(this, new Elogio.StateController());
 
     var ATTRIBUTE_IMAGE_STORE = 'imageStore';
+    var ATTRIBUTE_WORKER = 'worker';
     var self = this;
 
     var getImageStorage = function() {
@@ -67,6 +68,14 @@ Elogio.TabStateController = function () {
 
     this.clearImageStorage = function() {
         this.set(ATTRIBUTE_IMAGE_STORE, {});
+    };
+
+    this.getWorker = function() {
+        return this.get(ATTRIBUTE_WORKER);
+    };
+
+    this.attachWorker = function() {
+        return this.get(ATTRIBUTE_WORKER);
     };
 
     this.set(ATTRIBUTE_IMAGE_STORE, {});

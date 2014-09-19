@@ -23,6 +23,7 @@ Elogio.modules.config = function(modules) {
             iconWidth: 20,
             iconHeight: 20
         },
+        highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
         decoratedItemAttribute:'elogiodecorated',
         undecoratedItemAttribute:'elogioundecorated'
