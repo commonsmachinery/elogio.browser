@@ -86,7 +86,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param options - there is parameters of request;
      */
     this.annotationsQuery = function (url, onLoad, onError, options) {
-        options = options || {include: ['owner'], fields: ['annotations'], annotations: ['title.locator.policy']};
+        options = options || {include: ['owner'], fields: ['annotations'], annotations: ['title,locator,policy']};
         url += urlHelperBuilder(options);
         console.log(url);
         sendRequest(url, onLoad, onError);

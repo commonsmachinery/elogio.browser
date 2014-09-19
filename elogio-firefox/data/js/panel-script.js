@@ -62,9 +62,7 @@ $(document).ready(function () {
                         if (imageObj.details) { // If we were abe to get annotations - populate details
                             cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
                             cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
-                            cardElement.find('.elogio-annotations').text('locatorLink: ' + imageObj.annotations.locator[0].locatorLink);
-                            var details = cardElement.find('.image-details');
-                            details.show();
+                            cardElement.find('.elogio-annotations').text('locatorLink: ');//imageObj.annotations.locator[0].locatorLink
                         } else { // Otherwise - show message
                             cardElement.find('.message-area').text('Sorry, no data available').show();
                         }
@@ -101,11 +99,9 @@ $(document).ready(function () {
 
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
-                var loadindicator = card.find('.loading');
-                loadindicator.hide();//response received we need to switch off load indicator
                 card.data(constants.imageObject, imageObj);
                 this.addOrUpdateImageCard(imageObj);
-                self.openImage(imageObj.uuid);
+                this.openImage(imageObj.uuid);
             };
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
@@ -115,9 +111,9 @@ $(document).ready(function () {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
+                console.log(imageObj);
                 if (imageObj.details) {
-                    var details = imageCard.find('.image-details');
-                    details.toggle();
+                    imageCard.find('.image-details').toggle();
                 }
                 imageCard.highlight();
             };
@@ -155,14 +151,12 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(constants.imageObject);
-                    console.log(imageObj);
-                    if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
-                        var loadindicator = card.find('.loading');
-                        loadindicator.show();//if we need annotations we wait for response
-                        bridge.emit(bridge.events.imageDetailsRequired, imageObj);
-                    }
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
+                    if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
+                        card.find('.loading').show();//if we need annotations we wait for response
+                        bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                    }
                 });
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');
