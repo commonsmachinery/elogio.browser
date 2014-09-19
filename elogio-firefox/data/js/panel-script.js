@@ -57,12 +57,13 @@ $(document).ready(function () {
                 }
                 // If there is lookup data available check if there is image details
                 if (imageObj.lookup && imageObj.lookup.href) {
-                    if (imageObj.hasOwnProperty(imageObj.details)) { // If annotations were loaded...
+                    if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                         if (imageObj.details) { // If we were abe to get annotations - populate details
-                            cardElement.find('.elogio-owner').text('Owner');
-                            cardElement.find('.elogio-addedAt').text('Added at');
-                            cardElement.find('.elogio-annotations').text('Annotations');
-                            cardElement.find('.image-details').show();
+                            cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
+                            cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
+                            cardElement.find('.elogio-annotations').text('locatorLink: ' + imageObj.annotations.locator[0].locatorLink);
+                            var details = cardElement.find('.image-details');
+                            details.show();
                         } else { // Otherwise - show message
                             cardElement.find('.message-area').text('Sorry, no data available').show();
                         }
@@ -98,7 +99,11 @@ $(document).ready(function () {
             };
 
             self.receivedImageDataFromServer = function (imageObj) {
-                getImageCardByUUID(imageObj.uuid).data(constants.imageObject, imageObj);
+                var card = getImageCardByUUID(imageObj.uuid);
+                var loadindicator = card.find('.loading');
+                loadindicator.hide();//response received we need to switch off load indicator
+                card.data(constants.imageObject, imageObj);
+                this.addOrUpdateImageCard(imageObj);
                 self.openImage(imageObj.uuid);
             };
             function getImageCardByUUID(uuid) {
@@ -107,21 +112,13 @@ $(document).ready(function () {
 
             self.openImage = function (imageUUID) {
                 var imageCard = getImageCardByUUID(imageUUID);
-                //var imageObj = imageCard.data(constants.imageObject);
-                //var lookup = imageCard.find('.lookup');
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
-                imageCard.highlight();
-                /*var details = imageCard.find('.image-details');
-                var loadIndicator = imageCard.find('.loading');
+                var imageObj = imageCard.data(constants.imageObject);
                 if (imageObj.details) {
-                    loadIndicator.hide();//if details exist then always indicator hide
-                    updateAnnotations(imageCard, imageObj.details);
-                    details.toggle(); //and info we must toggle
-                } else if (imageObj.lookup) {
-                    loadIndicator.hide();
-                    details.hide(); //and details hide
-                    lookup.show();
-                }*/
+                    var details = imageCard.find('.image-details');
+                    details.toggle();
+                }
+                imageCard.highlight();
             };
             self.init = function () {
                 // Compile mustache templates
@@ -155,9 +152,12 @@ $(document).ready(function () {
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
                 object.imageListView.on('click', '.image-card img', function () {
-                    var imageObj = $(this).closest('.image-card').data(constants.imageObject);
+                    var card = $(this).closest('.image-card');
+                    var imageObj = card.data(constants.imageObject);
                     console.log(imageObj);
                     if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
+                        var loadindicator = card.find('.loading');
+                        loadindicator.show();//if we need annotations we wait for response
                         bridge.emit(bridge.events.imageDetailsRequired, imageObj);
                     }
                     bridge.emit(bridge.events.onImageAction, imageObj);

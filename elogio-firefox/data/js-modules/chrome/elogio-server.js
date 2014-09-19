@@ -4,119 +4,13 @@
 Elogio.modules.elogioServer = function (modules) {
     'use strict';
     var self = this;
-    var Json = [
-            {
-                "href": "http://www.google.com.ua",
-                "score": 0,
-                "uri": "http://vk.com/images/join/prof_vk_m.png?4",
-                "property": "identifier"
-            },
-            {
-                "property": "locator",
-                "score": 0,
-                "href": "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
-                "uri": "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg"
-            }
-        ],
-        annotationsJson = {
-            "_perms": {
-                "read": true
-            },
-            "id": "5412c76b793c7f383db4bc7c",
-            "href": "http://localhost:8004/works/5412c76b793c7f383db4bc7c",
-            "owner": {
-                "org": {
-                    "version": 0,
-                    "added_by": "53bd6e811322215e36bfcf3d",
-                    "profile": {
-                        "gravatar_hash": "575ebd54fa00f99d17cecee5abf37f9a"
-                    },
-                    "_perms": {},
-                    "updated_by": "53bd6e811322215e36bfcf3d",
-                    "href": "http://localhost:8004/org/5412c6af8edd1ab73cf80281",
-                    "alias": "cm",
-                    "updated_at": "2014-09-12T10:10:55.659Z",
-                    "id": "5412c6af8edd1ab73cf80281",
-                    "added_at": "2014-09-12T10:10:55.659Z",
-                    "owners": [
-                        "53bd6e811322215e36bfcf3d"
-                    ]
-                }
-            },
-            "version": 8,
-            "annotations": {
-                "title": [
-                    {
-                        "property": {
-                            "titleLabel": "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
-                            "propertyName": "title",
-                            "value": "Sean O'Keefe, former NASA administrator and United States Secretary of the Navy.",
-                            "language": "en"
-                        },
-                        "updated_by": {
-                            "id": "53bd6e811322215e36bfcf3d",
-                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d"
-                        },
-                        "id": "5412c76b793c7f383db4bc7f",
-                        "updated_at": "2014-09-12T10:14:03.102Z",
-                        "score": 0
-                    }
-                ],
-                "policy": [
-                    {
-                        "score": 0,
-                        "property": {
-                            "propertyName": "policy",
-                            "statementLabel": "Public domain",
-                            "value": "Public domain"
-                        },
-                        "updated_at": "2014-09-12T10:14:03.129Z",
-                        "id": "5412c76b793c7f383db4bc88",
-                        "updated_by": {
-                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id": "53bd6e811322215e36bfcf3d"
-                        }
-                    }
-                ],
-                "locator": [
-                    {
-                        "score": 0,
-                        "updated_at": "2014-09-12T10:14:03.119Z",
-                        "id": "5412c76b793c7f383db4bc85",
-                        "updated_by": {
-                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id": "53bd6e811322215e36bfcf3d"
-                        },
-                        "property": {
-                            "locatorLink": "http://commons.wikimedia.org/wiki/File:Sean_O'Keefe.jpg",
-                            "propertyName": "locator",
-                            "value": "http://commons.wikimedia.org/wiki/File:Sean_O%27Keefe.jpg"
-                        }
-                    },
-                    {
-                        "score": 0,
-                        "id": "5412c76b793c7f383db4bc91",
-                        "updated_at": "2014-09-12T10:14:03.154Z",
-                        "updated_by": {
-                            "href": "http://localhost:8004/users/53bd6e811322215e36bfcf3d",
-                            "id": "53bd6e811322215e36bfcf3d"
-                        },
-                        "property": {
-                            "propertyName": "locator",
-                            "value": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O%27Keefe.jpg/640px-Sean_O%27Keefe.jpg",
-                            "locatorLink": "http://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Sean_O'Keefe.jpg/640px-Sean_O'Keefe.jpg"
-                        }
-                    }
-                ]
-            }
-        };
     /*
      =======================
      REQUIREMENTS
      =======================
      */
-    var config = modules.getModule('config')/*,
-     request=require('sdk/request').Request*/;
+    var config = modules.getModule('config'),
+     Request=require('sdk/request').Request;
     /*
      =======================
      PRIVATE MEMBERS
@@ -131,35 +25,38 @@ Elogio.modules.elogioServer = function (modules) {
      */
     function sendRequest(url, onSuccess, onError, method) {
         url = url || config.global.apiServer.serverUrl;
-        /*
-         method = method || 'GET';
-         switch (method) {
-         case 'GET': request.get();
-         break;
-         case 'GET': request.post();
-         }*/
-        // TODO: test code!
-        if (url.indexOf('http://localhost:8080')===0) {
-            if (onSuccess) {
-                onSuccess(Json);
+        var request = new Request({
+            url: url,
+            headers:{Accept:'application/json'},
+            onComplete: function (response) {
+                onSuccess(response.json);
             }
-        } else {
-            if (onSuccess) {
-                onSuccess(annotationsJson);
-            }
+        });
+        method = method || 'GET';
+        switch (method) {
+            case 'GET':
+                request.get();
+                break;
+            case 'POST':
+                request.post();
         }
     }
 
+    /**
+     * This method
+     * @param options
+     * @returns {string}
+     */
     function urlHelperBuilder(options) {
         var url = '?';
         for (var key in options) {
             if (options.hasOwnProperty(key)) {
                 if (Object.prototype.toString.call(options[key]) === '[object Array]') { //if array
                     for (var j = 0; j < options[key].length; j++) {
-                        url += key + '=' + '"' + options[key][j] + '"' + '&';
+                        url += key + '='  + options[key][j]  + '&';
                     }
-                }else{ //if string or number
-                    url += key + '=' + '"' + options[key] + '"' + '&';
+                } else { //if string or number
+                    url += key + '=' + options[key]  + '&';
                 }
             }
         }
@@ -178,7 +75,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
-        var url = config.global.apiServer.serverUrl + urlHelperBuilder(imageUrlOrUrls);
+        var url = config.global.apiServer.serverUrl+config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
         sendRequest(url, onLoad, onError);
     };
     /**
@@ -191,6 +88,7 @@ Elogio.modules.elogioServer = function (modules) {
     this.annotationsQuery = function (url, onLoad, onError, options) {
         options = options || {include: ['owner'], fields: ['annotations'], annotations: ['title.locator.policy']};
         url += urlHelperBuilder(options);
+        console.log(url);
         sendRequest(url, onLoad, onError);
     };
     /**

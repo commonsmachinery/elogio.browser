@@ -22,23 +22,23 @@ new Elogio(
                 imageDecorator.undecorate(elements[i], document);
             }
         });
-
+        bridge.on(bridge.events.newImageFound,function(imageObj){
+            var element = dom.getElementByUUID(imageObj.uuid);
+            if (element) {
+                imageDecorator.decorate(element, document, function () {
+                    bridge.emit(bridge.events.onImageAction, imageObj);
+                });
+            }
+        });
         bridge.on(bridge.events.onImageAction, function (imageObj) {
             var elem = dom.getElementByUUID(imageObj.uuid);
-            elem.style.border="thick solid #0000FF";
             if (elem) {
                 elem.scrollIntoView();
             }
         });
         bridge.on(bridge.events.startPageProcessing, function () {
             locator.findImages(document, function (imageObj) {
-                var element = dom.getElementByUUID(imageObj.uuid);
-                if (element) {
-                    imageDecorator.decorate(element, document, function () {
-                        bridge.emit(bridge.events.onImageAction, imageObj);
-                    });
-                    bridge.emit(bridge.events.newImageFound, imageObj);
-                }
+                bridge.emit(bridge.events.newImageFound, imageObj);
             },function(){
                 //on error
             },function(){

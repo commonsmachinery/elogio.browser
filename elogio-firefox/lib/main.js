@@ -51,6 +51,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     // Find image from our query in JSON.
                     for (var j = 0; j < lookupJson.length; j++) {
                         if (imageFromStorage.uri === lookupJson[j].uri) {
+                            if (existsInResponse) {// if we found first lookup json object then cancel loop
+                                break;
+                            }
                             existsInResponse = true;
                             // Extend data ImageObject with lookup data and save it
                             imageFromStorage.lookup = lookupJson[j];
@@ -60,8 +63,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     }
                     // If it doesn't exist - assume it doesn't exist on server
                     if (!existsInResponse) {
-                        localStore[i].lookup = false;
-                        bridge.emit(bridge.events.newImageFound, localStore[i]);
+                        imageFromStorage.lookup = false;
+                        bridge.emit(bridge.events.newImageFound, imageFromStorage);
                     }
                 }
             },
