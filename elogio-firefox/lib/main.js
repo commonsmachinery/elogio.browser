@@ -7,7 +7,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         pageMod = require("sdk/page-mod"),
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
-        prefs = require("sdk/simple-prefs").prefs,
+        simplePrefs = require("sdk/simple-prefs"),
         Sidebar = require("sdk/ui/sidebar").Sidebar;
 
     // Elogio Modules
@@ -86,7 +86,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     function loadApplicationPreferences(changedPropertyName) {
         var tabsState = appState.getAllTabState(), i, tabWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
-        config.ui.highlightRecognizedImages = prefs.highlightRecognizedImages;
+        config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
         bridge.emit(bridge.events.configUpdated, config);
         // TODO: Notify all content tab workers about changes
         for (i =0; i < tabsState.length; i += 1) {
@@ -107,7 +107,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // Update config with settings from the Preferences module
             loadApplicationPreferences();
             // ... and subscribe for upcoming changes
-            prefs.on('', loadApplicationPreferences);
+            simplePrefs.on('', loadApplicationPreferences);
         }
     });
 
