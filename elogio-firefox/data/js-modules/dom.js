@@ -110,7 +110,7 @@ Elogio.modules.dom = function(modules) {
                     el.addClass('jqHighlight');
                     el.animate( { backgroundColor: "#ffffcc" }, 1 )
                       .animate( { backgroundColor: originalColor }, 1500, function() {
-                            $(this).removeClass('jqHighlight')
+                            $(this).removeClass('jqHighlight');
                         });
                 });
             };

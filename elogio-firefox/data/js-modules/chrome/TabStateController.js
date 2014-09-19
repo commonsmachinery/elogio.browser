@@ -1,4 +1,5 @@
 Elogio.ApplicationStateController = function() {
+    "use strict";
     Elogio.inherit(this, new Elogio.StateController());
 
     var ATTRIBUTE_TAB_STATE_PREFIX = 'tabState_';
@@ -16,17 +17,18 @@ Elogio.ApplicationStateController = function() {
 
     this.getAllTabState = function() {
         var propertyNames = this.getAllPropertyNames(), i, result = [];
-        for (i = 0; propertyNames.length; i += 1) {
+        for (i = 0; i < propertyNames.length; i += 1) {
             if (propertyNames[i].indexOf(ATTRIBUTE_TAB_STATE_PREFIX) === 0) {
                 result[result.length] = this.get(propertyNames[i]);
             }
         }
         return result;
-    }
+    };
 
 };
 
 Elogio.TabStateController = function () {
+    "use strict";
     Elogio.inherit(this, new Elogio.StateController());
 
     var ATTRIBUTE_IMAGE_STORE = 'imageStore';

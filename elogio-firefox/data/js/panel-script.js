@@ -107,11 +107,9 @@ $(document).ready(function () {
 
             self.openImage = function (imageUUID) {
                 var imageCard = getImageCardByUUID(imageUUID);
-                var imageObj = imageCard.data(constants.imageObject);
-                var lookup=imageCard.find('.lookup');
-                $('html, body').animate({
-                    scrollTop: imageCard.offset().top
-                }, 500);
+                //var imageObj = imageCard.data(constants.imageObject);
+                //var lookup = imageCard.find('.lookup');
+                $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 imageCard.highlight();
                 /*var details = imageCard.find('.image-details');
                 var loadIndicator = imageCard.find('.loading');
@@ -130,7 +128,7 @@ $(document).ready(function () {
                 Mustache.parse(template.imageItem);
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
-                    self.addOrUpdateImageCard(imageObj)
+                    self.addOrUpdateImageCard(imageObj);
                 });
                 bridge.on(bridge.events.pluginActivated, function () {
                     isPluginEnabled = true;
@@ -171,6 +169,7 @@ $(document).ready(function () {
                     imageCard.find('.loading').show();
                     imageCard.find('.no-lookup-data').hide();
                     alert('TODO: Perform query request for ' + imageObj.uuid);
+                    imageCard.find('.hide').show();
                 });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
