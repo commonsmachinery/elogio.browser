@@ -187,7 +187,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
                 elogioServer.annotationsQuery(imageObj.lookup.href,
                     function (annotationsJson) {
-                        console.log(annotationsJson);
                         var imageObjFromStorage = appState.getTabState(currentTab.id)
                             .findImageInStorageByUuid(imageObj.uuid);
                         if (imageObjFromStorage) {
