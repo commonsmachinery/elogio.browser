@@ -84,15 +84,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     }
 
     function loadApplicationPreferences(changedPropertyName) {
-        var tabsState = appState.getAllTabState(), i, tabWorker;
+        var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
         bridge.emit(bridge.events.configUpdated, config);
         // TODO: Notify all content tab workers about changes
         for (i =0; i < tabsState.length; i += 1) {
-            tabWorker = tabsState[i].getWorker();
-            if (tabWorker) {
-                tabWorker.emit(bridge.events.configUpdated, config);
+            tabContentWorker = tabsState[i].getWorker();
+            if (tabContentWorker && tabContentWorker.port) {
+                tabContentWorker.port.emit(bridge.events.configUpdated, config);
             }
         }
     }

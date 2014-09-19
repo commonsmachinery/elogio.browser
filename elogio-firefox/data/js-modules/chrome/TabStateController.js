@@ -74,8 +74,8 @@ Elogio.TabStateController = function () {
         return this.get(ATTRIBUTE_WORKER);
     };
 
-    this.attachWorker = function() {
-        return this.get(ATTRIBUTE_WORKER);
+    this.attachWorker = function(worker) {
+        return this.set(ATTRIBUTE_WORKER, worker);
     };
 
     this.set(ATTRIBUTE_IMAGE_STORE, {});

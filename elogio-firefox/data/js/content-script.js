@@ -14,13 +14,12 @@ new Elogio(
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
-            if(updatedConfig.ui.highlightRecognizedImages){
+            if(updatedConfig.ui.highlightRecognizedImages && document.body.className.indexOf('elogio-highlight') < 0) {
                 document.body.className+=' elogio-highlight';
             }else{
-                document.body.className.replace(/\belogio-highlight\b/,'');
+                document.body.className = document.body.className.replace(/\belogio-highlight\b/,'');
             }
         });
-        //on
         bridge.on(bridge.events.pluginStopped, function () {
             var elements = dom.getAllDecoratedElements();
             for (var i = 0, n = elements.length; i < n; i++) {
