@@ -57,6 +57,7 @@ $(document).ready(function () {
                 }
                 // If there is lookup data available check if there is image details
                 if (imageObj.lookup && imageObj.lookup.href) {
+                    cardElement.data(constants.imageObject, imageObj);// save lookup data to card
                     if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                         if (imageObj.details) { // If we were abe to get annotations - populate details
                             cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
