@@ -24,7 +24,8 @@ module.exports = function (grunt) {
                     paths: ["elogio-firefox/data/less"]
                 },
                 files: {
-                    "<%= buildDir%>/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less"
+                    "<%= buildDir%>/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less",
+                    "<%= buildDir%>/data/css/highlight.css": "elogio-firefox/data/less/highlight.css"
                 }
             }
         },

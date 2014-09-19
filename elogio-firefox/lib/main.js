@@ -113,6 +113,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
 
     pageMod.PageMod({
         include: "*",
+        contentStyleFile:[self.data.url("css/highlight.css")],
         contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo: 'top',

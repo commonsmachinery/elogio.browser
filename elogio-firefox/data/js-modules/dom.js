@@ -76,24 +76,6 @@ Elogio.modules.dom = function(modules) {
         return element.getAttribute(config.ui.dataAttributeName);
     };
 
-    /**
-     * Returns absolute coordinate for given element
-     * @param element - target DOM element
-     * @returns{Object} - Object with top, left attributes
-     */
-    this.getAbsolutePosition = function(element) {
-        var xPosition = 0, yPosition = 0;
-
-        while(element) {
-            xPosition += (element.offsetLeft - element.scrollLeft + element.clientLeft);
-            yPosition += (element.offsetTop - element.scrollTop + element.clientTop);
-            element = element.offsetParent;
-        }
-        return {
-            top: yPosition,
-            left: xPosition
-        };
-    };
 
 
     // If JQuery is in context - extend it with some useful plugins
