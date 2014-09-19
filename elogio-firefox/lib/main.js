@@ -132,7 +132,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 appState.getTabState(currentTab.id).putImageToStorage(imageObject);
                 if (currentTab === tabs.activeTab) {
                     //if image was found then we need to check if lookup storage is ready for query
-                    if (lookupImageObjStorage.length >= config.global.apiServer.requestPerImages) {
+                    if (lookupImageObjStorage.length >= config.global.apiServer.imagesPerRequest) {
                         lookupQuery(lookupImageObjStorage, contentWorker);
                         lookupImageObjStorage = [];
                     }

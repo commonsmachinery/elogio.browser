@@ -8,7 +8,8 @@ Elogio.modules.config = function(modules) {
         apiServer:{
             serverUrl:'http://dev.commonsmachinery.se:8004',
             lookupContext:'/lookup/uri',
-            requestPerImages:10
+            imagesPerRequest:10,
+            gravatarServerUrl:'http://www.gravatar.com/avatar/'
         },
         locator:{
             limitImageHeight:100,

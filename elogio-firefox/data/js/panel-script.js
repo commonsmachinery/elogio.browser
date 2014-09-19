@@ -1,7 +1,7 @@
 $(document).ready(function () {
     'use strict';
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'], function (modules) {
-        var bridge = modules.getModule('bridge');
+        var bridge = modules.getModule('bridge'), config = modules.getModule('config');
 
         var panelController = (function () {
             var object = {
@@ -62,7 +62,13 @@ $(document).ready(function () {
                         if (imageObj.details) { // If we were abe to get annotations - populate details
                             cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
                             cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
-                            cardElement.find('.elogio-annotations').attr('href',imageObj.details.annotations.locator[0].property.locatorLink);
+                            cardElement.find('.elogio-annotations').attr('href', imageObj.details.annotations.locator[0].property.locatorLink);
+                            if(imageObj.details.owner.org.profile){//if exist profile then draw gravatar
+                                cardElement.find('.elogio-gravatar').attr('src',
+                                        config.global.apiServer.gravatarServerUrl + imageObj.details.owner.org.profile.gravatar_hash);
+                            }else{
+                                cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
+                            }
                         } else { // Otherwise - show message
                             cardElement.find('.message-area').text('Sorry, no data available').show();
                         }
