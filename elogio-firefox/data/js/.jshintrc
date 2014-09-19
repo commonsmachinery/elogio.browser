@@ -18,6 +18,7 @@
         "self",
         "addon",
         "$",
+        "jQuery",
         "Mustache",
         "gElementIdAttr",
         "gSubjectAttr",
@@ -29,6 +30,9 @@
         "gMainImageSelectorAttr",
         "gOverlayIdAttr",
         "gOverlaySubjectAttr",
-        "gOverlayElementSelectorAttr"
+        "gOverlayElementSelectorAttr",
+        "Elogio",
+        "exports",
+        "require"
     ]
 }

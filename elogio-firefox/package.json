@@ -1,9 +1,18 @@
 {
-  "name": "elogio-firefox",
-  "title": "elogio-firefox",
-  "id": "jid1-GeU6gWF8UtDrQw",
-  "description": "Add-on for getting metadata from image on the web page!",
-  "author": "Fedorov Artem",
-  "license": "MPL 2.0",
-  "version": "1.0"
+    "name": "elogio-firefox",
+    "title": "elogio-firefox",
+    "id": "jid1-GeU6gWF8UtDrQw",
+    "description": "Add-on for getting metadata from image on the web page",
+    "author": "Fedorov Artem",
+    "license": "MPL 2.0",
+    "version": "1.0",
+    "preferences": [
+        {
+            "name": "highlightRecognizedImages",
+            "title": "Highlight Recognized Images",
+            "description": "If enabled plugin will outline each recognized image on the page",
+            "type": "bool",
+            "value": true
+        }
+    ]
 }
