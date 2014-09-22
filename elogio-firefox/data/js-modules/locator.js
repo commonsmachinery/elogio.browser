@@ -114,6 +114,11 @@ Elogio.modules.locator = function (modules) {
                 return false;
             }
             urlStorage.push(img.src);
+            //filtering sprites, width and height of sprite will be bigger then real width and height of image
+            var node=data.node;
+            if(node&&node.offsetWidth<img.width||node.offsetHeight<img.height){
+                return false;
+            }
             return img.width >= config.global.locator.limitImageWidth &&
                 img.height >= config.global.locator.limitImageWidth;
         }
