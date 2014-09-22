@@ -56,7 +56,7 @@ Elogio.modules.elogioServer = function (modules) {
                         url += key + '='  + encodeURIComponent(options[key][j])  + '&';
                     }
                 } else { //if string or number
-                    url += key + '=' + options[key]  + '&';
+                    url += key + '=' + encodeURIComponent(options[key])  + '&';
                 }
             }
         }
