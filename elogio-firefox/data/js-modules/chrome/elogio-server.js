@@ -51,8 +51,9 @@ Elogio.modules.elogioServer = function (modules) {
         var url = '?';
         for (var key in options) {
             if (options.hasOwnProperty(key)) {
-                if (Object.prototype.toString.call(options[key]) === '[object Array]') { //if array
+                if (Array.isArray(options[key])) { //if array
                     for (var j = 0; j < options[key].length; j++) {
+                        //todo add url encode
                         url += key + '='  + options[key][j]  + '&';
                     }
                 } else { //if string or number
