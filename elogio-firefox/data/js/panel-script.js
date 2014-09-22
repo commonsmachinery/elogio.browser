@@ -39,6 +39,32 @@ $(document).ready(function () {
                     eventHandlers[eventName](argument);
                 }
             };
+            // method needs to init data in the template
+            self.initializeDetails=function(imageObj,cardElement){
+                if (imageObj.details) { // If we were abe to get annotations - populate details
+                    cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
+                    cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
+                    cardElement.find('.elogio-annotations').attr('href', imageObj.details.annotations.locator[0].property.locatorLink);
+                    if (imageObj.details.owner.org.profile) {//if exist profile then draw gravatar
+                        cardElement.find('.elogio-gravatar').attr('src',
+                                config.global.apiServer.gravatarServerUrl + imageObj.details.owner.org.profile.gravatar_hash);
+                    } else {
+                        cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
+                    }
+                    if(imageObj.details.annotations.policy){
+                        cardElement.find('.elogio-license').text('License: '+imageObj.details.annotations.policy[0].property.statementLabel);
+                        if(imageObj.details.annotations.policy[0].property.statementLink){
+                            cardElement.find('.elogio-license-link').attr('href',imageObj.details.annotations.policy[0].property.statementLink);
+                        }else{
+                            cardElement.find('.elogio-license-link').hide();
+                        }
+                    }else{
+                        cardElement.find('.elogio-license').hide();
+                    }
+                } else { // Otherwise - show message
+                    cardElement.find('.message-area').text('Sorry, no data available').show();
+                }
+            };
 
             self.showMessage = function (html) {
                 object.messageBox.html(html);
@@ -69,19 +95,7 @@ $(document).ready(function () {
                 if (imageObj.lookup && imageObj.lookup.href) {
                     cardElement.data(constants.imageObject, imageObj);// save lookup data to card
                     if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
-                        if (imageObj.details) { // If we were abe to get annotations - populate details
-                            cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
-                            cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
-                            cardElement.find('.elogio-annotations').attr('href', imageObj.details.annotations.locator[0].property.locatorLink);
-                            if (imageObj.details.owner.org.profile) {//if exist profile then draw gravatar
-                                cardElement.find('.elogio-gravatar').attr('src',
-                                        config.global.apiServer.gravatarServerUrl + imageObj.details.owner.org.profile.gravatar_hash);
-                            } else {
-                                cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
-                            }
-                        } else { // Otherwise - show message
-                            cardElement.find('.message-area').text('Sorry, no data available').show();
-                        }
+                        self.initializeDetails(imageObj,cardElement);
                     } else {
                         // Nothing to do hear just waiting when user clicks on image to query details
                     }
