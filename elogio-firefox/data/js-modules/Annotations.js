@@ -1,7 +1,7 @@
 /**
  * Created by TEMA on 22.09.2014.
  */
-Elogio.Annotations = function (imageObj,config) {
+Elogio.Annotations = function (imageObj, config) {
     "use strict";
     var details = imageObj.details;
 
@@ -51,6 +51,17 @@ Elogio.Annotations = function (imageObj,config) {
         return null;
     }
 
+    function getLocatorField() {
+        var annotations = getAnnotationField();
+        if (!annotations && !annotations.locator) {
+            return null;
+        }
+        if (Array.isArray(annotations.locator)) {
+            return annotations.locator[0] || null;
+        }
+        return annotations.locator;
+    }
+
     this.getOwner = function () {
         var owner = getOwnersOrgField();
         if (owner) {
@@ -80,9 +91,9 @@ Elogio.Annotations = function (imageObj,config) {
         return null;
     };
     this.getLocatorLink = function () {
-        var propertyField = getPropertyField();
-        if (propertyField) {
-            return propertyField.locatorLink || null;
+        var locatorField = getLocatorField();
+        if (locatorField && locatorField.property) {
+            return locatorField.property.locatorLink || null;
         }
         return null;
     };
