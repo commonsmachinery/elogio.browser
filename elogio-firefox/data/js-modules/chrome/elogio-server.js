@@ -53,8 +53,7 @@ Elogio.modules.elogioServer = function (modules) {
             if (options.hasOwnProperty(key)) {
                 if (Array.isArray(options[key])) { //if array
                     for (var j = 0; j < options[key].length; j++) {
-                        //todo add url encode
-                        url += key + '='  + options[key][j]  + '&';
+                        url += key + '='  + encodeURIComponent(options[key][j])  + '&';
                     }
                 } else { //if string or number
                     url += key + '=' + options[key]  + '&';
