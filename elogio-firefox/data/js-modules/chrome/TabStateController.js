@@ -57,6 +57,16 @@ Elogio.TabStateController = function () {
         return store[uuid];
     };
 
+    this.findImageInStorageByUrl = function(url) {
+        var store = getImageStorage(), uuid;
+        for (uuid in store) {
+            if (store.hasOwnProperty(uuid) && store[uuid].uri === url) {
+                return store[uuid];
+            }
+        }
+        return null;
+    };
+
     this.putImageToStorage = function(imageObject) {
         var store = getImageStorage();
         if (imageObject.uuid) {

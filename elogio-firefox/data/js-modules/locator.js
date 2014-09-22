@@ -93,15 +93,17 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
-            return node instanceof HTMLImageElement && filterPrefix !== getImageExtensionByUrl(node.src);
+            return node instanceof HTMLImageElement &&
+                filterPrefix !== getImageExtensionByUrl(node.src) &&
+                !node.src.startsWith('data:');
         },
         // Any tag with background-url excluding .gif
         function (node) {
             var url = getBackgroundUrl(node);
-            if (url && filterPrefix === getImageExtensionByUrl(url)) {
+            if (url && (filterPrefix === getImageExtensionByUrl(url) || url.startsWith('data:'))) {
                 return false;
             }
-            return  url;
+            return !!url;
         }
     ];
     this.imageFilters = [
@@ -162,9 +164,9 @@ Elogio.modules.locator = function (modules) {
      * @param processFinished - calls if all images loaded
      */
 
-    this.findImages = function (document, onImageFound, onError, processFinished) {
+    this.findImages = function (document, nodes, onImageFound, onError, processFinished) {
         urlStorage = [];//every request to find images we need to delete all of urls saved before
-        var countOfProcessedImages = 0;
+        var countOfProcessedImages = 0, countNodes = 0;
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {
                 var imageUuid = this.getAttribute('sourceElement'),
@@ -172,7 +174,9 @@ Elogio.modules.locator = function (modules) {
                 //
                 countOfProcessedImages++;
                 // Apply filters:
-                var result = applyFilters([{img: this, node: dom.getElementByUUID(imageUuid)}], self.imageFilters);
+                var result = applyFilters([
+                    {img: this, node: dom.getElementByUUID(imageUuid)}
+                ], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {
                     var imgObj = {
@@ -207,7 +211,7 @@ Elogio.modules.locator = function (modules) {
             };
 
         // Step 1. We need to get all nodes which potentially contains suitable image.
-        var nodes = this.findNodes(document), countNodes = 0;
+        nodes = nodes || this.findNodes(document);
         for (i = 0; i < nodes.length; i += 1) {
             // Mark node with special attribute containing unique ID which will be used internally
             uuid = utils.generateUUID();
