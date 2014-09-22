@@ -11,7 +11,8 @@ Elogio.modules.locator = function (modules) {
      =======================
      */
     var utils = modules.getModule('utils'),
-        config = modules.getModule('config');
+        config = modules.getModule('config'),
+        dom = modules.getModule('dom');
 
     /*
      =======================
@@ -105,7 +106,8 @@ Elogio.modules.locator = function (modules) {
     ];
     this.imageFilters = [
         // Min size is 100*100px
-        function (img) {
+        function (data) {
+            var img = data.img;
             if (urlStorage.indexOf(img.src) !== -1) {
                 return false;
             }
@@ -170,7 +172,7 @@ Elogio.modules.locator = function (modules) {
                 //
                 countOfProcessedImages++;
                 // Apply filters:
-                var result = applyFilters([this], self.imageFilters);
+                var result = applyFilters([{img: this, node: dom.getElementByUUID(imageUuid)}], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {
                     var imgObj = {
