@@ -31,10 +31,12 @@ new Elogio(
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
-            if (updatedConfig.ui.highlightRecognizedImages && document.body.className.indexOf('elogio-highlight') < 0) {
-                document.body.className += ' elogio-highlight';
-            } else {
-                document.body.className = document.body.className.replace(/\belogio-highlight\b/, '');
+            if (document.body) {
+                if (updatedConfig.ui.highlightRecognizedImages && document.body.className.indexOf('elogio-highlight') < 0) {
+                    document.body.className += ' elogio-highlight';
+                } else {
+                    document.body.className = document.body.className.replace(/\belogio-highlight\b/, '');
+                }
             }
         });
         bridge.on(bridge.events.pluginStopped, function () {
@@ -82,6 +84,9 @@ new Elogio(
             });
             processDocument();
         });
-        observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+        if (document.body) {
+            observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+        }
+
     }
 );
