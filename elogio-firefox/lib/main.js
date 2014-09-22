@@ -18,7 +18,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     var elogioSidebar,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
-            isEnabled: true
+            isEnabled: false
         };
 
     /*
@@ -89,7 +89,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
         bridge.emit(bridge.events.configUpdated, config);
         // TODO: Notify all content tab workers about changes
-        for (i =0; i < tabsState.length; i += 1) {
+        for (i = 0; i < tabsState.length; i += 1) {
             tabContentWorker = tabsState[i].getWorker();
             if (tabContentWorker && tabContentWorker.port) {
                 tabContentWorker.port.emit(bridge.events.configUpdated, config);
@@ -102,18 +102,20 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         id: 'elogio-firefox-plugin',
         title: 'Elog.io Image Catalog',
         url: self.data.url("html/panel.html"),
-        onAttach: function (worker) {
+        onReady: function (worker) {
+            pluginState.isEnabled = true;
             bridge.registerClient(worker.port);
             // Update config with settings from the Preferences module
             loadApplicationPreferences();
             // ... and subscribe for upcoming changes
             simplePrefs.on('', loadApplicationPreferences);
+            notifyPluginState(bridge);
         }
     });
 
     pageMod.PageMod({
         include: "*",
-        contentStyleFile:[self.data.url("css/highlight.css")],
+        contentStyleFile: [self.data.url("css/highlight.css")],
         contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo: 'top',
@@ -147,64 +149,66 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
-            // When user clicks on the image from the panel - proxy event to the content script
-            bridge.on(bridge.events.onImageAction, function (imageObj) {
-                if (currentTab === tabs.activeTab) {
-                    contentWorker.port.emit(bridge.events.onImageAction, imageObj);
-                }
-            });
-            // Proxy startPageProcessing signal to content script
-            bridge.on(bridge.events.startPageProcessing, function () {
-                appState.getTabState(tabs.activeTab.id).clearImageStorage();
-                lookupImageObjStorage = [];//cleanup and initialize uri storage before start
-                if (currentTab === tabs.activeTab) {
-                    contentWorker.port.emit(bridge.events.startPageProcessing);
-                }
-            });
-            // When plugin is turned on we need to update state and notify content script
-            bridge.on(bridge.events.pluginActivated, function () {
-                if (!pluginState.isEnabled) {
-                    pluginState.isEnabled = true;
-                    contentWorker.port.emit(bridge.events.startPageProcessing);
-                    notifyPluginState(bridge);
-                }
-            });
-            // When plugin is turned off we need to update state and notify content script
-            bridge.on(bridge.events.pluginStopped, function () {
-                var tabStates, i;
-                if (pluginState.isEnabled) {
-                    pluginState.isEnabled = false;
-                    // Cleanup local storage
-                    tabStates = appState.getAllTabState();
-                    for (i = 0; i < tabStates.length; i += 1) {
-                        tabStates[i].clearImageStorage();
+            if (pluginState.isEnabled) {
+                // When user clicks on the image from the panel - proxy event to the content script
+                bridge.on(bridge.events.onImageAction, function (imageObj) {
+                    if (currentTab === tabs.activeTab) {
+                        contentWorker.port.emit(bridge.events.onImageAction, imageObj);
                     }
-                    notifyPluginState(contentWorker.port);
-                    notifyPluginState(bridge);
-                }
-            });
-            // When panel requires image details from server - perform request and notify panel on result
-            bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
-                elogioServer.annotationsQuery(imageObj.lookup.href,
-                    function (annotationsJson) {
-                        var imageObjFromStorage = appState.getTabState(currentTab.id)
-                            .findImageInStorageByUuid(imageObj.uuid);
-                        if (imageObjFromStorage) {
-                            imageObjFromStorage.details = annotationsJson;
-                            bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
-                        } else {
-                            console.log("Can't find image in storage: " + imageObj.uuid);
+                });
+                // Proxy startPageProcessing signal to content script
+                bridge.on(bridge.events.startPageProcessing, function () {
+                    appState.getTabState(tabs.activeTab.id).clearImageStorage();
+                    lookupImageObjStorage = [];//cleanup and initialize uri storage before start
+                    if (currentTab === tabs.activeTab) {
+                        contentWorker.port.emit(bridge.events.startPageProcessing);
+                    }
+                });
+                // When plugin is turned on we need to update state and notify content script
+                bridge.on(bridge.events.pluginActivated, function () {
+                    if (!pluginState.isEnabled) {
+                        pluginState.isEnabled = true;
+                        appState.getTabState(tabs.activeTab.id).clearImageStorage();
+                        lookupImageObjStorage = [];//cleanup and initialize uri storage before start
+                        bridge.emit(bridge.events.startPageProcessing);
+                        notifyPluginState(bridge);
+                    }
+                });
+                // When plugin is turned off we need to update state and notify content script
+                bridge.on(bridge.events.pluginStopped, function () {
+                    var tabStates, i;
+                    if (pluginState.isEnabled) {
+                        pluginState.isEnabled = false;
+                        // Cleanup local storage
+                        tabStates = appState.getAllTabState();
+                        for (i = 0; i < tabStates.length; i += 1) {
+                            tabStates[i].clearImageStorage();
                         }
-                    },
-                    function () {
-                        // TODO: Implement on error handler!
+                        notifyPluginState(contentWorker.port);
+                        notifyPluginState(bridge);
                     }
-                );
-            });
-            // Notify panel about current plugin state
-            notifyPluginState(bridge);
-            // Notify content script about current plugin state
-            notifyPluginState(contentWorker.port);
+                });
+                // When panel requires image details from server - perform request and notify panel on result
+                bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
+                    elogioServer.annotationsQuery(imageObj.lookup.href,
+                        function (annotationsJson) {
+                            var imageObjFromStorage = appState.getTabState(currentTab.id)
+                                .findImageInStorageByUuid(imageObj.uuid);
+                            if (imageObjFromStorage) {
+                                imageObjFromStorage.details = annotationsJson;
+                                bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                            } else {
+                                console.log("Can't find image in storage: " + imageObj.uuid);
+                            }
+                        },
+                        function () {
+                            // TODO: Implement on error handler!
+                        }
+                    );
+                });
+
+                bridge.emit(bridge.events.startPageProcessing);
+            }
         }
     });
 

@@ -20,6 +20,17 @@ $(document).ready(function () {
                 self = {},
                 isPluginEnabled = null;
 
+            self.displayMessages = function() {
+                if (!object.imageListView.children().length) {
+                    if (isPluginEnabled) {
+                        self.showMessage("Refresh the page to start");
+                    } else {
+                        self.showMessage("Enable plugin to start");
+                    }
+                } else {
+                    self.hideMessage();
+                }
+            };
             self.on = function (eventName, callback) {
                 eventHandlers[eventName] = callback;
             };
@@ -38,7 +49,6 @@ $(document).ready(function () {
                 object.messageBox.html('');
                 object.messageBox.hide();
             };
-
             self.addOrUpdateImageCard = function (imageObj) {
                 // Try to find existing card and create the new one if it wasn't rendered before
                 var cardElement = getImageCardByUUID(imageObj.uuid);
@@ -63,10 +73,10 @@ $(document).ready(function () {
                             cardElement.find('.elogio-owner').text('Owner: ' + imageObj.details.owner.org.added_by);
                             cardElement.find('.elogio-addedAt').text('Added at: ' + imageObj.details.owner.org.added_at);
                             cardElement.find('.elogio-annotations').attr('href', imageObj.details.annotations.locator[0].property.locatorLink);
-                            if(imageObj.details.owner.org.profile){//if exist profile then draw gravatar
+                            if (imageObj.details.owner.org.profile) {//if exist profile then draw gravatar
                                 cardElement.find('.elogio-gravatar').attr('src',
                                         config.global.apiServer.gravatarServerUrl + imageObj.details.owner.org.profile.gravatar_hash);
-                            }else{
+                            } else {
                                 cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
                             }
                         } else { // Otherwise - show message
@@ -82,15 +92,19 @@ $(document).ready(function () {
             };
 
             self.startPlugin = function () {
-                // Clear existing list of
-                object.imageListView.empty();
-                bridge.emit(bridge.events.pluginActivated);
-                bridge.emit(bridge.events.startPageProcessing);
+                if (!isPluginEnabled) {
+                    // Clear existing list of
+                    isPluginEnabled = true;
+                    object.imageListView.empty();
+                    bridge.emit(bridge.events.pluginActivated);
+                }
             };
 
             self.stopPlugin = function () {
-                object.imageListView.empty();
-                bridge.emit(bridge.events.pluginStopped);
+                if (isPluginEnabled) { //if already stopped then we don't need to stop the plugin again
+                    object.imageListView.empty();
+                    bridge.emit(bridge.events.pluginStopped);
+                }
             };
 
             self.loadImages = function (imageObjects) {
@@ -117,7 +131,6 @@ $(document).ready(function () {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
-                console.log(imageObj);
                 if (imageObj.details) {
                     imageCard.find('.image-details').toggle();
                 }
@@ -129,28 +142,35 @@ $(document).ready(function () {
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
                     self.addOrUpdateImageCard(imageObj);
+                    self.displayMessages();
                 });
                 bridge.on(bridge.events.pluginActivated, function () {
-                    isPluginEnabled = true;
-                    self.hideMessage();
                     object.onButton.hide();
                     object.offButton.show();
                     self.startPlugin();
+                    self.displayMessages();
                 });
                 bridge.on(bridge.events.pluginStopped, function () {
                     isPluginEnabled = false;
                     object.onButton.show();
                     object.offButton.hide();
                     self.stopPlugin();
+                    self.displayMessages();
                 });
                 bridge.on(bridge.events.tabSwitched, function (imageObjects) {
                     self.loadImages(imageObjects);
+                    self.displayMessages();
                 });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
                 });
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
+                });
+                bridge.on(bridge.events.startPageProcessing, function (imageObject) {
+                    self.hideMessage();
+                    object.imageListView.empty();
+                    bridge.emit(bridge.events.startPageProcessing);
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
@@ -175,10 +195,6 @@ $(document).ready(function () {
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
                 object.offButton.hide();
-                // If plugin was initialized after page load - show notification
-                if (isPluginEnabled === null) {
-                    self.showMessage("Refresh the page to start");
-                }
             };
 
             return self;
