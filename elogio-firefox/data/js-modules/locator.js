@@ -107,7 +107,7 @@ Elogio.modules.locator = function (modules) {
         }
     ];
     this.imageFilters = [
-        // Min size is 100*100px
+        // Min size is 100*100px, and exclude repeating urls
         function (data) {
             var img = data.img;
             if (urlStorage.indexOf(img.src) !== -1) {
@@ -162,6 +162,7 @@ Elogio.modules.locator = function (modules) {
      *                                 error{String} - error message
      * @returns{Integer} Returns qty of images it was founded BEFORE applying image filters. Note: Final qty of
      * @param processFinished - calls if all images loaded
+     * @param nodes
      */
 
     this.findImages = function (document, nodes, onImageFound, onError, processFinished) {
@@ -213,6 +214,9 @@ Elogio.modules.locator = function (modules) {
         // Step 1. We need to get all nodes which potentially contains suitable image.
         nodes = nodes || this.findNodes(document);
         for (i = 0; i < nodes.length; i += 1) {
+            if(nodes[i].hasAttribute(config.ui.dataAttributeName)){
+                continue;
+            }
             // Mark node with special attribute containing unique ID which will be used internally
             uuid = utils.generateUUID();
             nodes[i].setAttribute(config.ui.dataAttributeName, uuid);

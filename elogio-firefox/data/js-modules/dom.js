@@ -51,15 +51,15 @@ Elogio.modules.dom = function(modules) {
      *
      * @returns {*}
      */
-    this.getAllDecoratedElements=function(){
+    this.getElementsByAttribute=function(attribute){
         if (document.querySelectorAll) {
-            var domElements=document.querySelectorAll('[' +config.ui.decoratedItemAttribute+']');
+            var domElements=document.querySelectorAll('[' +attribute+']');
             return Array.prototype.slice.call(domElements,0,domElements.length);
         } else { // If querySelector is not supported - fallback to the legacy method
             var nodeList = document.getElementsByTagName('*'),
             nodeArray=[];
             for (var i = 0, n = nodeList.length; i < n; i++) {
-                var att = nodeList[i].getAttribute(config.ui.decoratedItemAttribute);
+                var att = nodeList[i].getAttribute(attribute);
                 if (att) {
                    nodeArray.push(nodeList[i]);
                 }

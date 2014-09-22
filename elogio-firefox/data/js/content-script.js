@@ -17,9 +17,9 @@ new Elogio(
         function processDocument() {
             locator.findImages(document, null, function (imageObj) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
-            },function(){
+            }, function () {
                 //on error
-            },function(){
+            }, function () {
                 //on finished
                 bridge.emit(bridge.events.pageProcessingFinished);
             });
@@ -31,19 +31,29 @@ new Elogio(
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
-            if(updatedConfig.ui.highlightRecognizedImages && document.body.className.indexOf('elogio-highlight') < 0) {
-                document.body.className+=' elogio-highlight';
-            }else{
-                document.body.className = document.body.className.replace(/\belogio-highlight\b/,'');
+            if (updatedConfig.ui.highlightRecognizedImages && document.body.className.indexOf('elogio-highlight') < 0) {
+                document.body.className += ' elogio-highlight';
+            } else {
+                document.body.className = document.body.className.replace(/\belogio-highlight\b/, '');
             }
         });
         bridge.on(bridge.events.pluginStopped, function () {
-            var elements = dom.getAllDecoratedElements();
-            for (var i = 0, n = elements.length; i < n; i++) {
+            //at first undecorate all images with success lookup query
+            var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute);
+            var i, n;
+            for (i = 0, n = elements.length; i < n; i++) {
                 imageDecorator.undecorate(elements[i], document);
             }
+            // secondary remove uuid from all elements which we marks
+            var elementsWithUUID = dom.getElementsByAttribute(config.ui.dataAttributeName);
+            for (i = 0, n = elementsWithUUID.length; i < n; i++) {
+                if (elementsWithUUID[i].hasAttribute(config.ui.dataAttributeName)) {
+                    elementsWithUUID[i].removeAttribute(config.ui.dataAttributeName);
+                }
+            }
+
         });
-        bridge.on(bridge.events.newImageFound,function(imageObj){
+        bridge.on(bridge.events.newImageFound, function (imageObj) {
             var element = dom.getElementByUUID(imageObj.uuid);
             if (element) {
                 imageDecorator.decorate(element, document, function () {
@@ -60,9 +70,9 @@ new Elogio(
         bridge.on(bridge.events.startPageProcessing, processDocument);
         // Experiment with MutationObserver
         // create an observer instance
-        var observer = new MutationObserver(function(mutations) {
+        var observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
-            mutations.forEach(function(mutation) {
+            mutations.forEach(function (mutation) {
                 var i;
                 for (i = 0; i < mutation.addedNodes.length; i += 1) {
                     if (mutation.addedNodes[i].nodeType === Node.ELEMENT_NODE) {
