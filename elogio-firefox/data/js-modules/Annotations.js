@@ -92,7 +92,6 @@ Elogio.Annotations = function (imageObj,config) {
             return null;
         }
         if (owner.profile && owner.profile.gravatar_hash) {
-            //careful, because in this class we use module 'config', we need initialize this module in context
             return config.global.apiServer.gravatarServerUrl + owner.profile.gravatar_hash;
         }
         return null;
