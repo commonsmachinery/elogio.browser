@@ -194,7 +194,7 @@ Elogio.modules.locator = function (modules) {
                 countOfProcessedImages++;
                 // Apply filters:
                 var result = applyFilters([
-                    {img: this, node: dom.getElementByUUID(imageUuid)}
+                    {img: this, node: dom.getElementByUUID(imageUuid,document)}
                 ], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {

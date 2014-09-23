@@ -2,7 +2,7 @@
  * Created by LOGICIFY\corvis on 9/12/14.
  */
 
-Elogio.modules.dom = function(modules) {
+Elogio.modules.dom = function (modules) {
     'use strict';
     /*
      =======================
@@ -19,10 +19,10 @@ Elogio.modules.dom = function(modules) {
 
 
     /*
-    =======================
-    PUBLIC MEMBERS
-    =======================
-    */
+     =======================
+     PUBLIC MEMBERS
+     =======================
+     */
 
     // Module configuration
 
@@ -32,7 +32,7 @@ Elogio.modules.dom = function(modules) {
      * @param guid - Elogio internal UUID which is used for identification of nodes which should be processed by plugin.
      * @returns {*}
      */
-    this.getElementByUUID = function(guid) {
+    this.getElementByUUID = function (guid) {
         // Efficient implementation which uses querySelector method
         if (document.querySelectorAll) {
             return document.querySelector('[' + config.ui.dataAttributeName + '="' + guid + '"]');
@@ -51,17 +51,17 @@ Elogio.modules.dom = function(modules) {
      *
      * @returns {*}
      */
-    this.getElementsByAttribute=function(attribute){
-        if (document.querySelectorAll) {
-            var domElements=document.querySelectorAll('[' +attribute+']');
-            return Array.prototype.slice.call(domElements,0,domElements.length);
+    this.getElementsByAttribute = function (attribute, context) {
+        if (context.querySelectorAll) {
+            var domElements = context.querySelectorAll('[' + attribute + ']');
+            return Array.prototype.slice.call(domElements, 0, domElements.length);
         } else { // If querySelector is not supported - fallback to the legacy method
-            var nodeList = document.getElementsByTagName('*'),
-            nodeArray=[];
+            var nodeList = context.getElementsByTagName('*'),
+                nodeArray = [];
             for (var i = 0, n = nodeList.length; i < n; i++) {
                 var att = nodeList[i].getAttribute(attribute);
                 if (att) {
-                   nodeArray.push(nodeList[i]);
+                    nodeArray.push(nodeList[i]);
                 }
             }
             return nodeArray;
@@ -72,26 +72,25 @@ Elogio.modules.dom = function(modules) {
      * Returns Elogio UUID of the element if was set, otherwise returns undefined.
      * @param element - target DOM element
      */
-    this.getUUIDofElement = function(element) {
+    this.getUUIDofElement = function (element) {
         return element.getAttribute(config.ui.dataAttributeName);
     };
-
 
 
     // If JQuery is in context - extend it with some useful plugins
     if (typeof jQuery !== 'undefined') {
         // Highlight effect
         if (!jQuery.fn.highlight) {
-            jQuery.fn.highlight = function() {
-                $(this).each(function() {
+            jQuery.fn.highlight = function () {
+                $(this).each(function () {
                     var el = $(this),
                         originalColor = el.css('background-color');
                     if (el.hasClass('jqHighlight')) {
                         return;
                     }
                     el.addClass('jqHighlight');
-                    el.animate( { backgroundColor: "#ffffcc" }, 1 )
-                      .animate( { backgroundColor: originalColor }, 1500, function() {
+                    el.animate({ backgroundColor: "#ffffcc" }, 1)
+                        .animate({ backgroundColor: originalColor }, 1500, function () {
                             $(this).removeClass('jqHighlight');
                         });
                 });

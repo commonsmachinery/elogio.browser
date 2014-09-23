@@ -42,13 +42,13 @@ new Elogio(
         });
         bridge.on(bridge.events.pluginStopped, function () {
             //at first un-decorate all images with success lookup query
-            var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute);
+            var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
             var i, n;
             for (i = 0, n = elements.length; i < n; i++) {
                 imageDecorator.undecorate(elements[i], document);
             }
             // secondary remove uuid from all elements which we marks
-            var elementsWithUUID = dom.getElementsByAttribute(config.ui.dataAttributeName);
+            var elementsWithUUID = dom.getElementsByAttribute(config.ui.dataAttributeName, document);
             for (i = 0, n = elementsWithUUID.length; i < n; i++) {
                 if (elementsWithUUID[i].hasAttribute(config.ui.dataAttributeName)) {
                     elementsWithUUID[i].removeAttribute(config.ui.dataAttributeName);
@@ -59,7 +59,7 @@ new Elogio(
             }
         });
         bridge.on(bridge.events.newImageFound, function (imageObj) {
-            var element = dom.getElementByUUID(imageObj.uuid);
+            var element = dom.getElementByUUID(imageObj.uuid, document);
             if (element) {
                 imageDecorator.decorate(element, document, function () {
                     bridge.emit(bridge.events.onImageAction, imageObj);
@@ -67,7 +67,7 @@ new Elogio(
             }
         });
         bridge.on(bridge.events.onImageAction, function (imageObj) {
-            var elem = dom.getElementByUUID(imageObj.uuid);
+            var elem = dom.getElementByUUID(imageObj.uuid, document);
             if (elem) {
                 elem.scrollIntoView();
             }
@@ -99,16 +99,9 @@ new Elogio(
                             bridge.emit(bridge.events.onImageRemoved, uuid);
                         }
                         // check if node has another removed elements
-                        if (mutation.removedNodes[i].querySelectorAll) {
-                            elements = mutation.removedNodes[i].querySelectorAll('*');
-                        } else {
-                            elements = mutation.removedNodes[i].getElementsByTagName('*');
-                        }
+                        elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
                         if (elements) {
                             for (var j = 0; j < elements.length; j++) {
-                                if (!elements[j].hasAttribute(config.ui.dataAttributeName)) {
-                                    continue;//skip if it has not elogio attribute
-                                }
                                 uuid = elements[j].getAttribute(config.ui.dataAttributeName);
                                 if (uuid) {
                                     bridge.emit(bridge.events.onImageRemoved, uuid);
