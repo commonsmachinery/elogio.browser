@@ -19,18 +19,22 @@ Elogio.modules.locator = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-    var urlStorage = [], filterPrefix = '.gif',coefficientOfSpriteSize=5;//needs for saving urls of images by request
+    var urlStorage = [], filterPrefix = '.gif', coefficientOfSpriteSize = 5;//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
-            result = [];
+            result = [], filterResult;
         for (i = 0; i < nodesQty; i += 1) {
             item = elements[i];
             isSuitable = false;
             for (j = 0; j < filters.length; j += 1) {
-                // If at least one of the filters allows to
-                if (filters[j].apply(self, [item])) {
-                    isSuitable = true;
+                filterResult = filters[j].apply(self, [item]);
+                // NULL means that filter can't decide if candidate matches conditions
+                if (filterResult === null || filterResult == undefined) {
+                    continue;
+                }
+                else {
+                    isSuitable = !!filterResult;
                     break;
                 }
             }
@@ -94,8 +98,7 @@ Elogio.modules.locator = function (modules) {
         // All IMG tags excluding .gif
         function (node) {
             return node instanceof HTMLImageElement &&
-                filterPrefix !== getImageExtensionByUrl(node.src) &&
-                !node.src.startsWith('data:');
+                filterPrefix !== getImageExtensionByUrl(node.src) && !node.src.startsWith('data:');
         },
         // Any tag with background-url excluding .gif
         function (node) {
@@ -107,20 +110,30 @@ Elogio.modules.locator = function (modules) {
         }
     ];
     this.imageFilters = [
-        // Min size is 100*100px, and exclude repeating urls
+        // Exclude repeating urls
+        function(data) {
+            if (urlStorage.indexOf(data.img.src) !== -1) {
+                return false;
+            }
+            urlStorage.push(data.img.src);
+            return null;
+        },
+        // Min size is 100*100px
         function (data) {
             var img = data.img;
-            if (urlStorage.indexOf(img.src) !== -1) {
-                return false;
-            }
-            urlStorage.push(img.src);
-            //filtering sprites, width and height of sprite will be bigger then real width and height of image
-            var node=data.node,squareOfNode=node.offsetWidth*node.offsetHeight,squareOfImage=img.width*img.height;
-            if(node&&squareOfImage/squareOfNode>coefficientOfSpriteSize&&getBackgroundUrl(node)){
-                return false;
-            }
             return img.width >= config.global.locator.limitImageWidth &&
-                img.height >= config.global.locator.limitImageWidth;
+                   img.height >= config.global.locator.limitImageWidth;
+        },
+        // Skip sprites
+        function (data) {
+            var img = data.img;
+            //filtering sprites, width and height of sprite will be bigger then real width and height of image
+            var node = data.node, squareOfNode = node.offsetWidth * node.offsetHeight,
+                squareOfImage = img.width * img.height;
+            if (node && squareOfImage / squareOfNode > coefficientOfSpriteSize && getBackgroundUrl(node)) {
+                return false;
+            }
+            return null;
         }
     ];
 
@@ -219,7 +232,7 @@ Elogio.modules.locator = function (modules) {
         // Step 1. We need to get all nodes which potentially contains suitable image.
         nodes = nodes || this.findNodes(document);
         for (i = 0; i < nodes.length; i += 1) {
-            if(nodes[i].hasAttribute(config.ui.dataAttributeName)){
+            if (nodes[i].hasAttribute(config.ui.dataAttributeName)) {
                 continue;
             }
             // Mark node with special attribute containing unique ID which will be used internally
