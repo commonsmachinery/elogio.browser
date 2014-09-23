@@ -41,7 +41,7 @@ new Elogio(
             }
         });
         bridge.on(bridge.events.pluginStopped, function () {
-            //at first undecorate all images with success lookup query
+            //at first un-decorate all images with success lookup query
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute);
             var i, n;
             for (i = 0, n = elements.length; i < n; i++) {
@@ -89,28 +89,27 @@ new Elogio(
                         nodesToBeProcessed[nodesToBeProcessed.length] = mutation.addedNodes[i];
                     }
                 }
-                //this loop needs for removing images from storage and panel
+                // remove images from storage and panel once they disappear from DOM
                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
-                        //if node is removed element
-                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
-                        if (mutation.removedNodes[i].hasAttribute(config.ui.dataAttributeName)) {
-                            uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
+                        // if node is removed element
+                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
+                            elements;
+                        if (uuid) {
                             bridge.emit(bridge.events.onImageRemoved, uuid);
                         }
-                        //check if node has another removed elements
-                        var elems;
+                        // check if node has another removed elements
                         if (mutation.removedNodes[i].querySelectorAll) {
-                            elems = mutation.removedNodes[i].querySelectorAll('*');
+                            elements = mutation.removedNodes[i].querySelectorAll('*');
                         } else {
-                            elems = mutation.removedNodes[i].getElementsByTagName('*');
+                            elements = mutation.removedNodes[i].getElementsByTagName('*');
                         }
-                        if (elems) {
-                            for (var j = 0; j < elems.length; j++) {
-                                if (!elems[j].hasAttribute(config.ui.dataAttributeName)) {
+                        if (elements) {
+                            for (var j = 0; j < elements.length; j++) {
+                                if (!elements[j].hasAttribute(config.ui.dataAttributeName)) {
                                     continue;//skip if it has not elogio attribute
                                 }
-                                uuid = elems[j].getAttribute(config.ui.dataAttributeName);
+                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
                                 if (uuid) {
                                     bridge.emit(bridge.events.onImageRemoved, uuid);
                                 }
