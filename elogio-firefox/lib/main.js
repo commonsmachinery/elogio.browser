@@ -131,9 +131,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
             });
             //if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
-            contentWorker.port.on(bridge.events.onImageRemoved,function(uuid){
+            contentWorker.port.on(bridge.events.onImageRemoved, function (uuid) {
                 var tabState = appState.getTabState(currentTab.id);
-                bridge.emit(bridge.events.onImageRemoved,uuid);
+                bridge.emit(bridge.events.onImageRemoved, uuid);
                 tabState.removeImageFromStorageByUuid(uuid);
             });
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
@@ -159,6 +159,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
+            //this code we need to do only if plugin is active
             if (pluginState.isEnabled) {
                 contentWorker.port.emit(bridge.events.configUpdated, config);
                 // When user clicks on the image from the panel - proxy event to the content script
@@ -220,7 +221,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         }
                     );
                 });
-
+                //when content script attached to page we need to start scan the page
                 bridge.emit(bridge.events.startPageProcessing);
             }
         }

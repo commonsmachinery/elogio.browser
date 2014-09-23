@@ -109,10 +109,10 @@ Elogio.modules.imageDecorator = function (modules) {
             }
         }
         // Position icon on the element
-        position =element.getBoundingClientRect();
-                                                //it is scroll top position
+        position = element.getBoundingClientRect();
+        //it is scroll top position
         iconElement.style.top = (position.top + window.pageYOffset || document.documentElement.scrollTop) + 'px';
-                                                //it is scroll left position
+        //it is scroll left position
         iconElement.style.left = (position.left + window.pageXOffset || document.documentElement.scrollLeft) + 'px';
         // Hide element if this is very first call.
         iconElement.style.display = iconAlreadyCreated ? 'block' : 'none';

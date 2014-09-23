@@ -100,14 +100,14 @@ new Elogio(
                         }
                         //check if node has another removed elements
                         var elems;
-                        if(mutation.removedNodes[i].querySelectorAll){
+                        if (mutation.removedNodes[i].querySelectorAll) {
                             elems = mutation.removedNodes[i].querySelectorAll('*');
-                        }else{
-                            elems=mutation.removedNodes[i].getElementsByTagName('*');
+                        } else {
+                            elems = mutation.removedNodes[i].getElementsByTagName('*');
                         }
                         if (elems) {
                             for (var j = 0; j < elems.length; j++) {
-                                if(!elems[j].hasAttribute(config.ui.dataAttributeName)){
+                                if (!elems[j].hasAttribute(config.ui.dataAttributeName)) {
                                     continue;//skip if it has not elogio attribute
                                 }
                                 uuid = elems[j].getAttribute(config.ui.dataAttributeName);

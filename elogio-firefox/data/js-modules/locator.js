@@ -111,7 +111,7 @@ Elogio.modules.locator = function (modules) {
     ];
     this.imageFilters = [
         // Exclude repeating urls
-        function(data) {
+        function (data) {
             if (urlStorage.indexOf(data.img.src) !== -1) {
                 return false;
             }
@@ -122,7 +122,7 @@ Elogio.modules.locator = function (modules) {
         function (data) {
             var img = data.img;
             return img.width >= config.global.locator.limitImageWidth &&
-                   img.height >= config.global.locator.limitImageWidth;
+                img.height >= config.global.locator.limitImageWidth;
         },
         // Skip sprites
         function (data) {
