@@ -30,7 +30,7 @@ Elogio.modules.locator = function (modules) {
             for (j = 0; j < filters.length; j += 1) {
                 filterResult = filters[j].apply(self, [item]);
                 // NULL means that filter can't decide if candidate matches conditions
-                if (filterResult === null || filterResult == undefined) {
+                if (filterResult === null || filterResult === undefined) {
                     continue;
                 }
                 else {
