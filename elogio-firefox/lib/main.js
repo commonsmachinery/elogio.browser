@@ -110,6 +110,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // ... and subscribe for upcoming changes
             simplePrefs.on('', loadApplicationPreferences);
             notifyPluginState(bridge);
+            // Load content in sidebar if possible
+            if (pluginState.isEnabled) {
+                var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
+                bridge.emit(bridge.events.tabSwitched, images);
+            }
         }
     });
 
