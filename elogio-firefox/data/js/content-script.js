@@ -13,6 +13,7 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        var observer;
 
         function processDocument() {
             locator.findImages(document, null, function (imageObj) {
@@ -42,7 +43,6 @@ new Elogio(
         bridge.on(bridge.events.pluginStopped, function () {
             //at first undecorate all images with success lookup query
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute);
-            console.log(elements);
             var i, n;
             for (i = 0, n = elements.length; i < n; i++) {
                 imageDecorator.undecorate(elements[i], document);
@@ -54,7 +54,9 @@ new Elogio(
                     elementsWithUUID[i].removeAttribute(config.ui.dataAttributeName);
                 }
             }
-
+            if (observer) {
+                observer.disconnect();
+            }
         });
         bridge.on(bridge.events.newImageFound, function (imageObj) {
             var element = dom.getElementByUUID(imageObj.uuid);
@@ -70,10 +72,15 @@ new Elogio(
                 elem.scrollIntoView();
             }
         });
+        bridge.on(bridge.events.pluginActivated,function(){
+            if (document.body) {
+                observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+            }
+        });
         bridge.on(bridge.events.startPageProcessing, processDocument);
         // Experiment with MutationObserver
         // create an observer instance
-        var observer = new MutationObserver(function (mutations) {
+        observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
                 var i;
@@ -85,9 +92,5 @@ new Elogio(
             });
             processDocument();
         });
-        if (document.body) {
-            observer.observe(document.body, { attributes: false, childList: true, subtree: true });
-        }
-
     }
 );

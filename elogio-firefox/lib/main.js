@@ -123,7 +123,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             var currentTab = contentWorker.tab;
             appState.getTabState(currentTab.id).attachWorker(contentWorker);
             var lookupImageObjStorage = [];
-            contentWorker.port.emit(bridge.events.configUpdated, config);
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
                 //if page processing finished we need to check if all lookup objects were sent to Elog.io server
                 if (lookupImageObjStorage.length > 0) {
@@ -155,6 +154,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
             });
             if (pluginState.isEnabled) {
+                contentWorker.port.emit(bridge.events.configUpdated, config);
                 // When user clicks on the image from the panel - proxy event to the content script
                 bridge.on(bridge.events.onImageAction, function (imageObj) {
                     if (currentTab === tabs.activeTab) {
@@ -177,6 +177,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         lookupImageObjStorage = [];//cleanup and initialize uri storage before start
                         bridge.emit(bridge.events.startPageProcessing);
                         notifyPluginState(bridge);
+                        notifyPluginState(contentWorker);
                     }
                 });
                 // When plugin is turned off we need to update state and notify content script
@@ -222,8 +223,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     });
 
     tabs.on('activate', function (tab) {
-        var images = appState.getTabState(tab.id).getImagesFromStorage();
-        bridge.emit(bridge.events.tabSwitched, images);
+        if (pluginState.isEnabled) {
+            var images = appState.getTabState(tab.id).getImagesFromStorage();
+            bridge.emit(bridge.events.tabSwitched, images);
+        }
     });
 
     // Create UI Button

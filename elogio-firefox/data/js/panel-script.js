@@ -41,7 +41,7 @@ $(document).ready(function () {
             };
             // method needs to init data in the template
             self.initializeDetails = function (imageObj, cardElement) {
-                var annotations = new Elogio.Annotations(imageObj,config);
+                var annotations = new Elogio.Annotations(imageObj, config);
                 if (imageObj.details) { // If we were abe to get annotations - populate details
                     cardElement.find('.elogio-owner').text('Owner: ' + annotations.getOwner());
                     cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
@@ -117,6 +117,7 @@ $(document).ready(function () {
 
             self.stopPlugin = function () {
                 if (isPluginEnabled) { //if already stopped then we don't need to stop the plugin again
+                    isPluginEnabled = false;
                     object.imageListView.empty();
                     bridge.emit(bridge.events.pluginStopped);
                 }
@@ -166,15 +167,16 @@ $(document).ready(function () {
                     self.displayMessages();
                 });
                 bridge.on(bridge.events.pluginStopped, function () {
-                    isPluginEnabled = false;
                     object.onButton.show();
                     object.offButton.hide();
                     self.stopPlugin();
                     self.displayMessages();
                 });
                 bridge.on(bridge.events.tabSwitched, function (imageObjects) {
-                    self.loadImages(imageObjects);
-                    self.displayMessages();
+                    if (isPluginEnabled) {//if plugin disabled we don't need load any images
+                        self.loadImages(imageObjects);
+                        self.displayMessages();
+                    }
                 });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
