@@ -19,7 +19,7 @@ Elogio.modules.locator = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-    var urlStorage = [], filterPrefix = '.gif';//needs for saving urls of images by request
+    var urlStorage = [], filterPrefix = '.gif',coefficientOfSpriteSize=5;//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
@@ -115,8 +115,8 @@ Elogio.modules.locator = function (modules) {
             }
             urlStorage.push(img.src);
             //filtering sprites, width and height of sprite will be bigger then real width and height of image
-            var node=data.node;
-            if(node&&node.offsetWidth<img.width||node.offsetHeight<img.height){
+            var node=data.node,squareOfNode=node.offsetWidth*node.offsetHeight,squareOfImage=img.width*img.height;
+            if(node&&squareOfImage/squareOfNode>coefficientOfSpriteSize){
                 return false;
             }
             return img.width >= config.global.locator.limitImageWidth &&
