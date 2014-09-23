@@ -158,10 +158,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     function toggleSidebar() {
         if (!sidebarIsHidden) {
             elogioSidebar.hide();
-            sidebarIsHidden = true;
         } else {
             elogioSidebar.show();
-            sidebarIsHidden = false;
         }
     }
 
@@ -195,6 +193,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         onReady: function (worker) {
             pluginState.isEnabled = true;
             bridge.registerClient(worker.port);
+            sidebarIsHidden = false;
             // Update config with settings from the Preferences module
             loadApplicationPreferences();
             //after registration and loading preferences we need to register all listeners of sidebar
@@ -207,10 +206,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
                 if (images.length) {
                     bridge.emit(bridge.events.tabSwitched, images);
-                }else{
+                } else {
                     bridge.emit(bridge.events.startPageProcessing);
                 }
             }
+        },
+        onDetach: function () {
+            sidebarIsHidden = true;
         }
     });
 
