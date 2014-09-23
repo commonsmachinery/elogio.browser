@@ -75,6 +75,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         );
     }
 
+    /**
+     * This method needs to register all listeners of sidebar
+     * @param bridge - it's a worker.port of sidebar
+     */
     function registerSidebarEventListeners(bridge) {
         bridge.on(bridge.events.onImageAction, function (imageObj) {
             var tabState = appState.getTabState(tabs.activeTab.id),
@@ -193,19 +197,20 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             bridge.registerClient(worker.port);
             // Update config with settings from the Preferences module
             loadApplicationPreferences();
+            //after registration and loading preferences we need to register all listeners of sidebar
+            registerSidebarEventListeners(bridge);
             // ... and subscribe for upcoming changes
             simplePrefs.on('', loadApplicationPreferences);
             notifyPluginState(bridge);
-            registerSidebarEventListeners(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
                 var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
-                bridge.emit(bridge.events.tabSwitched, images);
+                if (images.length) {
+                    bridge.emit(bridge.events.tabSwitched, images);
+                }else{
+                    bridge.emit(bridge.events.startPageProcessing);
+                }
             }
-        },
-        onDetach: function (worker) {
-            console.log('detach');
-            bridge.detach();
         }
     });
 
@@ -261,8 +266,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             //this code we need to do only if plugin is active
             if (pluginState.isEnabled) {
                 contentWorker.port.emit(bridge.events.configUpdated, config);
-                registerSidebarEventListeners(bridge);
-                // When user clicks on the image from the panel - proxy event to the content script
                 //when content script attached to page we need to start scan the page
                 bridge.emit(bridge.events.startPageProcessing);
             }

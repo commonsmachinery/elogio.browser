@@ -197,7 +197,7 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.startPageProcessing, function (imageObject) {
                     self.hideMessage();
-                    if(object.imageListView.length){
+                    if (object.imageListView.length) {
                         object.imageListView.empty();
                     }
                     bridge.emit(bridge.events.startPageProcessing);
