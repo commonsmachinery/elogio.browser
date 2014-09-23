@@ -72,7 +72,7 @@ new Elogio(
                 elem.scrollIntoView();
             }
         });
-        bridge.on(bridge.events.pluginActivated,function(){
+        bridge.on(bridge.events.pluginActivated, function () {
             if (document.body) {
                 observer.observe(document.body, { attributes: false, childList: true, subtree: true });
             }
@@ -89,8 +89,37 @@ new Elogio(
                         nodesToBeProcessed[nodesToBeProcessed.length] = mutation.addedNodes[i];
                     }
                 }
+                //this loop needs for removing images from storage and panel
+                for (i = 0; i < mutation.removedNodes.length; i += 1) {
+                    if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
+                        //if node is removed element
+                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
+                        if (mutation.removedNodes[i].hasAttribute(config.ui.dataAttributeName)) {
+                            uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
+                            bridge.emit(bridge.events.onImageRemoved, uuid);
+                        }
+                        //check if node has another removed elements
+                        var elems;
+                        if(mutation.removedNodes[i].querySelectorAll){
+                            elems = mutation.removedNodes[i].querySelectorAll('*');
+                        }else{
+                            elems=mutation.removedNodes[i].getElementsByTagName('*');
+                        }
+                        if (elems) {
+                            for (var j = 0; j < elems.length; j++) {
+                                if(!elems[j].hasAttribute(config.ui.dataAttributeName)){
+                                    continue;//skip if it has not elogio attribute
+                                }
+                                uuid = elems[j].getAttribute(config.ui.dataAttributeName);
+                                if (uuid) {
+                                    bridge.emit(bridge.events.onImageRemoved, uuid);
+                                }
+                            }
+                        }
+                    }
+                }
+                processDocument();
             });
-            processDocument();
         });
     }
 );

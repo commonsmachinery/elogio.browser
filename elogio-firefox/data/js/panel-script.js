@@ -178,6 +178,10 @@ $(document).ready(function () {
                         self.displayMessages();
                     }
                 });
+                //if image disappear from page then we need to remove it at here too
+                bridge.on(bridge.events.onImageRemoved,function(uuid){
+                    getImageCardByUUID(uuid).remove();
+                });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
                 });

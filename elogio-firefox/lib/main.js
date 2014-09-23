@@ -130,6 +130,12 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     lookupImageObjStorage = [];
                 }
             });
+            //if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
+            contentWorker.port.on(bridge.events.onImageRemoved,function(uuid){
+                var tabState = appState.getTabState(currentTab.id);
+                bridge.emit(bridge.events.onImageRemoved,uuid);
+                tabState.removeImageFromStorageByUuid(uuid);
+            });
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
                 var tabState = appState.getTabState(currentTab.id);
                 // Maybe we already have image with this URL in storage?
@@ -166,6 +172,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     appState.getTabState(tabs.activeTab.id).clearImageStorage();
                     lookupImageObjStorage = [];//cleanup and initialize uri storage before start
                     if (currentTab === tabs.activeTab) {
+                        //at first we need to tell content script about state of plugin
+                        notifyPluginState(contentWorker.port);
                         contentWorker.port.emit(bridge.events.startPageProcessing);
                     }
                 });

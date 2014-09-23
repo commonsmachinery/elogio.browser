@@ -78,7 +78,11 @@ Elogio.modules.bridge = function (modules) {
          *            error - will be false if request was successful, otherwise will contain an object
          *                    of the following structure: { code: 1, msg: "" }
          */
-        imageDetailsReceived: "imageDetailsReceived"
+        imageDetailsReceived: "imageDetailsReceived",
+        /**
+         * Fires when image was removed from DOM, needs for remove image from panel when this image disappear from page
+         */
+        onImageRemoved:"onImageRemoved"
     };
 
     this.registerClient = function(transportObj, name) {
