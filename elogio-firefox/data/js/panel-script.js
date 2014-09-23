@@ -18,7 +18,7 @@ $(document).ready(function () {
             };
             var eventHandlers = {},
                 self = {},
-                isPluginEnabled = null;
+                isPluginEnabled = true;
 
             self.displayMessages = function () {
                 if (!object.imageListView.children().length) {
@@ -109,16 +109,18 @@ $(document).ready(function () {
             self.startPlugin = function () {
                 if (!isPluginEnabled) {
                     // Clear existing list of
-                    isPluginEnabled = true;
-                    object.imageListView.empty();
+                    if (object.imageListView.length) {
+                        object.imageListView.empty();
+                    }
                     bridge.emit(bridge.events.pluginActivated);
                 }
             };
 
             self.stopPlugin = function () {
                 if (isPluginEnabled) { //if already stopped then we don't need to stop the plugin again
-                    isPluginEnabled = false;
-                    object.imageListView.empty();
+                    if (object.imageListView.length) {
+                        object.imageListView.empty();
+                    }
                     bridge.emit(bridge.events.pluginStopped);
                 }
             };
@@ -126,10 +128,14 @@ $(document).ready(function () {
             self.loadImages = function (imageObjects) {
                 var i;
                 // Clear list
-                object.imageListView.empty();
+                if (object.imageListView.length) {
+                    object.imageListView.empty();
+                }
                 // Add all objects
-                for (i = 0; i < imageObjects.length; i += 1) {
-                    self.addOrUpdateImageCard(imageObjects[i]);
+                if (imageObjects) {
+                    for (i = 0; i < imageObjects.length; i += 1) {
+                        self.addOrUpdateImageCard(imageObjects[i]);
+                    }
                 }
             };
 
@@ -163,12 +169,13 @@ $(document).ready(function () {
                 bridge.on(bridge.events.pluginActivated, function () {
                     object.onButton.hide();
                     object.offButton.show();
+                    isPluginEnabled = true;
                     self.startPlugin();
-                    self.displayMessages();
                 });
                 bridge.on(bridge.events.pluginStopped, function () {
                     object.onButton.show();
                     object.offButton.hide();
+                    isPluginEnabled = false;
                     self.stopPlugin();
                     self.displayMessages();
                 });
@@ -190,7 +197,9 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.startPageProcessing, function (imageObject) {
                     self.hideMessage();
-                    object.imageListView.empty();
+                    if(object.imageListView.length){
+                        object.imageListView.empty();
+                    }
                     bridge.emit(bridge.events.startPageProcessing);
                 });
                 object.onButton.on('click', self.startPlugin);
@@ -223,7 +232,7 @@ $(document).ready(function () {
 
         // Initialize bridge
         bridge.registerClient(addon.port);               // Default transport: link chrome
-        bridge.registerClient(panelController, 'panel'); // panel controller itself
+        //bridge.registerClient(panelController, 'panel'); // panel controller itself
         panelController.init();
     });
 });

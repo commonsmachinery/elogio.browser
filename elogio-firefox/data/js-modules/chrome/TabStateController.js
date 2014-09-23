@@ -1,21 +1,21 @@
-Elogio.ApplicationStateController = function() {
+Elogio.ApplicationStateController = function () {
     "use strict";
     Elogio.inherit(this, new Elogio.StateController());
 
     var ATTRIBUTE_TAB_STATE_PREFIX = 'tabState_';
 
-    this.getTabState = function(tabId) {
-        if (!this.propertyExists(ATTRIBUTE_TAB_STATE_PREFIX+tabId)) {
-            this.set(ATTRIBUTE_TAB_STATE_PREFIX+tabId, new Elogio.TabStateController());
+    this.getTabState = function (tabId) {
+        if (!this.propertyExists(ATTRIBUTE_TAB_STATE_PREFIX + tabId)) {
+            this.set(ATTRIBUTE_TAB_STATE_PREFIX + tabId, new Elogio.TabStateController());
         }
-        return this.get(ATTRIBUTE_TAB_STATE_PREFIX+tabId);
+        return this.get(ATTRIBUTE_TAB_STATE_PREFIX + tabId);
     };
 
-    this.dropTabState = function(tabId) {
-        this.dropProperty(ATTRIBUTE_TAB_STATE_PREFIX+tabId);
+    this.dropTabState = function (tabId) {
+        this.dropProperty(ATTRIBUTE_TAB_STATE_PREFIX + tabId);
     };
 
-    this.getAllTabState = function() {
+    this.getAllTabState = function () {
         var propertyNames = this.getAllPropertyNames(), i, result = [];
         for (i = 0; i < propertyNames.length; i += 1) {
             if (propertyNames[i].indexOf(ATTRIBUTE_TAB_STATE_PREFIX) === 0) {
@@ -34,15 +34,32 @@ Elogio.TabStateController = function () {
     var ATTRIBUTE_IMAGE_STORE = 'imageStore';
     var ATTRIBUTE_WORKER = 'worker';
     var self = this;
+    var LOOKUP_IMAGE_STORAGE = 'lookupImageStorage';
 
-    var getImageStorage = function() {
+    var getImageStorage = function () {
         if (!self.propertyExists(ATTRIBUTE_IMAGE_STORE)) {
             self.set(ATTRIBUTE_IMAGE_STORE, {});
         }
         return self.get(ATTRIBUTE_IMAGE_STORE);
     };
-
-    this.getImagesFromStorage = function() {
+    var getlookupImageStorage = function () {
+        if (!self.propertyExists(LOOKUP_IMAGE_STORAGE)) {
+            self.set(LOOKUP_IMAGE_STORAGE, []);
+        }
+        return self.get(LOOKUP_IMAGE_STORAGE);
+    };
+    this.putImageToLookupStorage = function (imageObject) {
+        var store = getlookupImageStorage();
+        if (imageObject.uuid) {
+            store.push(imageObject);
+        } else {
+            console.error('Only ImageObject can be placed in LookupStorage');
+        }
+    };
+    this.getImagesFromLookupStorage = function () {
+        return getlookupImageStorage();
+    };
+    this.getImagesFromStorage = function () {
         var store = getImageStorage(), key, result = [];
         for (key in store) {
             if (store.hasOwnProperty(key)) {
@@ -52,16 +69,16 @@ Elogio.TabStateController = function () {
         return result;
     };
 
-    this.findImageInStorageByUuid = function(uuid) {
+    this.findImageInStorageByUuid = function (uuid) {
         var store = getImageStorage();
         return store[uuid];
     };
-    this.removeImageFromStorageByUuid=function(uuid){
+    this.removeImageFromStorageByUuid = function (uuid) {
         var store = getImageStorage();
         delete store[uuid];
         return store;
     };
-    this.findImageInStorageByUrl = function(url) {
+    this.findImageInStorageByUrl = function (url) {
         var store = getImageStorage(), uuid;
         for (uuid in store) {
             if (store.hasOwnProperty(uuid) && store[uuid].uri === url) {
@@ -71,7 +88,7 @@ Elogio.TabStateController = function () {
         return null;
     };
 
-    this.putImageToStorage = function(imageObject) {
+    this.putImageToStorage = function (imageObject) {
         var store = getImageStorage();
         if (imageObject.uuid) {
             store[imageObject.uuid] = imageObject;
@@ -80,17 +97,19 @@ Elogio.TabStateController = function () {
         }
     };
 
-    this.clearImageStorage = function() {
+    this.clearImageStorage = function () {
         this.set(ATTRIBUTE_IMAGE_STORE, {});
     };
-
-    this.getWorker = function() {
+    this.clearLookupImageStorage = function () {
+        this.set(LOOKUP_IMAGE_STORAGE, []);
+    };
+    this.getWorker = function () {
         return this.get(ATTRIBUTE_WORKER);
     };
 
-    this.attachWorker = function(worker) {
+    this.attachWorker = function (worker) {
         return this.set(ATTRIBUTE_WORKER, worker);
     };
-
+    this.set(LOOKUP_IMAGE_STORAGE, []);
     this.set(ATTRIBUTE_IMAGE_STORE, {});
 };

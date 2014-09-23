@@ -92,7 +92,9 @@ Elogio.modules.bridge = function (modules) {
         }
         bus[name || defaultTransportName] = transportObj;
     };
-
+    this.detach=function(){
+         bus={};
+    };
     this.on = function (eventName, callback, source) {
         var i, transport;
         if (source === '*') {

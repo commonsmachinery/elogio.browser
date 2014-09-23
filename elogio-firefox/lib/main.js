@@ -15,7 +15,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var elogioSidebar,
+    var elogioSidebar, sidebarIsHidden = true,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
@@ -75,6 +75,92 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         );
     }
 
+    function registerSidebarEventListeners(bridge) {
+        bridge.on(bridge.events.onImageAction, function (imageObj) {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            if (contentWorker) {
+                contentWorker.port.emit(bridge.events.onImageAction, imageObj);
+            }
+        });
+        // Proxy startPageProcessing signal to content script
+        bridge.on(bridge.events.startPageProcessing, function () {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            tabState.clearImageStorage();
+            tabState.clearLookupImageStorage();
+            if (contentWorker) {
+                //at first we need to tell content script about state of plugin
+                notifyPluginState(contentWorker.port);
+                contentWorker.port.emit(bridge.events.startPageProcessing);
+            }
+        });
+        // When plugin is turned on we need to update state and notify content script
+        bridge.on(bridge.events.pluginActivated, function () {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            if (!pluginState.isEnabled) {
+                pluginState.isEnabled = true;
+                tabState.clearImageStorage();
+                tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
+                notifyPluginState(bridge);
+                if (contentWorker) {
+                    notifyPluginState(contentWorker.port);
+                    bridge.emit(bridge.events.startPageProcessing);
+                }
+            }
+        });
+        // When plugin is turned off we need to update state and notify content script
+        bridge.on(bridge.events.pluginStopped, function () {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            var tabStates, i;
+            if (pluginState.isEnabled) {
+                pluginState.isEnabled = false;
+                // Cleanup local storage
+                tabStates = appState.getAllTabState();
+                if (tabStates) {
+                    for (i = 0; i < tabStates.length; i += 1) {
+                        tabStates[i].clearImageStorage();
+                    }
+                }
+                if (contentWorker) {
+                    notifyPluginState(contentWorker.port);
+                }
+                notifyPluginState(bridge);
+            }
+        });
+        // When panel requires image details from server - perform request and notify panel on result
+        bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
+            var tabState = appState.getTabState(tabs.activeTab.id);
+            elogioServer.annotationsQuery(imageObj.lookup.href,
+                function (annotationsJson) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.details = annotationsJson;
+                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                },
+                function () {
+                    // TODO: Implement on error handler!
+                }
+            );
+        });
+    }
+
+    function toggleSidebar() {
+        if (!sidebarIsHidden) {
+            elogioSidebar.hide();
+            sidebarIsHidden = true;
+        } else {
+            elogioSidebar.show();
+            sidebarIsHidden = false;
+        }
+    }
+
     function notifyPluginState(destination) {
         if (pluginState.isEnabled) {
             destination.emit(bridge.events.pluginActivated);
@@ -110,11 +196,16 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // ... and subscribe for upcoming changes
             simplePrefs.on('', loadApplicationPreferences);
             notifyPluginState(bridge);
+            registerSidebarEventListeners(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
                 var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
                 bridge.emit(bridge.events.tabSwitched, images);
             }
+        },
+        onDetach: function (worker) {
+            console.log('detach');
+            bridge.detach();
         }
     });
 
@@ -125,14 +216,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            var currentTab = contentWorker.tab;
-            appState.getTabState(currentTab.id).attachWorker(contentWorker);
-            var lookupImageObjStorage = [];
+            var currentTab = contentWorker.tab,
+                tabState = appState.getTabState(currentTab.id);
+            tabState.attachWorker(contentWorker);
+
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
                 //if page processing finished we need to check if all lookup objects were sent to Elog.io server
-                if (lookupImageObjStorage.length > 0) {
-                    lookupQuery(lookupImageObjStorage, contentWorker);
-                    lookupImageObjStorage = [];
+                if (tabState.getImagesFromLookupStorage().length > 0) {
+                    lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                    appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
                 }
             });
             //if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
@@ -150,82 +242,27 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 tabState.putImageToStorage(imageObject);
                 if (currentTab === tabs.activeTab) {
                     //if image was found then we need to check if lookup storage is ready for query
-                    if (lookupImageObjStorage.length >= config.global.apiServer.imagesPerRequest) {
-                        lookupQuery(lookupImageObjStorage, contentWorker);
-                        lookupImageObjStorage = [];
+                    if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
+                        lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                        tabState.clearLookupImageStorage();
                     }
-                    lookupImageObjStorage.push(imageObject);
+                    tabState.putImageToLookupStorage(imageObject);
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
             // When user click on the elogio icon near the image
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
+                    elogioSidebar.show();
+                    sidebarIsHidden = false;
                     bridge.emit(bridge.events.onImageAction, imageObject);
                 }
             });
             //this code we need to do only if plugin is active
             if (pluginState.isEnabled) {
                 contentWorker.port.emit(bridge.events.configUpdated, config);
+                registerSidebarEventListeners(bridge);
                 // When user clicks on the image from the panel - proxy event to the content script
-                bridge.on(bridge.events.onImageAction, function (imageObj) {
-                    if (currentTab === tabs.activeTab) {
-                        contentWorker.port.emit(bridge.events.onImageAction, imageObj);
-                    }
-                });
-                // Proxy startPageProcessing signal to content script
-                bridge.on(bridge.events.startPageProcessing, function () {
-                    appState.getTabState(tabs.activeTab.id).clearImageStorage();
-                    lookupImageObjStorage = [];//cleanup and initialize uri storage before start
-                    if (currentTab === tabs.activeTab) {
-                        //at first we need to tell content script about state of plugin
-                        notifyPluginState(contentWorker.port);
-                        contentWorker.port.emit(bridge.events.startPageProcessing);
-                    }
-                });
-                // When plugin is turned on we need to update state and notify content script
-                bridge.on(bridge.events.pluginActivated, function () {
-                    if (!pluginState.isEnabled) {
-                        pluginState.isEnabled = true;
-                        appState.getTabState(tabs.activeTab.id).clearImageStorage();
-                        lookupImageObjStorage = [];//cleanup and initialize uri storage before start
-                        bridge.emit(bridge.events.startPageProcessing);
-                        notifyPluginState(bridge);
-                        notifyPluginState(contentWorker.port);
-                    }
-                });
-                // When plugin is turned off we need to update state and notify content script
-                bridge.on(bridge.events.pluginStopped, function () {
-                    var tabStates, i;
-                    if (pluginState.isEnabled) {
-                        pluginState.isEnabled = false;
-                        // Cleanup local storage
-                        tabStates = appState.getAllTabState();
-                        for (i = 0; i < tabStates.length; i += 1) {
-                            tabStates[i].clearImageStorage();
-                        }
-                        notifyPluginState(contentWorker.port);
-                        notifyPluginState(bridge);
-                    }
-                });
-                // When panel requires image details from server - perform request and notify panel on result
-                bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
-                    elogioServer.annotationsQuery(imageObj.lookup.href,
-                        function (annotationsJson) {
-                            var imageObjFromStorage = appState.getTabState(currentTab.id)
-                                .findImageInStorageByUuid(imageObj.uuid);
-                            if (imageObjFromStorage) {
-                                imageObjFromStorage.details = annotationsJson;
-                                bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
-                            } else {
-                                console.log("Can't find image in storage: " + imageObj.uuid);
-                            }
-                        },
-                        function () {
-                            // TODO: Implement on error handler!
-                        }
-                    );
-                });
                 //when content script attached to page we need to start scan the page
                 bridge.emit(bridge.events.startPageProcessing);
             }
@@ -249,7 +286,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         label: "Elog.io",
         icon: self.data.url("img/icon-72.png"),
         onClick: function () {
-            elogioSidebar.show();
+            toggleSidebar();
         }
     });
 });
