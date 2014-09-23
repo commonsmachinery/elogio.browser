@@ -13,7 +13,6 @@ tmp
 *.iml
 
 #Mozilla SDK Stuff
-testpage
 app-extension
 bin
 examples

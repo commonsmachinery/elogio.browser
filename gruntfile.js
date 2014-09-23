@@ -14,8 +14,43 @@ module.exports = function (grunt) {
             }
         },
 
-        "clean": {
+        clean: {
             src: ["<%= buildDir%>" , "<%= distDir %>"]
+        },
+
+        less: {
+            compile: {
+                options: {
+                    paths: ["elogio-firefox/data/less"]
+                },
+                files: {
+                    "<%= buildDir%>/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less",
+                    "<%= buildDir%>/data/css/highlight.css": "elogio-firefox/data/less/highlight.css"
+                }
+            }
+        },
+
+        concat: {
+            options: {
+                stripBanners: false,
+                banner: '/*! <%= pkg.name %> modules - v<%= pkg.version %> - ' +
+                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+            },
+            modules: {
+                files: {
+                    '<%= buildDir%>/data/js/common-lib.js': [
+                        'elogio-firefox/data/js/common.js',
+                        'elogio-firefox/data/js/config.js',
+                        'elogio-firefox/data/js-modules/*.js'
+                    ],
+                    '<%= buildDir%>/lib/common-chrome-lib.js': [
+                        'elogio-firefox/data/js/common.js',
+                        'elogio-firefox/data/js/config.js',
+                        'elogio-firefox/data/js-modules/*.js',
+                        'elogio-firefox/data/js-modules/chrome/*.js'
+                    ]
+                }
+            }
         },
 
         "mozilla-addon-sdk": {
@@ -30,7 +65,7 @@ module.exports = function (grunt) {
             "stable": {
                 options: {
                     "mozilla-addon-sdk": "1_17",
-                    extension_dir: "elogio-firefox",
+                    extension_dir: "<%= buildDir%>",
                     command: "run"
                 }
             }
@@ -57,7 +92,7 @@ module.exports = function (grunt) {
                     }
                 ],
                 options: {
-                    jshintrc: './elogio-firefox/data/.jshintrc'
+                    jshintrc: './elogio-firefox/data/js/.jshintrc'
                 }
             },
 
@@ -116,8 +151,10 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-mozilla-addon-sdk');
     grunt.loadNpmTasks('grunt-contrib-clean');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-bower-task');
+    grunt.loadNpmTasks('grunt-contrib-concat');
 
 
     /**
@@ -138,7 +175,13 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask('run', [
-        'bower',
+        /*'clean',
+        'bower',*/
+        'lint',
+        'less',
+        'copy:resourcesWithoutJS',
+        'uglify:beautify',
+        'concat:modules',
         'mozilla-addon-sdk',
         'mozilla-cfx']);
 
@@ -148,14 +191,17 @@ module.exports = function (grunt) {
         'lint',
         'copy:resourcesWithoutJS',
         'uglify:beautify',
+        'concat:modules',
         'mozilla-addon-sdk',
         'mozilla-cfx-xpi']);
 
     grunt.registerTask('dist-minified', [
         'clean',
-        'lint',
         'bower',
+        'lint',
+        'less',
         'copy:resourcesWithoutJS',
+        'concat:modules',
         'uglify:minify',
         'mozilla-addon-sdk',
         'mozilla-cfx-xpi']);
