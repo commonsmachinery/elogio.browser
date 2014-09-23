@@ -116,7 +116,7 @@ Elogio.modules.locator = function (modules) {
             urlStorage.push(img.src);
             //filtering sprites, width and height of sprite will be bigger then real width and height of image
             var node=data.node,squareOfNode=node.offsetWidth*node.offsetHeight,squareOfImage=img.width*img.height;
-            if(node&&squareOfImage/squareOfNode>coefficientOfSpriteSize){
+            if(node&&squareOfImage/squareOfNode>coefficientOfSpriteSize&&getBackgroundUrl(node)){
                 return false;
             }
             return img.width >= config.global.locator.limitImageWidth &&

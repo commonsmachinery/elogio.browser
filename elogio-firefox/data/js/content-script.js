@@ -42,6 +42,7 @@ new Elogio(
         bridge.on(bridge.events.pluginStopped, function () {
             //at first undecorate all images with success lookup query
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute);
+            console.log(elements);
             var i, n;
             for (i = 0, n = elements.length; i < n; i++) {
                 imageDecorator.undecorate(elements[i], document);
