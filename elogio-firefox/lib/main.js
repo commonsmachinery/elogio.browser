@@ -185,7 +185,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         lookupImageObjStorage = [];//cleanup and initialize uri storage before start
                         bridge.emit(bridge.events.startPageProcessing);
                         notifyPluginState(bridge);
-                        notifyPluginState(contentWorker);
+                        notifyPluginState(contentWorker.port);
                     }
                 });
                 // When plugin is turned off we need to update state and notify content script
