@@ -125,7 +125,7 @@ $(document).ready(function () {
                 }
             };
 
-            self.loadImages = function (imageObjects) {
+            self.loadImages = function (imageObjects, scrollTo) {
                 var i;
                 // Clear list
                 if (object.imageListView.length) {
@@ -135,6 +135,9 @@ $(document).ready(function () {
                 if (imageObjects) {
                     for (i = 0; i < imageObjects.length; i += 1) {
                         self.addOrUpdateImageCard(imageObjects[i]);
+                    }
+                    if (scrollTo) {
+                        this.openImage(scrollTo);
                     }
                 }
             };
@@ -179,9 +182,9 @@ $(document).ready(function () {
                     self.stopPlugin();
                     self.displayMessages();
                 });
-                bridge.on(bridge.events.tabSwitched, function (imageObjects) {
+                bridge.on(bridge.events.tabSwitched, function (data) {
                     if (isPluginEnabled) {//if plugin disabled we don't need load any images
-                        self.loadImages(imageObjects);
+                        self.loadImages(data.images, data.scrollTo);
                         self.displayMessages();
                     }
                 });
@@ -195,7 +198,7 @@ $(document).ready(function () {
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
                 });
-                bridge.on(bridge.events.startPageProcessing, function (imageObject) {
+                bridge.on(bridge.events.startPageProcessing, function () {
                     self.hideMessage();
                     if (object.imageListView.length) {
                         object.imageListView.empty();

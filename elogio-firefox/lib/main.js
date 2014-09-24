@@ -15,7 +15,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var elogioSidebar, sidebarIsHidden = true,
+    var elogioSidebar, sidebarIsHidden = true, scrollTo = null,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
@@ -109,7 +109,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
                 notifyPluginState(bridge);
                 if (contentWorker) {
-                    contentWorker.port.emit(bridge.events.configUpdated,config);
+                    contentWorker.port.emit(bridge.events.configUpdated, config);
                     notifyPluginState(contentWorker.port);
                     bridge.emit(bridge.events.startPageProcessing);
                 }
@@ -172,7 +172,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         }
     }
 
-    function loadApplicationPreferences(changedPropertyName) {
+    function loadApplicationPreferences() {
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
@@ -206,7 +206,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             if (pluginState.isEnabled) {
                 var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
                 if (images.length) {
-                    bridge.emit(bridge.events.tabSwitched, images);
+                    //if need scroll to element then we do it
+                    if (scrollTo) {
+                        bridge.emit(bridge.events.tabSwitched, {images: images, scrollTo: scrollTo});
+                        scrollTo = null;
+                    } else {
+                        bridge.emit(bridge.events.tabSwitched, {images: images});
+                    }
                 } else {
                     bridge.emit(bridge.events.startPageProcessing);
                 }
@@ -261,9 +267,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // When user click on the elogio icon near the image
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
-                    if(sidebarIsHidden){
+                    if (sidebarIsHidden) {
+                        scrollTo = imageObject.uuid;
                         elogioSidebar.show();
-                    }else{
+                    } else {
                         bridge.emit(bridge.events.onImageAction, imageObject);
                     }
                 }
@@ -284,7 +291,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     tabs.on('activate', function (tab) {
         if (pluginState.isEnabled) {
             var images = appState.getTabState(tab.id).getImagesFromStorage();
-            bridge.emit(bridge.events.tabSwitched, images);
+            bridge.emit(bridge.events.tabSwitched, {images: images});
         }
     });
 
