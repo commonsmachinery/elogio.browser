@@ -147,8 +147,8 @@ $(document).ready(function () {
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(constants.imageObject, imageObj);
-                this.addOrUpdateImageCard(imageObj);
-                this.openImage(imageObj.uuid);
+                self.addOrUpdateImageCard(imageObj);
+                self.openImage(imageObj.uuid);
             };
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
@@ -202,6 +202,8 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
+                    var card=getImageCardByUUID(imageObject.uuid);
+                    self.detailsRequired(imageObject, card);
                 });
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
