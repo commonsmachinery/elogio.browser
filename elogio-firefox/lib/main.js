@@ -109,6 +109,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
                 notifyPluginState(bridge);
                 if (contentWorker) {
+                    contentWorker.port.emit(bridge.events.configUpdated,config);
                     notifyPluginState(contentWorker.port);
                     bridge.emit(bridge.events.startPageProcessing);
                 }
