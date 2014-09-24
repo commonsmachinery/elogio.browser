@@ -260,9 +260,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // When user click on the elogio icon near the image
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
-                    elogioSidebar.show();
-                    sidebarIsHidden = false;
-                    bridge.emit(bridge.events.onImageAction, imageObject);
+                    if(sidebarIsHidden){
+                        elogioSidebar.show();
+                    }else{
+                        bridge.emit(bridge.events.onImageAction, imageObject);
+                    }
                 }
             });
             //this code we need to do only if plugin is active
