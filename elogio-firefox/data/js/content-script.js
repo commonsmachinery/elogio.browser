@@ -34,11 +34,11 @@ new Elogio(
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
             if (document.body) {
                 if (updatedConfig.ui.highlightRecognizedImages) {
-                    if (document.body.className.indexOf(' elogio-highlight') < 0) {
+                    if (document.body.className.indexOf('elogio-highlight') < 0) {
                         document.body.className += ' elogio-highlight';
                     }
                 } else {
-                    document.body.className = document.body.className.replace(/\b elogio-highlight\b/, '');
+                    document.body.className = document.body.className.replace(/\s?elogio-highlight\b/, '');
                 }
             }
         });
