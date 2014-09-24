@@ -10,7 +10,7 @@ Elogio.modules.elogioServer = function (modules) {
      =======================
      */
     var config = modules.getModule('config'),
-     Request=require('sdk/request').Request;
+        Request = require('sdk/request').Request;
     /*
      =======================
      PRIVATE MEMBERS
@@ -27,9 +27,13 @@ Elogio.modules.elogioServer = function (modules) {
         url = url || config.global.apiServer.serverUrl;
         var request = new Request({
             url: url,
-            headers:{Accept:'application/json'},
+            headers: {Accept: 'application/json'},
             onComplete: function (response) {
-                onSuccess(response.json);
+                if (response.json) {
+                    onSuccess(response.json);
+                }else{
+                    onError(response);
+                }
             }
         });
         method = method || 'GET';
@@ -53,10 +57,10 @@ Elogio.modules.elogioServer = function (modules) {
             if (options.hasOwnProperty(key)) {
                 if (Array.isArray(options[key])) { //if array
                     for (var j = 0; j < options[key].length; j++) {
-                        url += key + '='  + encodeURIComponent(options[key][j])  + '&';
+                        url += key + '=' + encodeURIComponent(options[key][j]) + '&';
                     }
                 } else { //if string or number
-                    url += key + '=' + encodeURIComponent(options[key])  + '&';
+                    url += key + '=' + encodeURIComponent(options[key]) + '&';
                 }
             }
         }
@@ -75,7 +79,7 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
-        var url = config.global.apiServer.serverUrl+config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
+        var url = config.global.apiServer.serverUrl + config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
         sendRequest(url, onLoad, onError);
     };
     /**

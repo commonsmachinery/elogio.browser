@@ -177,7 +177,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
         bridge.emit(bridge.events.configUpdated, config);
-        // TODO: Notify all content tab workers about changes
         for (i = 0; i < tabsState.length; i += 1) {
             tabContentWorker = tabsState[i].getWorker();
             if (tabContentWorker && tabContentWorker.port) {
@@ -214,6 +213,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         bridge.emit(bridge.events.tabSwitched, {images: images});
                     }
                 } else {
+                    //if storage doesn't contains any image
                     bridge.emit(bridge.events.startPageProcessing);
                 }
             }
@@ -235,7 +235,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             tabState.attachWorker(contentWorker);
 
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
-                //if page processing finished we need to check if all lookup objects were sent to Elog.io server
+                //if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
                     lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                     appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
@@ -268,9 +268,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
                     if (sidebarIsHidden) {
+                        //at first we set 'scrollTo', which needs for send to panel when panel will shows up
                         scrollTo = imageObject;
                         elogioSidebar.show();
                     } else {
+                        //if panel already open then just send image to it
                         bridge.emit(bridge.events.onImageAction, imageObject);
                     }
                 }
