@@ -137,7 +137,9 @@ $(document).ready(function () {
                         self.addOrUpdateImageCard(imageObjects[i]);
                     }
                     if (scrollTo) {
-                        this.openImage(scrollTo);
+                        var card = getImageCardByUUID(scrollTo.uuid);
+                        self.openImage(scrollTo.uuid);
+                        self.detailsRequired(scrollTo, card);
                     }
                 }
             };
@@ -160,6 +162,12 @@ $(document).ready(function () {
                     imageCard.find('.image-details').toggle();
                 }
                 imageCard.highlight();
+            };
+            self.detailsRequired = function (imageObj, card) {
+                if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
+                    card.find('.loading').show();//if we need annotations we wait for response
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                }
             };
             self.init = function () {
                 // Compile mustache templates
@@ -212,10 +220,7 @@ $(document).ready(function () {
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
-                    if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
-                        card.find('.loading').show();//if we need annotations we wait for response
-                        bridge.emit(bridge.events.imageDetailsRequired, imageObj);
-                    }
+                    self.detailsRequired(imageObj, card);
                 });
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');

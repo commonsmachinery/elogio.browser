@@ -268,7 +268,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
                     if (sidebarIsHidden) {
-                        scrollTo = imageObject.uuid;
+                        scrollTo = imageObject;
                         elogioSidebar.show();
                     } else {
                         bridge.emit(bridge.events.onImageAction, imageObject);
