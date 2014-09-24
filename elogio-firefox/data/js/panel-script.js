@@ -125,7 +125,7 @@ $(document).ready(function () {
                 }
             };
 
-            self.loadImages = function (imageObjects, scrollTo) {
+            self.loadImages = function (imageObjects, imageCardToOpen) {
                 var i;
                 // Clear list
                 if (object.imageListView.length) {
@@ -136,9 +136,8 @@ $(document).ready(function () {
                     for (i = 0; i < imageObjects.length; i += 1) {
                         self.addOrUpdateImageCard(imageObjects[i]);
                     }
-                    if (scrollTo) {
-                        self.openImage(scrollTo.uuid);
-                        self.detailsRequired(scrollTo);
+                    if (imageCardToOpen) {
+                        self.openImage(imageCardToOpen.uuid);
                     }
                 }
             };
@@ -147,27 +146,24 @@ $(document).ready(function () {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(constants.imageObject, imageObj);
                 self.addOrUpdateImageCard(imageObj);
-                self.openImage(imageObj.uuid);
+                self.openImage(imageObj.uuid, true);
             };
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
             }
 
-            self.openImage = function (imageUUID) {
+            self.openImage = function (imageUUID, preventAnnotationsLoading) {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
                 if (imageObj.details) {
                     imageCard.find('.image-details').toggle();
                 }
-                imageCard.highlight();
-            };
-            self.detailsRequired = function (imageObj) {
-                var card=getImageCardByUUID(imageObj.uuid);
-                if (card&&!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
-                    card.find('.loading').show();//if we need annotations we wait for response
+                if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
+                    imageCard.find('.loading').show();//if we need annotations we wait for response
                     bridge.emit(bridge.events.imageDetailsRequired, imageObj);
                 }
+                imageCard.highlight();
             };
             self.init = function () {
                 // Compile mustache templates
@@ -192,7 +188,7 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.tabSwitched, function (data) {
                     if (isPluginEnabled) {//if plugin disabled we don't need load any images
-                        self.loadImages(data.images, data.scrollTo);
+                        self.loadImages(data.images, data.imageCardToOpen);
                         self.displayMessages();
                     }
                 });
@@ -202,7 +198,6 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
-                    self.detailsRequired(imageObject);
                 });
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
@@ -221,7 +216,6 @@ $(document).ready(function () {
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
-                    self.detailsRequired(imageObj);
                 });
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');

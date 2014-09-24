@@ -25,18 +25,22 @@ Elogio.modules.elogioServer = function (modules) {
      */
     function sendRequest(url, onSuccess, onError, method) {
         url = url || config.global.apiServer.serverUrl;
+        method = method || 'GET';
         var request = new Request({
             url: url,
-            headers: {Accept: 'application/json'},
+            headers: { Accept: 'application/json' },
             onComplete: function (response) {
                 if (response.json) {
-                    onSuccess(response.json);
-                }else{
-                    onError(response);
+                    if (onSuccess) {
+                        onSuccess(response.json);
+                    }
+                } else {
+                    if (onError) {
+                        onError(response);
+                    }
                 }
             }
         });
-        method = method || 'GET';
         switch (method) {
             case 'GET':
                 request.get();
@@ -80,7 +84,7 @@ Elogio.modules.elogioServer = function (modules) {
      */
     this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
         var url = config.global.apiServer.serverUrl + config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
-        sendRequest(url, onLoad, onError);
+        sendRequest(url, onLoad, onError, 'GET');
     };
     /**
      *

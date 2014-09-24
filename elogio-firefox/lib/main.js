@@ -15,7 +15,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var elogioSidebar, sidebarIsHidden = true, scrollTo = null,
+    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
@@ -206,9 +206,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
                 if (images.length) {
                     //if need scroll to element then we do it
-                    if (scrollTo) {
-                        bridge.emit(bridge.events.tabSwitched, {images: images, scrollTo: scrollTo});
-                        scrollTo = null;
+                    if (scrollToImageCard) {
+                        bridge.emit(bridge.events.tabSwitched, {images: images, imageCardToOpen: scrollToImageCard});
+                        scrollToImageCard = null;
                     } else {
                         bridge.emit(bridge.events.tabSwitched, {images: images});
                     }
@@ -235,13 +235,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             tabState.attachWorker(contentWorker);
 
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
-                //if page processing finished then we need to check if all lookup objects were sent to Elog.io server
+                // if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
                     lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                     appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
                 }
             });
-            //if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
+            // if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
             contentWorker.port.on(bridge.events.onImageRemoved, function (uuid) {
                 var tabState = appState.getTabState(currentTab.id);
                 bridge.emit(bridge.events.onImageRemoved, uuid);
@@ -255,7 +255,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
                 tabState.putImageToStorage(imageObject);
                 if (currentTab === tabs.activeTab) {
-                    //if image was found then we need to check if lookup storage is ready for query
+                    // if image was found then we need to check if lookup storage is ready for query
                     if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
                         lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                         tabState.clearLookupImageStorage();
@@ -268,11 +268,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
                     if (sidebarIsHidden) {
-                        //at first we set 'scrollTo', which needs for send to panel when panel will shows up
-                        scrollTo = imageObject;
+                        // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
+                        scrollToImageCard = imageObject;
                         elogioSidebar.show();
                     } else {
-                        //if panel already open then just send image to it
+                        // if panel already open then just send image to it
                         bridge.emit(bridge.events.onImageAction, imageObject);
                     }
                 }
