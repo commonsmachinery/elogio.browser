@@ -137,9 +137,8 @@ $(document).ready(function () {
                         self.addOrUpdateImageCard(imageObjects[i]);
                     }
                     if (scrollTo) {
-                        var card = getImageCardByUUID(scrollTo.uuid);
                         self.openImage(scrollTo.uuid);
-                        self.detailsRequired(scrollTo, card);
+                        self.detailsRequired(scrollTo);
                     }
                 }
             };
@@ -163,8 +162,9 @@ $(document).ready(function () {
                 }
                 imageCard.highlight();
             };
-            self.detailsRequired = function (imageObj, card) {
-                if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
+            self.detailsRequired = function (imageObj) {
+                var card=getImageCardByUUID(imageObj.uuid);
+                if (card&&!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
                     card.find('.loading').show();//if we need annotations we wait for response
                     bridge.emit(bridge.events.imageDetailsRequired, imageObj);
                 }
@@ -202,8 +202,7 @@ $(document).ready(function () {
                 });
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
-                    var card=getImageCardByUUID(imageObject.uuid);
-                    self.detailsRequired(imageObject, card);
+                    self.detailsRequired(imageObject);
                 });
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
@@ -222,7 +221,7 @@ $(document).ready(function () {
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
-                    self.detailsRequired(imageObj, card);
+                    self.detailsRequired(imageObj);
                 });
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');
