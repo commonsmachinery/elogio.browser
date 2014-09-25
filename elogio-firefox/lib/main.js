@@ -216,6 +216,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         }
     }
 
+
     function loadApplicationPreferences() {
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
