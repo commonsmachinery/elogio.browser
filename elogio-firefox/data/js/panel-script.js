@@ -93,7 +93,7 @@ $(document).ready(function () {
                     cardElement.find('.message-area').hide();
                 }
                 // If there is lookup data available check if there is image details
-                if (imageObj.lookup && imageObj.lookup.href) {
+                if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
                     cardElement.data(constants.imageObject, imageObj);// save lookup data to card
                     if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                         self.initializeDetails(imageObj, cardElement);
