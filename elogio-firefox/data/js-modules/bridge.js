@@ -22,17 +22,18 @@ Elogio.modules.bridge = function (modules) {
 
     function checkEventName(eventName) {
         if (!self.events.hasOwnProperty(eventName)) {
-            console.warn('Event "'+eventName+'" is unknown. Check bridge module for ' +
-                         'complete list of available events.');
+            console.warn('Event "' + eventName + '" is unknown. Check bridge module for ' +
+                'complete list of available events.');
             return false;
         }
         return true;
     }
+
     /*
      =======================
      PUBLIC MEMBERS
      =======================
-    */
+     */
 
     this.events = {
         /**
@@ -78,17 +79,20 @@ Elogio.modules.bridge = function (modules) {
          *            error - will be false if request was successful, otherwise will contain an object
          *                    of the following structure: { code: 1, msg: "" }
          */
-        imageDetailsReceived: "imageDetailsReceived"
+        imageDetailsReceived: "imageDetailsReceived",
+        /**
+         * Fires when image was removed from DOM, needs for remove image from panel when this image disappear from page
+         */
+        onImageRemoved: "onImageRemoved"
     };
 
-    this.registerClient = function(transportObj, name) {
+    this.registerClient = function (transportObj, name) {
         if (!transportObj.on || !transportObj.emit) {
             console.error('Unable to register transport. Transport object should provide "on" and "emit" methods.');
         }
         bus[name || defaultTransportName] = transportObj;
     };
-
-    this.on = function(eventName, callback, source) {
+    this.on = function (eventName, callback, source) {
         var i, transport;
         if (source === '*') {
             source = Object.getOwnPropertyNames(bus);
@@ -97,7 +101,7 @@ Elogio.modules.bridge = function (modules) {
         }
         if (checkEventName(eventName)) {
             for (i = 0; i < source.length; i += 1) {
-                transport =  bus[source[i]];
+                transport = bus[source[i]];
                 if (transport) {
                     if (callback) {
                         transport.on(eventName, callback);
@@ -109,7 +113,7 @@ Elogio.modules.bridge = function (modules) {
         }
     };
 
-    this.emit =function(eventName, arg, destination) {
+    this.emit = function (eventName, arg, destination) {
         var i, transport;
         if (destination === 'default') {
             destination = [defaultTransportName];
@@ -118,7 +122,7 @@ Elogio.modules.bridge = function (modules) {
         }
         if (checkEventName(eventName)) {
             for (i = 0; i < destination.length; i += 1) {
-                transport =  bus[destination[i]];
+                transport = bus[destination[i]];
                 if (transport) {
                     transport.emit(eventName, arg);
                 } else {

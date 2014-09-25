@@ -40,24 +40,24 @@ Elogio.prototype.getModule = function (moduleName) {
 };
 
 /*Elogio.inherit = function (C, P) {
-    "use strict";
-    C.prototype = new P();
-    C.superClass = P.prototype;
-    C.prototype.constructor = C;
-};*/
+ "use strict";
+ C.prototype = new P();
+ C.superClass = P.prototype;
+ C.prototype.constructor = C;
+ };*/
 
 Elogio.inherit = function (obj, parent) {
     "use strict";
     obj._super = parent;
     var propertyNames = Object.getOwnPropertyNames(parent);
-    for (var i = 0; i<propertyNames.length; i += 1) {
+    for (var i = 0; i < propertyNames.length; i += 1) {
         if (parent.hasOwnProperty(propertyNames[i]) && propertyNames[i] !== '_super') {
             obj[propertyNames[i]] = obj._super[propertyNames[i]];
             /*if (obj._super[property] && obj._super[property].bind) {
-                obj[property] = obj._super[property].bind(obj._super);
-            } else {
-                obj[property] = obj._super[property];
-            }*/
+             obj[property] = obj._super[property].bind(obj._super);
+             } else {
+             obj[property] = obj._super[property];
+             }*/
         }
     }
 };
@@ -82,7 +82,7 @@ Elogio.Observable = function () {
             return;
         }
         handlers = bus[eventName];
-        for (i = 0; i < handlers.length; i +=1) {
+        for (i = 0; i < handlers.length; i += 1) {
             bus[i].apply(null, arg);
         }
     };
@@ -127,17 +127,17 @@ Elogio.StateController = function (initialState) {
     };
 
 
-    this.propertyExists = function(propertyName) {
+    this.propertyExists = function (propertyName) {
         return state.hasOwnProperty(propertyName);
     };
 
-    this.dropProperty = function(propertyName) {
+    this.dropProperty = function (propertyName) {
         if (this.propertyExists(propertyName)) {
             delete state[propertyName];
         }
     };
 
-    this.getAllPropertyNames = function() {
+    this.getAllPropertyNames = function () {
         return Object.getOwnPropertyNames(state);
     };
 
@@ -150,8 +150,8 @@ Elogio.StateController = function (initialState) {
     this.events = this.constructor.events;
 };
 Elogio.StateController.events = {
-    onPropertyChanged:  'onChanged',
-    onInitialized:      'onInitialized'
+    onPropertyChanged: 'onChanged',
+    onInitialized: 'onInitialized'
 };
 
 // If module is used in Chrome context

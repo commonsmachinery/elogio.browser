@@ -2,7 +2,7 @@
  * Created by LOGICIFY\corvis on 9/15/14.
  */
 
-Elogio.modules.utils = function(modules) {
+Elogio.modules.utils = function (modules) {
     'use strict';
     /*
      =======================
@@ -28,7 +28,7 @@ Elogio.modules.utils = function(modules) {
      * @param prefix - prefix to be searched
      * @return {boolean}
      */
-    this.startsWith = function(st, prefix) {
+    this.startsWith = function (st, prefix) {
         return st.indexOf(prefix) === 0;
     };
 
@@ -37,7 +37,7 @@ Elogio.modules.utils = function(modules) {
      * @param url - url to be canonized
      * @param currentLocation - url which targets current location. It will be used for resolving relative links
      */
-    this.canonizeUrl = function(url, currentLocation) {
+    this.canonizeUrl = function (url, currentLocation) {
         if (url) {
             if (this.startsWith(url, 'http') || this.startsWith(url, 'www')) {
                 return url;

@@ -11,7 +11,7 @@ tmp
 # IntelliJ IDEA project files.
 .idea
 *.iml
-
+.log
 #Mozilla SDK Stuff
 app-extension
 bin
