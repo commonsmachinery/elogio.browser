@@ -90,6 +90,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         switch (statusCode) {
             case 200:
                 return config.errors.requestError;
+            case 0:
+                return 'No network found';
             default:
                 return 'Internal server error';
         }
