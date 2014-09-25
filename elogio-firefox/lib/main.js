@@ -114,6 +114,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
             if (contentWorker) {
+                indicateError();//when page processing started we turn off error indicator
                 //at first we need to tell content script about state of plugin
                 notifyPluginState(contentWorker.port);
                 contentWorker.port.emit(bridge.events.startPageProcessing);
