@@ -8,7 +8,10 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
         simplePrefs = require("sdk/simple-prefs"),
-        Sidebar = require("sdk/ui/sidebar").Sidebar;
+        Sidebar = require("sdk/ui/sidebar").Sidebar,
+        errorIndicator = self.data.url("img/error.png"),
+        elogioIcon = self.data.url("img/icon-72.png"),
+        elogioLabel = "Elog.io";
 
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
@@ -70,7 +73,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
             },
             function () {
-                //TODO: Implement on error handler!
+                for (var i = 0; i < localStore.length; i++) {
+                    var imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
+                    // If image doesn't exist in local storage anymore - there is no sense to process it
+                    if (!imageFromStorage) {
+                        continue;
+                    }
+                    imageFromStorage.error = config.errors.LookupError;
+                    indicateError(imageFromStorage);
+                }
             }
         );
     }
@@ -92,6 +103,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             var tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
             tabState.clearImageStorage();
+            tabState.clearTabErrorStorage();
             tabState.clearLookupImageStorage();
             if (contentWorker) {
                 //at first we need to tell content script about state of plugin
@@ -106,6 +118,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             if (!pluginState.isEnabled) {
                 pluginState.isEnabled = true;
                 tabState.clearImageStorage();
+                tabState.clearTabErrorStorage();
                 tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
                 notifyPluginState(bridge);
                 if (contentWorker) {
@@ -127,6 +140,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 if (tabStates) {
                     for (i = 0; i < tabStates.length; i += 1) {
                         tabStates[i].clearImageStorage();
+                        tabStates[i].clearLookupImageStorage();
+                        tabStates[i].clearTabErrorStorage();
                     }
                 }
                 if (contentWorker) {
@@ -134,6 +149,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
                 notifyPluginState(bridge);
             }
+            indicateError();//and if tab has errors, then we turn off indicator with errors because plugin stopped
         });
         // When panel requires image details from server - perform request and notify panel on result
         bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
@@ -150,7 +166,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     }
                 },
                 function () {
-                    // TODO: Implement on error handler!
+                    //put error to storage
+                    imageObj.error = config.errors.AnnotationsError;
+                    indicateError(imageObj);
                 }
             );
         });
@@ -169,6 +187,32 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             destination.emit(bridge.events.pluginActivated);
         } else {
             destination.emit(bridge.events.pluginStopped);
+        }
+    }
+
+    /**
+     * toggle icon and label of action button, also send image with error message in.
+     * if this method calls without params then error indicator disappear from button
+     * @param imageObj - image which contains error message
+     */
+    function indicateError(imageObj) {
+        var tabState = appState.getTabState(tabs.activeTab.id);
+        if (!imageObj) { //indicator if has errors then draw indicator on button
+            if (!tabState.hasErrors()) {
+                button.icon = elogioIcon;
+                button.label = elogioLabel;
+            } else {
+                button.icon = errorIndicator;
+                button.label = tabState.getAllErrorMessages().length + ' errors founded';
+            }
+        }
+        if (imageObj.error) {
+            tabState.putErrorMessageToTabStorage(imageObj);
+            button.icon = errorIndicator;
+            button.label = tabState.getAllErrorMessages().length + ' errors founded';
+            if(!sidebarIsHidden){
+                bridge.emit(bridge.events.newImageFound,imageObj);
+            }
         }
     }
 
@@ -233,7 +277,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             var currentTab = contentWorker.tab,
                 tabState = appState.getTabState(currentTab.id);
             tabState.attachWorker(contentWorker);
-
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
                 // if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
@@ -292,16 +335,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
 
     tabs.on('activate', function (tab) {
         if (pluginState.isEnabled) {
-            var images = appState.getTabState(tab.id).getImagesFromStorage();
+            var tabState = appState.getTabState(tab.id);
+            var images = tabState.getImagesFromStorage();
+            indicateError();//if we call without params then method just indicate: tab has errors or return initial state to button
             bridge.emit(bridge.events.tabSwitched, {images: images});
         }
     });
 
     // Create UI Button
-    buttons.ActionButton({
+    var button = buttons.ActionButton({
         id: "elogio-button",
-        label: "Elog.io",
-        icon: self.data.url("img/icon-72.png"),
+        label: elogioLabel,
+        icon: elogioIcon,
         onClick: function () {
             toggleSidebar();
         }

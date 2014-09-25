@@ -29,6 +29,10 @@ Elogio.modules.config = function(modules) {
         decoratedItemAttribute:'elogiodecorated',
         undecoratedItemAttribute:'elogioundecorated'
     };
+    this.errors={
+        AnnotationsError:'Details of image not found in response',
+        LookupError:'Failure to get lookup information for image'
+    };
     this.logging = {
 
     };

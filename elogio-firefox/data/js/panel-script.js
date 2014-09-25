@@ -85,7 +85,7 @@ $(document).ready(function () {
                     object.imageListView.append(cardElement);
                 }
                 // If we didn't send lookup query before - show loading
-                if (!imageObj.hasOwnProperty('lookup')) {
+                if (!imageObj.hasOwnProperty('lookup')&&!imageObj.hasOwnProperty('error')) {
                     cardElement.find('.loading').show();
                     return; // Waiting for lookup....
                 } else {
@@ -102,7 +102,14 @@ $(document).ready(function () {
                     }
                 } else { // Show Query button
                     cardElement.find('.image-details').hide();
-                    cardElement.find('.no-lookup-data').show();
+                    if (!imageObj.error) {
+                        cardElement.find('.no-lookup-data').show();
+                    } else {
+                        //at here imageObj has errors and need to show it in sidebar
+                        var errorArea = cardElement.find('.error-area');
+                        errorArea.text(imageObj.error);
+                        errorArea.show();
+                    }
                 }
             };
 
