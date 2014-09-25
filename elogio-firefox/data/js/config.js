@@ -6,7 +6,7 @@ Elogio.modules.config = function (modules) {
     'use strict';
     this.global = {
         apiServer: {
-            serverUrl: 'http://dev.commonsmachiner.se:8004',
+            serverUrl: 'http://dev.commonsmachinery.se:8004',
             lookupContext: '/lookup/uri',
             imagesPerRequest: 10,
             gravatarServerUrl: 'http://www.gravatar.com/avatar/'

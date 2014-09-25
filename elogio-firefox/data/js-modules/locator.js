@@ -19,7 +19,7 @@ Elogio.modules.locator = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-    var urlStorage = [], filterPrefix = '.gif', coefficientOfSpriteSize = 7;//needs for saving urls of images by request
+    var urlStorage = [], coefficientOfSpriteSize = 7;//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
@@ -45,8 +45,9 @@ Elogio.modules.locator = function (modules) {
         return result;
     }
 
-    function getImageExtensionByUrl(url) {
-        return url.substring(url.length - 4);
+    function isNotGifFile(url) {
+        var expr = /(\.gif\?.*|(\.gif)$)/i;
+        return !expr.test(url);
     }
 
     function getBackgroundUrl(node) {
@@ -97,13 +98,12 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
-            return node instanceof HTMLImageElement &&
-                filterPrefix !== getImageExtensionByUrl(node.src) && !node.src.startsWith('data:');
+            return node instanceof HTMLImageElement && !node.src.startsWith('data:') && isNotGifFile(node.src);
         },
         // Any tag with background-url excluding .gif
         function (node) {
             var url = getBackgroundUrl(node);
-            if (url && (filterPrefix === getImageExtensionByUrl(url) || url.startsWith('data:'))) {
+            if (url && (isNotGifFile(url) || url.startsWith('data:'))) {
                 return false;
             }
             return !!url;
@@ -194,7 +194,7 @@ Elogio.modules.locator = function (modules) {
                 countOfProcessedImages++;
                 // Apply filters:
                 var result = applyFilters([
-                    {img: this, node: dom.getElementByUUID(imageUuid,document)}
+                    {img: this, node: dom.getElementByUUID(imageUuid, document)}
                 ], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {
