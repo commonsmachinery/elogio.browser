@@ -46,6 +46,7 @@ Elogio.modules.dom = function (modules) {
             }
         }
     };
+
     /**
      * this function needs for getting all elements which decorated on the page
      *
@@ -75,7 +76,6 @@ Elogio.modules.dom = function (modules) {
     this.getUUIDofElement = function (element) {
         return element.getAttribute(config.ui.dataAttributeName);
     };
-
 
     // If JQuery is in context - extend it with some useful plugins
     if (typeof jQuery !== 'undefined') {

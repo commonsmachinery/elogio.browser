@@ -86,6 +86,7 @@ Elogio.modules.elogioServer = function (modules) {
         var url = config.global.apiServer.serverUrl + config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
         sendRequest(url, onLoad, onError, 'GET');
     };
+
     /**
      *
      * @param url - there is url of the server where sending request (not uri of image!!!)
@@ -98,6 +99,7 @@ Elogio.modules.elogioServer = function (modules) {
         url += urlHelperBuilder(options);
         sendRequest(url, onLoad, onError);
     };
+
     /**
      * This method returns data from 2 requests in callbacks:
      * 1 request - lookup request which getting json with lookup data

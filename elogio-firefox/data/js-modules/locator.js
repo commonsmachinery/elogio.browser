@@ -149,6 +149,7 @@ Elogio.modules.locator = function (modules) {
         }
         return false;
     };
+
     /**
      * Returns a list of nodes which should be processed (all nodes which match <code>this.nodeFilters</code>)
      * @param document - document referrence
