@@ -66,14 +66,16 @@ Elogio.TabStateController = function () {
         var errors = getTabErrorMessages();
         return errors.length > 0;
     };
-    this.putErrorMessageToTabStorage = function (imageObj) {
+    this.putImageWithErrorToTabStorage = function (imageObj) {
         var errors = getTabErrorMessages();
-        errors.push(imageObj);
+        if (imageObj) {
+            errors.push(imageObj);
+        }
     };
     this.clearTabErrorStorage = function () {
         this.set(TAB_ERROR_MESSAGES, []);
     };
-    this.getAllErrorMessages = function () {
+    this.getAllImagesWithErrors = function () {
         return getTabErrorMessages();
     };
     this.getImagesFromLookupStorage = function () {

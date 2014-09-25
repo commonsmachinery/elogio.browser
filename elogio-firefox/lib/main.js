@@ -72,18 +72,29 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     }
                 }
             },
-            function () {
+            function (status) {
                 for (var i = 0; i < localStore.length; i++) {
                     var imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
                     // If image doesn't exist in local storage anymore - there is no sense to process it
                     if (!imageFromStorage) {
                         continue;
                     }
-                    imageFromStorage.error = config.errors.LookupError;
+                    imageFromStorage.error = getTextStatusByStatusCode(status);
                     indicateError(imageFromStorage);
                 }
             }
         );
+    }
+
+    function getTextStatusByStatusCode(statusCode) {
+        switch (statusCode) {
+            case 200:
+                return config.errors.requestError;
+            case 404:
+                return 'Url not found';
+            default:
+                return 'Internal server error';
+        }
     }
 
     /**
@@ -124,8 +135,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 if (contentWorker) {
                     contentWorker.port.emit(bridge.events.configUpdated, config);
                     notifyPluginState(contentWorker.port);
-                    bridge.emit(bridge.events.startPageProcessing);
                 }
+                bridge.emit(bridge.events.startPageProcessing);
             }
         });
         // When plugin is turned off we need to update state and notify content script
@@ -165,9 +176,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         console.log("Can't find image in storage: " + imageObj.uuid);
                     }
                 },
-                function () {
+                function (status) {
                     //put error to storage
-                    imageObj.error = config.errors.AnnotationsError;
+                    imageObj.error = getTextStatusByStatusCode(status);
                     indicateError(imageObj);
                 }
             );
@@ -203,15 +214,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 button.label = elogioLabel;
             } else {
                 button.icon = errorIndicator;
-                button.label = tabState.getAllErrorMessages().length + ' errors founded';
+                button.label = tabState.getAllImagesWithErrors().length + ' errors founded';
             }
         }
-        if (imageObj.error) {
-            tabState.putErrorMessageToTabStorage(imageObj);
+        if (imageObj && imageObj.error) {
+            tabState.putImageWithErrorToTabStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = tabState.getAllErrorMessages().length + ' errors founded';
-            if(!sidebarIsHidden){
-                bridge.emit(bridge.events.newImageFound,imageObj);
+            button.label = tabState.getAllImagesWithErrors().length + ' errors founded';
+            if (!sidebarIsHidden) {
+                bridge.emit(bridge.events.newImageFound, imageObj);
             }
         }
     }
@@ -248,14 +259,17 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             notifyPluginState(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
-                var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
+                var tabState = appState.getTabState(tabs.activeTab.id),
+                    images = tabState.getImagesFromStorage(),
+                    imagesWithErrors = tabState.getAllImagesWithErrors();
+                var allImages = images.concat(imagesWithErrors);//show all images with errors and without
                 if (images.length) {
                     //if need scroll to element then we do it
                     if (scrollToImageCard) {
-                        bridge.emit(bridge.events.tabSwitched, {images: images, imageCardToOpen: scrollToImageCard});
+                        bridge.emit(bridge.events.tabSwitched, {images: allImages, imageCardToOpen: scrollToImageCard});
                         scrollToImageCard = null;
                     } else {
-                        bridge.emit(bridge.events.tabSwitched, {images: images});
+                        bridge.emit(bridge.events.tabSwitched, {images: allImages});
                     }
                 } else {
                     //if storage doesn't contains any image

@@ -2,18 +2,18 @@
  * Created by LOGICIFY\corvis on 9/15/14.
  */
 
-Elogio.modules.config = function(modules) {
+Elogio.modules.config = function (modules) {
     'use strict';
     this.global = {
-        apiServer:{
-            serverUrl:'http://dev.commonsmachinery.se:8004',
-            lookupContext:'/lookup/uri',
-            imagesPerRequest:10,
+        apiServer: {
+            serverUrl: 'http://dev.commonsmachiner.se:8004',
+            lookupContext: '/lookup/uri',
+            imagesPerRequest: 10,
             gravatarServerUrl: 'http://www.gravatar.com/avatar/'
         },
-        locator:{
-            limitImageHeight:100,
-            limitImageWidth:100
+        locator: {
+            limitImageHeight: 100,
+            limitImageWidth: 100
         }
     };
 
@@ -26,12 +26,11 @@ Elogio.modules.config = function(modules) {
         },
         highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
-        decoratedItemAttribute:'elogiodecorated',
-        undecoratedItemAttribute:'elogioundecorated'
+        decoratedItemAttribute: 'elogiodecorated',
+        undecoratedItemAttribute: 'elogioundecorated'
     };
-    this.errors={
-        AnnotationsError:'Details of image not found in response',
-        LookupError:'Failure to get lookup information for image'
+    this.errors = {
+        requestError: 'Server responded, but with errors'
     };
     this.logging = {
 

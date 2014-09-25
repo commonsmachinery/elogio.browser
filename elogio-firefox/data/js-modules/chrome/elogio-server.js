@@ -36,7 +36,7 @@ Elogio.modules.elogioServer = function (modules) {
                     }
                 } else {
                     if (onError) {
-                        onError(response);
+                        onError(response.status);
                     }
                 }
             }
