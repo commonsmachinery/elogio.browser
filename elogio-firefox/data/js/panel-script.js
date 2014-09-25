@@ -93,10 +93,12 @@ $(document).ready(function () {
                     cardElement.find('.message-area').hide();
                 }
                 // If there is lookup data available check if there is image details
+                var errorArea = cardElement.find('.error-area');
                 if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
                     cardElement.data(constants.imageObject, imageObj);// save lookup data to card
                     if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                         self.initializeDetails(imageObj, cardElement);
+                        errorArea.hide();//hide this anyway because it is wrong show both of messages
                     } else {
                         // Nothing to do hear just waiting when user clicks on image to query details
                     }
@@ -104,9 +106,9 @@ $(document).ready(function () {
                     cardElement.find('.image-details').hide();
                     if (!imageObj.error) {
                         cardElement.find('.no-lookup-data').show();
+                        errorArea.hide();//hide this anyway because it is wrong show both of messages
                     } else {
                         //at here imageObj has errors and need to show it in sidebar
-                        var errorArea = cardElement.find('.error-area');
                         errorArea.text(imageObj.error);
                         errorArea.show();
                     }

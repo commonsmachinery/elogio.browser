@@ -167,6 +167,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         .findImageInStorageByUuid(imageObj.uuid);
                     if (imageObjFromStorage) {
                         imageObjFromStorage.details = annotationsJson;
+                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                        indicateError();
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
                     } else {
                         console.log("Can't find image in storage: " + imageObj.uuid);
