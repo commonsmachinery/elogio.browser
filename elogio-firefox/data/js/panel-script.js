@@ -85,7 +85,7 @@ $(document).ready(function () {
                     object.imageListView.append(cardElement);
                 }
                 // If we didn't send lookup query before - show loading
-                if (!imageObj.hasOwnProperty('lookup')) {
+                if (!imageObj.hasOwnProperty('lookup')&&!imageObj.hasOwnProperty('error')) {
                     cardElement.find('.loading').show();
                     return; // Waiting for lookup....
                 } else {
@@ -93,16 +93,25 @@ $(document).ready(function () {
                     cardElement.find('.message-area').hide();
                 }
                 // If there is lookup data available check if there is image details
-                if (imageObj.lookup && imageObj.lookup.href) {
+                var errorArea = cardElement.find('.error-area');
+                if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
                     cardElement.data(constants.imageObject, imageObj);// save lookup data to card
                     if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                         self.initializeDetails(imageObj, cardElement);
+                        errorArea.hide();//hide this anyway because it is wrong show both of messages
                     } else {
                         // Nothing to do hear just waiting when user clicks on image to query details
                     }
                 } else { // Show Query button
                     cardElement.find('.image-details').hide();
-                    cardElement.find('.no-lookup-data').show();
+                    if (!imageObj.error) {
+                        cardElement.find('.no-lookup-data').show();
+                        errorArea.hide();//hide this anyway because it is wrong show both of messages
+                    } else {
+                        //at here imageObj has errors and need to show it in sidebar
+                        errorArea.text(imageObj.error);
+                        errorArea.show();
+                    }
                 }
             };
 
@@ -125,7 +134,7 @@ $(document).ready(function () {
                 }
             };
 
-            self.loadImages = function (imageObjects) {
+            self.loadImages = function (imageObjects, imageCardToOpen) {
                 var i;
                 // Clear list
                 if (object.imageListView.length) {
@@ -136,25 +145,32 @@ $(document).ready(function () {
                     for (i = 0; i < imageObjects.length; i += 1) {
                         self.addOrUpdateImageCard(imageObjects[i]);
                     }
+                    if (imageCardToOpen) {
+                        self.openImage(imageCardToOpen.uuid);
+                    }
                 }
             };
 
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(constants.imageObject, imageObj);
-                this.addOrUpdateImageCard(imageObj);
-                this.openImage(imageObj.uuid);
+                self.addOrUpdateImageCard(imageObj);
+                self.openImage(imageObj.uuid, true);
             };
             function getImageCardByUUID(uuid) {
                 return $('#' + uuid);
             }
 
-            self.openImage = function (imageUUID) {
+            self.openImage = function (imageUUID, preventAnnotationsLoading) {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
                 if (imageObj.details) {
                     imageCard.find('.image-details').toggle();
+                }
+                if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
+                    imageCard.find('.loading').show();//if we need annotations we wait for response
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
                 }
                 imageCard.highlight();
             };
@@ -179,9 +195,9 @@ $(document).ready(function () {
                     self.stopPlugin();
                     self.displayMessages();
                 });
-                bridge.on(bridge.events.tabSwitched, function (imageObjects) {
+                bridge.on(bridge.events.tabSwitched, function (data) {
                     if (isPluginEnabled) {//if plugin disabled we don't need load any images
-                        self.loadImages(imageObjects);
+                        self.loadImages(data.images, data.imageCardToOpen);
                         self.displayMessages();
                     }
                 });
@@ -195,7 +211,7 @@ $(document).ready(function () {
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
                 });
-                bridge.on(bridge.events.startPageProcessing, function (imageObject) {
+                bridge.on(bridge.events.startPageProcessing, function () {
                     self.hideMessage();
                     if (object.imageListView.length) {
                         object.imageListView.empty();
@@ -209,10 +225,6 @@ $(document).ready(function () {
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
-                    if (!imageObj.details && imageObj.lookup) {//if details doesn't exist then send request to server
-                        card.find('.loading').show();//if we need annotations we wait for response
-                        bridge.emit(bridge.events.imageDetailsRequired, imageObj);
-                    }
                 });
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');

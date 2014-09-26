@@ -33,8 +33,8 @@ Elogio.TabStateController = function () {
 
     var ATTRIBUTE_IMAGE_STORE = 'imageStore';
     var ATTRIBUTE_WORKER = 'worker';
+    var ATTRIBUTE_LOOKUP_IMAGE_STORAGE = 'lookupImageStorage';
     var self = this;
-    var LOOKUP_IMAGE_STORAGE = 'lookupImageStorage';
 
     var getImageStorage = function () {
         if (!self.propertyExists(ATTRIBUTE_IMAGE_STORE)) {
@@ -42,23 +42,50 @@ Elogio.TabStateController = function () {
         }
         return self.get(ATTRIBUTE_IMAGE_STORE);
     };
-    var getlookupImageStorage = function () {
-        if (!self.propertyExists(LOOKUP_IMAGE_STORAGE)) {
-            self.set(LOOKUP_IMAGE_STORAGE, []);
+    var getLookupImageStorage = function () {
+        if (!self.propertyExists(ATTRIBUTE_LOOKUP_IMAGE_STORAGE)) {
+            self.set(ATTRIBUTE_LOOKUP_IMAGE_STORAGE, []);
         }
-        return self.get(LOOKUP_IMAGE_STORAGE);
+        return self.get(ATTRIBUTE_LOOKUP_IMAGE_STORAGE);
     };
+
     this.putImageToLookupStorage = function (imageObject) {
-        var store = getlookupImageStorage();
+        var store = getLookupImageStorage();
         if (imageObject.uuid) {
             store.push(imageObject);
         } else {
             console.error('Only ImageObject can be placed in LookupStorage');
         }
     };
-    this.getImagesFromLookupStorage = function () {
-        return getlookupImageStorage();
+
+    this.hasErrors = function () {
+        var store = getImageStorage(), key;
+        for (key in store) {
+            if (store.hasOwnProperty(key)) {
+                if (store[key].error) {
+                    return true;
+                }
+            }
+        }
+        return false;
     };
+
+    this.getAllImagesWithErrors = function () {
+        var store = getImageStorage(), key, result = [];
+        for (key in store) {
+            if (store.hasOwnProperty(key)) {
+                if (store[key].error) {
+                    result[result.length] = store[key];
+                }
+            }
+        }
+        return result;
+    };
+
+    this.getImagesFromLookupStorage = function () {
+        return getLookupImageStorage();
+    };
+
     this.getImagesFromStorage = function () {
         var store = getImageStorage(), key, result = [];
         for (key in store) {
@@ -100,9 +127,11 @@ Elogio.TabStateController = function () {
     this.clearImageStorage = function () {
         this.set(ATTRIBUTE_IMAGE_STORE, {});
     };
+
     this.clearLookupImageStorage = function () {
-        this.set(LOOKUP_IMAGE_STORAGE, []);
+        this.set(ATTRIBUTE_LOOKUP_IMAGE_STORAGE, []);
     };
+
     this.getWorker = function () {
         return this.get(ATTRIBUTE_WORKER);
     };
@@ -110,6 +139,7 @@ Elogio.TabStateController = function () {
     this.attachWorker = function (worker) {
         return this.set(ATTRIBUTE_WORKER, worker);
     };
-    this.set(LOOKUP_IMAGE_STORAGE, []);
+
+    this.set(ATTRIBUTE_LOOKUP_IMAGE_STORAGE, []);
     this.set(ATTRIBUTE_IMAGE_STORE, {});
 };

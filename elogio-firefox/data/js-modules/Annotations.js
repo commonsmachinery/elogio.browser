@@ -69,6 +69,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return null;
     };
+
     this.getAddedAt = function () {
         var owner = getOwnersOrgField();
         if (owner) {
@@ -76,6 +77,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return null;
     };
+
     this.getLicenseLabel = function () {
         var propertyField = getPropertyField();
         if (propertyField) {
@@ -83,6 +85,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return null;
     };
+
     this.getLicenseLink = function () {
         var propertyField = getPropertyField();
         if (propertyField) {
@@ -90,6 +93,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return null;
     };
+
     this.getLocatorLink = function () {
         var locatorField = getLocatorField();
         if (locatorField && locatorField.property) {
@@ -97,6 +101,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return null;
     };
+
     this.getGravatarLink = function () {
         var owner = getOwnersOrgField();
         if (!owner) {

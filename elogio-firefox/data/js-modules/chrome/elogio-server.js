@@ -10,7 +10,7 @@ Elogio.modules.elogioServer = function (modules) {
      =======================
      */
     var config = modules.getModule('config'),
-     Request=require('sdk/request').Request;
+        Request = require('sdk/request').Request;
     /*
      =======================
      PRIVATE MEMBERS
@@ -25,14 +25,22 @@ Elogio.modules.elogioServer = function (modules) {
      */
     function sendRequest(url, onSuccess, onError, method) {
         url = url || config.global.apiServer.serverUrl;
+        method = method || 'GET';
         var request = new Request({
             url: url,
-            headers:{Accept:'application/json'},
+            headers: { Accept: 'application/json' },
             onComplete: function (response) {
-                onSuccess(response.json);
+                if (response.json) {
+                    if (onSuccess) {
+                        onSuccess(response.json);
+                    }
+                } else {
+                    if (onError) {
+                        onError(response);
+                    }
+                }
             }
         });
-        method = method || 'GET';
         switch (method) {
             case 'GET':
                 request.get();
@@ -53,10 +61,10 @@ Elogio.modules.elogioServer = function (modules) {
             if (options.hasOwnProperty(key)) {
                 if (Array.isArray(options[key])) { //if array
                     for (var j = 0; j < options[key].length; j++) {
-                        url += key + '='  + encodeURIComponent(options[key][j])  + '&';
+                        url += key + '=' + encodeURIComponent(options[key][j]) + '&';
                     }
                 } else { //if string or number
-                    url += key + '=' + encodeURIComponent(options[key])  + '&';
+                    url += key + '=' + encodeURIComponent(options[key]) + '&';
                 }
             }
         }
@@ -75,9 +83,10 @@ Elogio.modules.elogioServer = function (modules) {
      * @param{Function} onError -      Callback method which will be called on event error requesting
      */
     this.lookupQuery = function (imageUrlOrUrls, onLoad, onError) {
-        var url = config.global.apiServer.serverUrl+config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
-        sendRequest(url, onLoad, onError);
+        var url = config.global.apiServer.serverUrl + config.global.apiServer.lookupContext + urlHelperBuilder(imageUrlOrUrls);
+        sendRequest(url, onLoad, onError, 'GET');
     };
+
     /**
      *
      * @param url - there is url of the server where sending request (not uri of image!!!)
@@ -90,6 +99,7 @@ Elogio.modules.elogioServer = function (modules) {
         url += urlHelperBuilder(options);
         sendRequest(url, onLoad, onError);
     };
+
     /**
      * This method returns data from 2 requests in callbacks:
      * 1 request - lookup request which getting json with lookup data

@@ -8,14 +8,17 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
         simplePrefs = require("sdk/simple-prefs"),
-        Sidebar = require("sdk/ui/sidebar").Sidebar;
+        Sidebar = require("sdk/ui/sidebar").Sidebar,
+        errorIndicator = self.data.url("img/error.png"),
+        elogioIcon = self.data.url("img/icon-72.png"),
+        elogioLabel = "Elog.io";
 
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
 
-    var elogioSidebar, sidebarIsHidden = true,
+    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
@@ -69,10 +72,29 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     }
                 }
             },
-            function () {
-                //TODO: Implement on error handler!
+            function (response) {
+                for (var i = 0; i < localStore.length; i++) {
+                    var imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
+                    // If image doesn't exist in local storage anymore - there is no sense to process it
+                    if (!imageFromStorage) {
+                        continue;
+                    }
+                    imageFromStorage.error = getTextStatusByStatusCode(response.status);
+                    indicateError(imageFromStorage);
+                }
             }
         );
+    }
+
+    function getTextStatusByStatusCode(statusCode) {
+        switch (statusCode) {
+            case 200:
+                return config.errors.requestError;
+            case 0:
+                return 'Network communication error';
+            default:
+                return 'Internal server error';
+        }
     }
 
     /**
@@ -94,6 +116,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
             if (contentWorker) {
+                indicateError();//when page processing started we turn off error indicator
                 //at first we need to tell content script about state of plugin
                 notifyPluginState(contentWorker.port);
                 contentWorker.port.emit(bridge.events.startPageProcessing);
@@ -109,7 +132,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
                 notifyPluginState(bridge);
                 if (contentWorker) {
-                    contentWorker.port.emit(bridge.events.configUpdated,config);
+                    contentWorker.port.emit(bridge.events.configUpdated, config);
                     notifyPluginState(contentWorker.port);
                     bridge.emit(bridge.events.startPageProcessing);
                 }
@@ -127,6 +150,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 if (tabStates) {
                     for (i = 0; i < tabStates.length; i += 1) {
                         tabStates[i].clearImageStorage();
+                        tabStates[i].clearLookupImageStorage();
                     }
                 }
                 if (contentWorker) {
@@ -134,6 +158,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
                 notifyPluginState(bridge);
             }
+            indicateError();//and if tab has errors, then we turn off indicator with errors because plugin stopped
         });
         // When panel requires image details from server - perform request and notify panel on result
         bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
@@ -144,13 +169,17 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         .findImageInStorageByUuid(imageObj.uuid);
                     if (imageObjFromStorage) {
                         imageObjFromStorage.details = annotationsJson;
+                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                        indicateError();
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
                     } else {
                         console.log("Can't find image in storage: " + imageObj.uuid);
                     }
                 },
-                function () {
-                    // TODO: Implement on error handler!
+                function (response) {
+                    //put error to storage
+                    imageObj.error = getTextStatusByStatusCode(response.status);
+                    indicateError(imageObj);
                 }
             );
         });
@@ -172,12 +201,38 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         }
     }
 
-    function loadApplicationPreferences(changedPropertyName) {
+    /**
+     * toggle icon and label of action button, also send image with error message in.
+     * if this method calls without params then error indicator disappear from button
+     * @param imageObj - image which contains error message
+     */
+    function indicateError(imageObj) {
+        var tabState = appState.getTabState(tabs.activeTab.id);
+        if (!imageObj) { //indicator if has errors then draw indicator on button
+            if (!tabState.hasErrors()) {
+                button.icon = elogioIcon;
+                button.label = elogioLabel;
+            } else {
+                button.icon = errorIndicator;
+                button.label = 'Something is wrong... Check Elog.io sidebar for details';
+            }
+        }
+        if (imageObj && imageObj.error) {
+            tabState.putImageToStorage(imageObj);
+            button.icon = errorIndicator;
+            button.label = 'Something is wrong... Check Elog.io sidebar for details';
+            if (!sidebarIsHidden) {
+                bridge.emit(bridge.events.newImageFound, imageObj);
+            }
+        }
+    }
+
+
+    function loadApplicationPreferences() {
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
         bridge.emit(bridge.events.configUpdated, config);
-        // TODO: Notify all content tab workers about changes
         for (i = 0; i < tabsState.length; i += 1) {
             tabContentWorker = tabsState[i].getWorker();
             if (tabContentWorker && tabContentWorker.port) {
@@ -204,10 +259,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             notifyPluginState(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
-                var images = appState.getTabState(tabs.activeTab.id).getImagesFromStorage();
+                var tabState = appState.getTabState(tabs.activeTab.id),
+                    images = tabState.getImagesFromStorage();
                 if (images.length) {
-                    bridge.emit(bridge.events.tabSwitched, images);
+                    //if need scroll to element then we do it
+                    if (scrollToImageCard) {
+                        bridge.emit(bridge.events.tabSwitched, {images: images, imageCardToOpen: scrollToImageCard});
+                        scrollToImageCard = null;
+                    } else {
+                        bridge.emit(bridge.events.tabSwitched, {images: images});
+                    }
                 } else {
+                    //if storage doesn't contains any image
                     bridge.emit(bridge.events.startPageProcessing);
                 }
             }
@@ -227,15 +290,14 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             var currentTab = contentWorker.tab,
                 tabState = appState.getTabState(currentTab.id);
             tabState.attachWorker(contentWorker);
-
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
-                //if page processing finished we need to check if all lookup objects were sent to Elog.io server
+                // if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
                     lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                     appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
                 }
             });
-            //if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
+            // if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
             contentWorker.port.on(bridge.events.onImageRemoved, function (uuid) {
                 var tabState = appState.getTabState(currentTab.id);
                 bridge.emit(bridge.events.onImageRemoved, uuid);
@@ -249,7 +311,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
                 tabState.putImageToStorage(imageObject);
                 if (currentTab === tabs.activeTab) {
-                    //if image was found then we need to check if lookup storage is ready for query
+                    // if image was found then we need to check if lookup storage is ready for query
                     if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
                         lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                         tabState.clearLookupImageStorage();
@@ -261,9 +323,12 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             // When user click on the elogio icon near the image
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
-                    if(sidebarIsHidden){
+                    if (sidebarIsHidden) {
+                        // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
+                        scrollToImageCard = imageObject;
                         elogioSidebar.show();
-                    }else{
+                    } else {
+                        // if panel already open then just send image to it
                         bridge.emit(bridge.events.onImageAction, imageObject);
                     }
                 }
@@ -283,16 +348,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
 
     tabs.on('activate', function (tab) {
         if (pluginState.isEnabled) {
-            var images = appState.getTabState(tab.id).getImagesFromStorage();
-            bridge.emit(bridge.events.tabSwitched, images);
+            var tabState = appState.getTabState(tab.id);
+            var images = tabState.getImagesFromStorage();
+            indicateError();//if we call without params then method just indicate: tab has errors or return initial state to button
+            bridge.emit(bridge.events.tabSwitched, {images: images});
         }
     });
 
     // Create UI Button
-    buttons.ActionButton({
+    var button = buttons.ActionButton({
         id: "elogio-button",
-        label: "Elog.io",
-        icon: self.data.url("img/icon-72.png"),
+        label: elogioLabel,
+        icon: elogioIcon,
         onClick: function () {
             toggleSidebar();
         }
