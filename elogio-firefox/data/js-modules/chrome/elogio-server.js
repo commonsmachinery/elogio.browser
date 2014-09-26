@@ -18,7 +18,7 @@ Elogio.modules.elogioServer = function (modules) {
      */
 
     /**
-     * @param url - unnecessary parameter, there is the server url where sending request
+     * @param url - there is the server url where sending request
      * @param onSuccess - callback function for success request
      * @param onError - callback function which calls on error
      * @param method - HTTP method to be used

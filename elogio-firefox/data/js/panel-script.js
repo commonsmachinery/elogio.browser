@@ -46,7 +46,9 @@ $(document).ready(function () {
                     cardElement.find('.elogio-owner').text('Owner: ' + annotations.getOwner());
                     cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
                     cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
-                    cardElement.find('.elogio-annotations-title').text('title');
+                    if (annotations.getTitle()) {
+                        cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
+                    }
                     if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
                         cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
                     } else {
