@@ -91,7 +91,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             case 200:
                 return config.errors.requestError;
             case 0:
-                return 'No network found';
+                return 'Network communication error';
             default:
                 return 'Internal server error';
         }
@@ -214,13 +214,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 button.label = elogioLabel;
             } else {
                 button.icon = errorIndicator;
-                button.label = tabState.getAllImagesWithErrors().length + ' errors founded';
+                button.label = 'Something is wrong... Check Elog.io sidebar for details';
             }
         }
         if (imageObj && imageObj.error) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = tabState.getAllImagesWithErrors().length + ' errors founded';
+            button.label = 'Something is wrong... Check Elog.io sidebar for details';
             if (!sidebarIsHidden) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }
