@@ -9,6 +9,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         tabs = require('sdk/tabs'),
         simplePrefs = require("sdk/simple-prefs"),
         Sidebar = require("sdk/ui/sidebar").Sidebar,
+        clipboard = require("sdk/clipboard"),
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
         elogioLabel = "Elog.io";
@@ -108,6 +109,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             if (contentWorker) {
                 contentWorker.port.emit(bridge.events.onImageAction, imageObj);
             }
+        });
+        bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
+            clipboard.set(textHTML);
         });
         // Proxy startPageProcessing signal to content script
         bridge.on(bridge.events.startPageProcessing, function () {

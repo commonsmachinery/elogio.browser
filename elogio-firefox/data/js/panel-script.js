@@ -48,6 +48,8 @@ $(document).ready(function () {
                     cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
                     if (annotations.getTitle()) {
                         cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
+                    } else {
+                        cardElement.find('.elogio-annotations-title').hide();
                     }
                     if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
                         cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
@@ -87,7 +89,7 @@ $(document).ready(function () {
                     object.imageListView.append(cardElement);
                 }
                 // If we didn't send lookup query before - show loading
-                if (!imageObj.hasOwnProperty('lookup')&&!imageObj.hasOwnProperty('error')) {
+                if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
                     cardElement.find('.loading').show();
                     return; // Waiting for lookup....
                 } else {
@@ -222,12 +224,46 @@ $(document).ready(function () {
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
+                //handle click on copy button
+                object.imageListView.on('click', '.image-card .elogio_clipboard', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        imageObj = imageCard.data(constants.imageObject), annotations,
+                        copyToClipBoard = $('<div></div>').append('<div id="elogio-clipboard-container"></div>');
+                    copyToClipBoard.find('#elogio-clipboard-container').append('<img src="' + imageObj.uri + '"/>');
+                    if (imageObj.details) {
+                        annotations = new Elogio.Annotations(imageObj, config);
+                        copyToClipBoard.append('<p id="loc"></p>');
+                        //if exist add locator link
+                        if (annotations.getLocatorLink() && annotations.getTitle()) {
+                            copyToClipBoard.find('#loc').append('<a href="' +
+                                annotations.getLocatorLink() + '">' + annotations.getTitle() + '</a>');
+                        }
+                        //if exist add creator
+                        if (annotations.getCreatorLink() && annotations.getCreatorLabel()) {
+                            copyToClipBoard.find('#loc').text(' by ');
+                            copyToClipBoard.find('#loc').append('<a href="' + annotations.getCreatorLink() + '">' +
+                                annotations.getCreatorLabel() + '</a>');
+                            //or license but not creator
+                        } else if (annotations.getLicenseLabel() && annotations.getLicenseLink()) {
+                            copyToClipBoard.find('#loc').append('<a href="' + annotations.getLicenseLink() + '">' +
+                                annotations.getLicenseLabel() + '</a>');
+                        }
+                        copyToClipBoard = copyToClipBoard.html();
+                    } else {
+                        copyToClipBoard = copyToClipBoard.html();
+                    }
+                    if (imageObj.lookup && copyToClipBoard) {
+                        bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
+                    }
+                });
+                //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
                 });
+                //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');
                     var imageObj = imageCard.data(constants.imageObject);

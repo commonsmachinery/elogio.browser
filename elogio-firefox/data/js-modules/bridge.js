@@ -83,7 +83,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when image was removed from DOM, needs for remove image from panel when this image disappear from page
          */
-        onImageRemoved: "onImageRemoved"
+        onImageRemoved: "onImageRemoved",
+        /**
+         * Fires when click on button on the panel 'Copy', and sends html text to main.js which save it to clipboard
+         */
+        copyToClipBoard: "copyToClipBoard"
     };
 
     this.registerClient = function (transportObj, name) {

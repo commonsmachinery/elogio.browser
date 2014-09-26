@@ -102,4 +102,27 @@ Elogio.Annotations = function (imageObj, config) {
         }
         return title.titleLabel || null;
     };
+    function getCreator() {
+        var annotations = getAnnotationField();
+        var creator = getFieldValue(annotations, 'creator');
+        if (!creator) {
+            return null;
+        }
+        return creator;
+    }
+
+    this.getCreatorLabel = function () {
+        var creator = getCreator();
+        if (creator) {
+            return creator.creatorLabel || null;
+        }
+        return null;
+    };
+    this.getCreatorLink = function () {
+        var creator = getCreator();
+        if (creator) {
+            return creator.creatorLink || null;
+        }
+        return null;
+    };
 };
