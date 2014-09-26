@@ -89,6 +89,9 @@ Elogio.Annotations = function (imageObj, config) {
             return null;
         }
         var owner = details.owner.user || details.owner.org;
+        if (!owner) {
+            return null;
+        }
         if (owner.profile && owner.profile.gravatar_hash) {
             return config.global.apiServer.gravatarServerUrl + owner.profile.gravatar_hash;
         }
@@ -105,10 +108,7 @@ Elogio.Annotations = function (imageObj, config) {
     function getCreator() {
         var annotations = getAnnotationField();
         var creator = getFieldValue(annotations, 'creator');
-        if (!creator) {
-            return null;
-        }
-        return creator;
+        return creator || null;
     }
 
     this.getCreatorLabel = function () {

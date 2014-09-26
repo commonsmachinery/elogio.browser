@@ -252,9 +252,10 @@ $(document).ready(function () {
                     } else {
                         copyToClipBoard = copyToClipBoard.html();
                     }
-                    if (imageObj.lookup && copyToClipBoard) {
-                        bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
+                    if (!imageObj.lookup) {
+                        copyToClipBoard.append('<div></div>').text('No data for this image');
                     }
+                    bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {
