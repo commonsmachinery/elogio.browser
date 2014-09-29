@@ -20,7 +20,7 @@
         <div class="thumbnail-image">
             <img src="{{imageObj.uri}}" class="picture"/>
         </div>
-        <button  class="elogio_clipboard btn btn-primary">Copy</button>
+        <button  class="elogio-clipboard btn btn-primary">Copy</button>
         <div class="image-details" style="display:none">
             <p>
                 <img class="elogio-gravatar" src=""/>
@@ -39,8 +39,33 @@
         <div class="error-area" style="display:none"></div>
         <div class="loading" style="display:none"></div>
     </div>
-</script>
 
+
+
+</script>
+<script id="clipboard-template" type="x-tmpl-mustache">
+    <div>
+    <div>
+        {{#imageObj.uri}}
+             <img src={{imageObj.uri}}/>
+        {{/imageObj.uri}}
+        <p>
+        {{#imageObj.locatorLink}}
+             <a href={{imageObj.locatorLink}}>  {{imageObj.titleLabel}}  </a>
+        {{/imageObj.locatorLink}}
+        by
+        {{#imageObj.creatorLink}}
+             <a href={{imageObj.creatorLink}}>  {{imageObj.creatorLabel}}  </a>
+        {{/imageObj.creatorLink}}
+        {{#imageObj.policyLink}}
+             <a href={{imageObj.policyLink}}>  {{imageObj.policyLabel}}  </a>
+        {{/imageObj.policyLink}}
+        </p>
+    </div>
+    </div>
+
+
+</script>
 <div class="header">
     <div class="pull-left">
         Elog.io Plugin:

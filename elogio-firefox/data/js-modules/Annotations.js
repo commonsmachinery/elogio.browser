@@ -48,7 +48,7 @@ Elogio.Annotations = function (imageObj, config) {
         }
         var some = details.owner.user || details.owner.org;
         if (!some) {
-            return false;
+            return null;
         }
         return some.id || null;
     };
