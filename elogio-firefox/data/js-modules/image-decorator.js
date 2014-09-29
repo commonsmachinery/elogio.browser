@@ -22,6 +22,21 @@ Elogio.modules.imageDecorator = function (modules) {
         return 'elogioico_' + imageUuid;
     }
 
+    //handlers for content elements
+    //on mouse over handler
+    var onMouseOver = function () {
+            self.decorate(this, document);
+        },
+    //on mouse out handler
+        onMouseOut = function () {
+            var uuid = dom.getUUIDofElement(this),
+                iconElement;
+            iconElement = document.getElementById(buildIdForIcon(uuid));
+            if (iconElement) {
+                iconElement.style.display = 'none';
+            }
+        };
+
     function buildIconElement(element) {
         var iconElement = new Image();
         iconElement.src = self.config.iconUrl;
@@ -51,10 +66,6 @@ Elogio.modules.imageDecorator = function (modules) {
      *                   uuid{String} - UUID of the related image
      */
     this.decorate = function (element, document, callback) {
-        //if this element marked as 'undecorated' then we need unmark it
-        if (element.hasAttribute(config.ui.undecoratedItemAttribute)) {
-            element.removeAttribute(config.ui.undecoratedItemAttribute);
-        }
         //mark decorated element of DOM
         element.setAttribute(config.ui.decoratedItemAttribute, '');
         var iconElement, uuid = dom.getUUIDofElement(element),
@@ -68,30 +79,9 @@ Elogio.modules.imageDecorator = function (modules) {
             // Append icon to the body
             document.body.appendChild(iconElement);
             // Show on mouse in
-            element.addEventListener('mouseover', function (e) {
-                //if element marked as 'undecorated' then we need remove this event listener
-                if (this.hasAttribute(config.ui.undecoratedItemAttribute)) {
-                    this.removeEventListener('mouseover', e.callee);
-                    this.removeAttribute(config.ui.undecoratedItemAttribute);
-                } else {
-                    self.decorate(this, document);
-                }
-            });
+            element.addEventListener('mouseover', onMouseOver);
             // Hide icon on mouse out
-            element.addEventListener('mouseout', function (e) {
-                //if element marked as 'undecorated' then we need remove this event listener
-                if (this.hasAttribute(config.ui.undecoratedItemAttribute)) {
-                    this.removeEventListener('mouseout', e.callee);
-                    this.removeAttribute(config.ui.undecoratedItemAttribute);
-                } else {
-                    var uuid = dom.getUUIDofElement(this),
-                        iconElement;
-                    iconElement = document.getElementById(buildIdForIcon(uuid));
-                    if (iconElement) {
-                        iconElement.style.display = 'none';
-                    }
-                }
-            });
+            element.addEventListener('mouseout', onMouseOut);
             iconElement.addEventListener('mouseout', function () {
                 this.style.display = 'none';
             });
@@ -125,12 +115,13 @@ Elogio.modules.imageDecorator = function (modules) {
         if (element.hasAttribute(config.ui.decoratedItemAttribute)) {
             element.removeAttribute(config.ui.decoratedItemAttribute);
         }
-        //we need to mark element as 'undecorated'
-        element.setAttribute(config.ui.undecoratedItemAttribute, '');
         iconElement = document.getElementById(buildIdForIcon(uuid));
         if (iconElement) {
             document.body.removeChild(iconElement);
         }
+        //remove event listeners too
+        element.removeEventListener('mouseover', onMouseOver);
+        element.removeEventListener('mouseout', onMouseOut);
         // also we need to remove uuid
         element.removeAttribute(config.ui.dataAttributeName);
     };

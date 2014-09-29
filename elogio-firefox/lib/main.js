@@ -293,7 +293,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         onAttach: function (contentWorker) {
             var currentTab = contentWorker.tab,
                 tabState = appState.getTabState(currentTab.id);
+            tabState.clearImageStorage();
+            tabState.clearLookupImageStorage();
             tabState.attachWorker(contentWorker);
+            //if page from cache then we need to save it to tabState
+            currentTab.on("pageshow", function (tab, isPersisted) {
+                var tabState = appState.getTabState(tab.id);
+                if (isPersisted) {
+                    tabState.isPageHidden(true);
+                } else {
+                    tabState.isPageHidden(false);
+                }
+            });
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
                 // if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
@@ -324,6 +335,22 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     bridge.emit(bridge.events.newImageFound, imageObject);
                 }
             });
+            //if event from content received and current page is from cache then we need to undecorate all images and start page processing from scratch
+            contentWorker.port.on(bridge.events.pageShowEvent, function () {
+                var tabState = appState.getTabState(currentTab.id);
+                if (tabState.isPageHidden()) {
+                    tabState.attachWorker(contentWorker);//reattach worker
+                    this.emit(bridge.events.pageShowEvent);//undecorate all images on the page
+                    if (!sidebarIsHidden) {
+                        bridge.emit(bridge.events.startPageProcessing);//start page processing from scratch
+                    } else {
+                        //if tab is hidden then we need send emit to content by self
+                        tabState.clearImageStorage();
+                        tabState.clearLookupImageStorage();
+                        this.emit(bridge.events.startPageProcessing);
+                    }
+                }
+            });
             // When user click on the elogio icon near the image
             contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
                 if (currentTab === tabs.activeTab) {
@@ -349,7 +376,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
     tabs.on('close', function (tab) {
         appState.dropTabState(tab.id);
     });
-
     tabs.on('activate', function (tab) {
         if (pluginState.isEnabled) {
             var tabState = appState.getTabState(tab.id);

@@ -87,7 +87,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when click on button on the panel 'Copy', and sends html text to main.js which save it to clipboard
          */
-        copyToClipBoard: "copyToClipBoard"
+        copyToClipBoard: "copyToClipBoard",
+        /**
+         * Fires always when page shows up, but in main.js we checks: page from cache or no
+         */
+        pageShowEvent: "pageShowEvent"
     };
 
     this.registerClient = function (transportObj, name) {
