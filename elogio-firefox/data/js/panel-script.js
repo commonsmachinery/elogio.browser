@@ -240,7 +240,7 @@ $(document).ready(function () {
                         annotations.licenseLink = annotations.getLicenseLink();
                         annotations.licenseLabel = annotations.getLicenseLabel();
                     }
-                    copyToClipBoard = $(Mustache.render(template.clipboardItem, {'imageObj': annotations})).html();
+                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
                     bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
                 });
                 //handle click on image card

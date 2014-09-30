@@ -42,7 +42,6 @@
 </script>
 <script id="clipboard-template" type="x-tmpl-mustache">
     <div>
-    <div>
         <div>
             {{#imageObj.uri}}
              <img src="{{imageObj.uri}}" />
@@ -57,7 +56,7 @@
              <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} Creator {{/imageObj.creatorLabel}} </a>&nbsp;
         {{/imageObj.creatorLink}}
         {{^imageObj.creatorLink}}
-             {{#imageObj.creatorLabel}}by &nbsp{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
+             {{#imageObj.creatorLabel}}by &nbsp;{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
         {{/imageObj.creatorLink}}
         {{#imageObj.policyLink}}
              <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} Policy {{/imageObj.policyLabel}} </a>
@@ -66,7 +65,6 @@
              {{#imageObj.policyLabel}}&nbsp; {{imageObj.policyLabel}} {{/imageObj.policyLabel}}
         {{/imageObj.policyLink}}
         </p>
-    </div>
     </div>
 </script>
 <div class="header">
