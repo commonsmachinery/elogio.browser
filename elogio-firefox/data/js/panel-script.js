@@ -233,19 +233,12 @@ $(document).ready(function () {
                     annotations = new Elogio.Annotations(imageObj, config);
                     annotations.uri = imageObj.uri;
                     if (imageObj.details) {
-                        if (annotations.getLocatorLink() && annotations.getTitle()) {
-                            annotations.locatorLink = annotations.getLocatorLink();
-                            annotations.titleLabel = annotations.getTitle();
-                        }
-                        //if exist add creator
-                        if (annotations.getCreatorLink() && annotations.getCreatorLabel()) {
-                            annotations.creatorLink = annotations.getCreatorLink();
-                            annotations.creatorLabel = annotations.getCreatorLabel();
-                            //or license but not creator
-                        } else if (annotations.getLicenseLabel() && annotations.getLicenseLink()) {
-                            annotations.licenseLink = annotations.getLicenseLink();
-                            annotations.licenseLabel = annotations.getLicenseLabel();
-                        }
+                        annotations.locatorLink = annotations.getLocatorLink();
+                        annotations.titleLabel = annotations.getTitle();
+                        annotations.creatorLink = annotations.getCreatorLink();
+                        annotations.creatorLabel = annotations.getCreatorLabel();
+                        annotations.licenseLink = annotations.getLicenseLink();
+                        annotations.licenseLabel = annotations.getLicenseLabel();
                     }
                     copyToClipBoard = $(Mustache.render(template.clipboardItem, {'imageObj': annotations})).html();
                     bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);

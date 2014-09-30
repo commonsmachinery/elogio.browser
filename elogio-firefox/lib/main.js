@@ -111,7 +111,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             }
         });
         bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
-            clipboard.set(textHTML);
+            clipboard.set(textHTML, 'html');
         });
         // Proxy startPageProcessing signal to content script
         bridge.on(bridge.events.startPageProcessing, function () {
