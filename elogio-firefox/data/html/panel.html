@@ -50,17 +50,17 @@
         </div>
         <p>
         {{#imageObj.locatorLink}}
-                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} locator link {{/imageObj.titleLabel}} </a>
+                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} Locator Link {{/imageObj.titleLabel}} </a>
         {{/imageObj.locatorLink}}
         {{#imageObj.creatorLink}}
         by &nbsp;
-             <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} creator {{/imageObj.creatorLabel}} </a>&nbsp;
+             <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} Creator {{/imageObj.creatorLabel}} </a>&nbsp;
         {{/imageObj.creatorLink}}
         {{^imageObj.creatorLink}}
              {{#imageObj.creatorLabel}}by &nbsp{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
         {{/imageObj.creatorLink}}
         {{#imageObj.policyLink}}
-             <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} policy {{/imageObj.policyLabel}} </a>
+             <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} Policy {{/imageObj.policyLabel}} </a>
         {{/imageObj.policyLink}}
         {{^imageObj.policyLink}}
              {{#imageObj.policyLabel}}&nbsp; {{imageObj.policyLabel}} {{/imageObj.policyLabel}}
