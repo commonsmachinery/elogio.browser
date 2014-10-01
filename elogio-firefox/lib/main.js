@@ -332,16 +332,16 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         } else {
                             //if we get an empty array, that's mean what no data for this image
                             imageObjFromStorage.error = config.errors.noDataForImage;
-                            bridge.emit(bridge.events.newImageFound, imageObjFromStorage);
+                            indicateError(imageObjFromStorage);
                         }
                     }, function (response) {
                         imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
-                        bridge.emit(bridge.events.newImageFound, imageObjFromStorage);
+                        indicateError(imageObjFromStorage);
                     });
                 } else {
                     //if we get error when using blockhash
                     imageObjFromStorage.error = config.errors.noDataForImage;
-                    bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//notify sidebar when error received
+                    indicateError(imageObjFromStorage);
                 }
             });
 
