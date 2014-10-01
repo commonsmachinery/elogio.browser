@@ -14,7 +14,8 @@ Elogio.modules.config = function (modules) {
         },
         locator: {
             limitImageHeight: 100,
-            limitImageWidth: 100
+            limitImageWidth: 100,
+            deepScan: true
         }
     };
 

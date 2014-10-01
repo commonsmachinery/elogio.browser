@@ -65,6 +65,7 @@ new Elogio(
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
+            config.global.locator.deepScan = updatedConfig.global.locator.deepScan;
             if (document.body) {
                 if (updatedConfig.ui.highlightRecognizedImages) {
                     if (document.body.className.indexOf('elogio-highlight') < 0) {

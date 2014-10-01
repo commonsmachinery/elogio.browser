@@ -242,6 +242,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
+        config.global.locator.deepScan = simplePrefs.prefs.deepScan;
         bridge.emit(bridge.events.configUpdated, config);
         for (i = 0; i < tabsState.length; i += 1) {
             tabContentWorker = tabsState[i].getWorker();

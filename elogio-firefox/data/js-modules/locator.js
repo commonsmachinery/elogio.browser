@@ -98,15 +98,15 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
-            return node instanceof HTMLImageElement && !node.src.startsWith('data:') && isNotGifFile(node.src);
+            if (node instanceof HTMLImageElement) {
+                return !node.src.startsWith('data:') && isNotGifFile(node.src);
+            }
+            return null;
         },
         // Any tag with background-url excluding .gif
         function (node) {
             var url = getBackgroundUrl(node);
-            if (url && (isNotGifFile(url) || url.startsWith('data:'))) {
-                return false;
-            }
-            return !!url;
+            return url && isNotGifFile(url) && !url.startsWith('data:') && config.global.locator.deepScan;
         }
     ];
     this.imageFilters = [
