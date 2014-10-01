@@ -91,7 +91,15 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires always when page shows up, but in main.js we checks: page from cache or no
          */
-        pageShowEvent: "pageShowEvent"
+        pageShowEvent: "pageShowEvent",
+        /**
+         * Fires when we need hash of image for lookup request
+         */
+        hashRequired: "hashRequired",
+        /**
+         * Fires when hash calculated and need to send it to main.js
+         */
+        hashCalculated: "hashCalculated"
     };
 
     this.registerClient = function (transportObj, name) {

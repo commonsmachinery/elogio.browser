@@ -41,7 +41,11 @@ module.exports = function (grunt) {
                     '<%= buildDir%>/data/js/common-lib.js': [
                         'elogio-firefox/data/js/common.js',
                         'elogio-firefox/data/js/config.js',
-                        'elogio-firefox/data/js-modules/*.js'
+                        'elogio-firefox/data/js-modules/*.js',
+                        'elogio-firefox/data/deps/png.js/zlib.js',
+                        'elogio-firefox/data/deps/png.js/png.js',
+                        'elogio-firefox/data/deps/jpgjs/jpg.js',
+                        'elogio-firefox/data/deps/blockhash-js/blockhash.js'
                     ],
                     '<%= buildDir%>/lib/common-chrome-lib.js': [
                         'elogio-firefox/data/js/common.js',
@@ -113,7 +117,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true
@@ -125,7 +129,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true
@@ -176,7 +180,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('run', [
         /*'clean',
-        'bower',*/
+         'bower',*/
         'lint',
         'less',
         'copy:resourcesWithoutJS',

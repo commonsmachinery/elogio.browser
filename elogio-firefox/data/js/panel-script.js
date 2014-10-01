@@ -2,7 +2,6 @@ $(document).ready(function () {
     'use strict';
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'], function (modules) {
         var bridge = modules.getModule('bridge'), config = modules.getModule('config');
-
         var panelController = (function () {
             var object = {
                 onButton: $('#on'),
@@ -182,17 +181,20 @@ $(document).ready(function () {
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
+
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
                     self.addOrUpdateImageCard(imageObj);
                     self.displayMessages();
                 });
+
                 bridge.on(bridge.events.pluginActivated, function () {
                     object.onButton.hide();
                     object.offButton.show();
                     isPluginEnabled = true;
                     self.startPlugin();
                 });
+
                 bridge.on(bridge.events.pluginStopped, function () {
                     object.onButton.show();
                     object.offButton.hide();
@@ -200,22 +202,27 @@ $(document).ready(function () {
                     self.stopPlugin();
                     self.displayMessages();
                 });
+
                 bridge.on(bridge.events.tabSwitched, function (data) {
                     if (isPluginEnabled) {//if plugin disabled we don't need load any images
                         self.loadImages(data.images, data.imageCardToOpen);
                         self.displayMessages();
                     }
                 });
+
                 //if image disappear from page then we need to remove it at here too
                 bridge.on(bridge.events.onImageRemoved, function (uuid) {
                     getImageCardByUUID(uuid).remove();
                 });
+
                 bridge.on(bridge.events.onImageAction, function (imageObject) {
                     self.openImage(imageObject.uuid);
                 });
+
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
                 });
+
                 bridge.on(bridge.events.startPageProcessing, function () {
                     self.hideMessage();
                     if (object.imageListView.length) {
@@ -223,6 +230,7 @@ $(document).ready(function () {
                     }
                     bridge.emit(bridge.events.startPageProcessing);
                 });
+
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
                 //handle click on copy button
@@ -256,8 +264,7 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(constants.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.no-lookup-data').hide();
-                    alert('TODO: Perform query request for ' + imageObj.uuid);
-                    imageCard.find('.loading').hide();
+                    bridge.emit(bridge.events.hashRequired, imageObj);
                 });
                 // Hide action buttons since state is not determined yet
                 object.onButton.hide();
@@ -266,7 +273,6 @@ $(document).ready(function () {
 
             return self;
         })();
-
         // Initialize bridge
         bridge.registerClient(addon.port);               // Default transport: link chrome
         //bridge.registerClient(panelController, 'panel'); // panel controller itself

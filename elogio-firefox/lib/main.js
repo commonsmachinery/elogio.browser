@@ -24,7 +24,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         pluginState = {
             isEnabled: false
         };
-
     /*
      =======================
      PRIVATE MEMBERS
@@ -112,6 +111,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         });
         bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
             clipboard.set(textHTML, 'html');
+        });
+        bridge.on(bridge.events.hashRequired, function (imageObj) {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            if (contentWorker) {
+                contentWorker.port.emit(bridge.events.hashRequired, imageObj);
+            }
         });
         // Proxy startPageProcessing signal to content script
         bridge.on(bridge.events.startPageProcessing, function () {
@@ -312,12 +318,37 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
                 }
             });
+            //when hash calculated then send hash lookup request
+            contentWorker.port.on(bridge.events.hashCalculated, function (imageObj) {
+                var imageObjFromStorage = tabState
+                    .findImageInStorageByUuid(imageObj.uuid);
+                if (!imageObj.error) {
+                    imageObjFromStorage.hash = imageObj.hash;
+                    elogioServer.hashLookupQuery(imageObjFromStorage.hash, function (json) {
+                        if (Array.isArray(json) && json.length > 0) {
+                            imageObjFromStorage.lookup = json[0];
+                            bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
+                        } else {
+                            //if we get an empty array, that's mean what no data for this image
+                            imageObjFromStorage.error = config.errors.noDataForImage;
+                            bridge.emit(bridge.events.newImageFound, imageObjFromStorage);
+                        }
+                    }, function (response) {
+                        imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
+                        bridge.emit(bridge.events.newImageFound, imageObjFromStorage);
+                    });
+                } else {
+                    bridge.emit(bridge.events.newImageFound, imageObj);//notify sidebar when error received
+                }
+            });
+
             // if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
             contentWorker.port.on(bridge.events.onImageRemoved, function (uuid) {
                 var tabState = appState.getTabState(currentTab.id);
                 bridge.emit(bridge.events.onImageRemoved, uuid);
                 tabState.removeImageFromStorageByUuid(uuid);
             });
+
             contentWorker.port.on(bridge.events.newImageFound, function (imageObject) {
                 var tabState = appState.getTabState(currentTab.id);
                 // Maybe we already have image with this URL in storage?
@@ -384,7 +415,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             bridge.emit(bridge.events.tabSwitched, {images: images});
         }
     });
-
     // Create UI Button
     var button = buttons.ActionButton({
         id: "elogio-button",

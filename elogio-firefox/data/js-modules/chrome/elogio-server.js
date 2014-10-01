@@ -88,6 +88,18 @@ Elogio.modules.elogioServer = function (modules) {
     };
 
     /**
+     * @param hash - it's the hash of image, which needs for lookup
+     * @param onLoad
+     * @param onError
+     */
+    this.hashLookupQuery = function (hash, onLoad, onError) {
+        if (!hash) {
+            return;
+        }
+        var url = config.global.apiServer.serverUrl + config.global.apiServer.hashLookupContext + urlHelperBuilder({hash: hash});
+        sendRequest(url, onLoad, onError, 'GET');
+    };
+    /**
      *
      * @param url - there is url of the server where sending request (not uri of image!!!)
      * @param onLoad

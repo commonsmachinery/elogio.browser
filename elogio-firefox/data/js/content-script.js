@@ -55,7 +55,13 @@ new Elogio(
         bridge.on(bridge.events.pageShowEvent, function () {
             undecorate();
         });
-
+        bridge.on(bridge.events.hashRequired, function (imageObj) {
+            blockhash(imageObj.uri, 16, 2, function (error, hash) {
+                imageObj.error = error;
+                imageObj.hash = hash;
+                bridge.emit(bridge.events.hashCalculated, imageObj);
+            });
+        });
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
