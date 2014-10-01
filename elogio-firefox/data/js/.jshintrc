@@ -33,6 +33,7 @@
         "gOverlayElementSelectorAttr",
         "Elogio",
         "exports",
-        "require"
+        "require",
+        "blockhash"
     ]
 }
