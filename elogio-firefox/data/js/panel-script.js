@@ -195,6 +195,12 @@ $(document).ready(function () {
                     self.startPlugin();
                 });
 
+                //from main.js we get a message which mean: we need to get details of image, because hash lookup was received
+                bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
+                    //and send it back
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                });
+
                 bridge.on(bridge.events.pluginStopped, function () {
                     object.onButton.show();
                     object.offButton.hide();
