@@ -328,7 +328,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         if (Array.isArray(json) && json.length > 0) {
                             imageObjFromStorage.lookup = json[0];
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
-                            contentWorker.port.emit(bridge.events.newImageFound, imageObjFromStorage);//and content script too
+                            contentWorker.port.emit(bridge.events.newImageFound, imageObjFromStorage);//and content script too (for decorate)
                         } else {
                             //if we get an empty array, that's mean what no data for this image
                             imageObjFromStorage.error = config.errors.noDataForImage;
@@ -339,7 +339,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         bridge.emit(bridge.events.newImageFound, imageObjFromStorage);
                     });
                 } else {
-                    bridge.emit(bridge.events.newImageFound, imageObj);//notify sidebar when error received
+                    //if we get error when using blockhash
+                    imageObjFromStorage.error = config.errors.noDataForImage;
+                    bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//notify sidebar when error received
                 }
             });
 
