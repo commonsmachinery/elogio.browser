@@ -328,6 +328,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                         if (Array.isArray(json) && json.length > 0) {
                             imageObjFromStorage.lookup = json[0];
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
+                            contentWorker.port.emit(bridge.events.newImageFound, imageObjFromStorage);//and content script too
                         } else {
                             //if we get an empty array, that's mean what no data for this image
                             imageObjFromStorage.error = config.errors.noDataForImage;
