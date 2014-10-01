@@ -141,7 +141,7 @@ module.exports = function (grunt) {
 
         copy: {
             resourcesWithoutJS: {
-                src: ["**", "!**/*.js"],
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true

@@ -19,7 +19,7 @@ Elogio.modules.locator = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-    var urlStorage = [], coefficientOfSpriteSize = 7;//needs for saving urls of images by request
+    var urlStorage = [], coefficientOfSpriteSize = 5;//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
