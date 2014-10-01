@@ -67,14 +67,18 @@ Elogio.modules.locator = function (modules) {
         var elementDefaultView = document.defaultView || window;
         if (node.style[elementStyle]) {
             url = node.style[elementStyle];
-            url = /url\(['"]?([^")]+)/.exec(url) || [];
-            return url[1];
+            if (url) {
+                url = /url\(['"]?([^")]+)/.exec(url) || [];
+                return url[1];
+            }
         }
         if (null !== elementDefaultView.getComputedStyle(node, "")) {
             if (elementDefaultView.getComputedStyle(node, "").getPropertyValue(css)) {
                 url = elementDefaultView.getComputedStyle(node, "").getPropertyValue(css);
-                url = /url\(['"]?([^")]+)/.exec(url) || [];
-                return url[1];
+                if (url) {
+                    url = /url\(['"]?([^")]+)/.exec(url) || [];
+                    return url[1];
+                }
             }
         }
         return null;
@@ -118,12 +122,6 @@ Elogio.modules.locator = function (modules) {
             urlStorage.push(data.img.src);
             return null;
         },
-        // Min size is 100*100px
-        function (data) {
-            var img = data.img;
-            return img.width >= config.global.locator.limitImageWidth &&
-                img.height >= config.global.locator.limitImageWidth;
-        },
         // Skip sprites
         function (data) {
             var img = data.img;
@@ -134,6 +132,12 @@ Elogio.modules.locator = function (modules) {
                 return false;
             }
             return null;
+        },
+        // Min size is 100*100px
+        function (data) {
+            var img = data.img;
+            return img.width >= config.global.locator.limitImageWidth &&
+                img.height >= config.global.locator.limitImageWidth;
         }
     ];
 

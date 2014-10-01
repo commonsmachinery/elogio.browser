@@ -15,8 +15,9 @@ new Elogio(
          */
         var observer;
 
-        function processDocument() {
-            locator.findImages(document, null, function (imageObj) {
+        function processDocument(nodes) {
+            nodes = nodes || null;
+            locator.findImages(document, nodes, function (imageObj) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }, function () {
                 //on error
@@ -55,6 +56,7 @@ new Elogio(
         bridge.on(bridge.events.pageShowEvent, function () {
             undecorate();
         });
+        //calculate hash
         bridge.on(bridge.events.hashRequired, function (imageObj) {
             blockhash(imageObj.uri, 16, 2, function (error, hash) {
                 imageObj.error = error;
@@ -104,7 +106,7 @@ new Elogio(
         observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
-                var i;
+                var i, j;
                 for (i = 0; i < mutation.addedNodes.length; i += 1) {
                     if (mutation.addedNodes[i].nodeType === Node.ELEMENT_NODE) {
                         nodesToBeProcessed[nodesToBeProcessed.length] = mutation.addedNodes[i];
@@ -122,7 +124,7 @@ new Elogio(
                         // check if node has another removed elements
                         elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
                         if (elements) {
-                            for (var j = 0; j < elements.length; j++) {
+                            for (j = 0; j < elements.length; j++) {
                                 uuid = elements[j].getAttribute(config.ui.dataAttributeName);
                                 if (uuid) {
                                     bridge.emit(bridge.events.onImageRemoved, uuid);
@@ -131,8 +133,8 @@ new Elogio(
                         }
                     }
                 }
-                processDocument();
             });
+            processDocument();
         });
     }
 );

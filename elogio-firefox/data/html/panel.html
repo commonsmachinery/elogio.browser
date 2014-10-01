@@ -28,7 +28,7 @@
                 <p class="elogio-annotations-title"></p>
                 <p class='elogio-addedAt'></p>
                 <p  class="elogio-license"></p>
-                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink &nbsp&nbsp&nbsp</a>
+                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink &nbsp;&nbsp;&nbsp;</a>
                 <a target="_blank" href="" class="elogio-license-link">License</a>
             </p>
         </div>
@@ -49,17 +49,17 @@
         </div>
         <p>
         {{#imageObj.locatorLink}}
-                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} Locator Link {{/imageObj.titleLabel}} </a>
+                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
         {{/imageObj.locatorLink}}
         {{#imageObj.creatorLink}}
         by &nbsp;
-             <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} Creator {{/imageObj.creatorLabel}} </a>&nbsp;
+             <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>&nbsp;
         {{/imageObj.creatorLink}}
         {{^imageObj.creatorLink}}
              {{#imageObj.creatorLabel}}by &nbsp;{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
         {{/imageObj.creatorLink}}
         {{#imageObj.policyLink}}
-             <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} Policy {{/imageObj.policyLabel}} </a>
+             <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} {{imageObj.policyLink}} {{/imageObj.policyLabel}} </a>
         {{/imageObj.policyLink}}
         {{^imageObj.policyLink}}
              {{#imageObj.policyLabel}}&nbsp; {{imageObj.policyLabel}} {{/imageObj.policyLabel}}
