@@ -111,6 +111,28 @@ Elogio.Annotations = function (imageObj, config) {
         return creator || null;
     }
 
+    function getCopyright() {
+        var annotation = getAnnotationField();
+        var copyright = getFieldValue(annotation, 'copyright');
+        return copyright || null;
+    }
+
+    this.getCopyrightLink = function () {
+        var copyright = getCopyright();
+        if (copyright) {
+            return copyright.holderLink || null;
+        }
+        return null;
+    };
+
+    this.getCopyrightLabel = function () {
+        var copyright = getCopyright();
+        if (copyright) {
+            return copyright.holderLabel || null;
+        }
+        return null;
+    };
+
     this.getCreatorLabel = function () {
         var creator = getCreator();
         if (creator) {
