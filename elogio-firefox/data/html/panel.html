@@ -51,13 +51,21 @@
         {{#imageObj.locatorLink}}
                 <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
         {{/imageObj.locatorLink}}
-        {{#imageObj.creatorLink}}
-        by 
-             <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
-        {{/imageObj.creatorLink}}
-        {{^imageObj.creatorLink}}
-             {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
-        {{/imageObj.creatorLink}}
+         {{#imageObj.copyrightLink}}
+             <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
+        {{/imageObj.copyrightLink}}
+
+
+        {{^imageObj.copyrightLink}}
+             {{#imageObj.creatorLink}}
+                by &nbsp;
+                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>&nbsp;
+            {{/imageObj.creatorLink}}
+
+            {{^imageObj.creatorLink}}
+                 {{#imageObj.creatorLabel}}by &nbsp;{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
+            {{/imageObj.creatorLink}}
+        {{/imageObj.copyrightLink}}
         {{#imageObj.licenseLink}}
              <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
         {{/imageObj.licenseLink}}
