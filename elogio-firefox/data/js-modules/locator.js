@@ -100,6 +100,22 @@ Elogio.modules.locator = function (modules) {
      * @type {Array}
      */
     this.nodeFilters = [
+        //avoid nodes which can't contain anything interesting
+        function (node) {
+            //if node instance of this nodes then maybe it is suitable
+            if (node.tagName === 'BODY' ||
+                node.tagName === 'IMG' ||
+                node.tagName === 'TABLE' ||
+                node.tagName === 'TD' ||
+                node.tagName === 'TR' ||
+                node.tagName === 'TH' ||
+                node.tagName === 'DIV'
+                ) {
+                return null;
+            }
+            //if node not instance of upper tags, then this node doesn't contains interesting
+            return false;
+        },
         // All IMG tags excluding .gif
         function (node) {
             if (node instanceof HTMLImageElement) {
