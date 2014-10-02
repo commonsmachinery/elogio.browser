@@ -58,12 +58,12 @@
         {{^imageObj.creatorLink}}
              {{#imageObj.creatorLabel}}by &nbsp;{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
         {{/imageObj.creatorLink}}
-        {{#imageObj.policyLink}}
-             <a href="{{imageObj.policyLink}}"> {{#imageObj.policyLabel}} {{imageObj.policyLabel}} {{/imageObj.policyLabel}} {{^imageObj.policyLabel}} {{imageObj.policyLink}} {{/imageObj.policyLabel}} </a>
-        {{/imageObj.policyLink}}
-        {{^imageObj.policyLink}}
-             {{#imageObj.policyLabel}}&nbsp; {{imageObj.policyLabel}} {{/imageObj.policyLabel}}
-        {{/imageObj.policyLink}}
+        {{#imageObj.licenseLink}}
+             <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
+        {{/imageObj.licenseLink}}
+        {{^imageObj.licenseLink}}
+             {{#imageObj.licenseLabel}}&nbsp; {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
+        {{/imageObj.licenseLink}}
         </p>
     </div>
 </script>
