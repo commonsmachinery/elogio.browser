@@ -156,10 +156,15 @@ Elogio.modules.locator = function (modules) {
 
     /**
      * Returns a list of nodes which should be processed (all nodes which match <code>this.nodeFilters</code>)
-     * @param document - document referrence
+     * @param context - document referrence
      */
-    this.findNodes = function (document) {
-        var domElements = document.getElementsByTagName('*');
+    this.findNodes = function (context) {
+        var domElements;
+        if (!context.querySelectorAll) {
+            domElements = context.getElementsByTagName('*');
+        } else {
+            domElements = context.querySelectorAll('*');
+        }
         domElements = Array.prototype.slice.call(domElements, 0, domElements.length);
         return applyFilters(domElements, this.nodeFilters);
     };
@@ -189,7 +194,6 @@ Elogio.modules.locator = function (modules) {
      */
 
     this.findImages = function (document, nodes, onImageFound, onError, processFinished) {
-        urlStorage = [];//every request to find images we need to delete all of urls saved before
         var countOfProcessedImages = 0, countNodes = 0;
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {

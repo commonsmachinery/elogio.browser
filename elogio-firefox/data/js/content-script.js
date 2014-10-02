@@ -97,7 +97,7 @@ new Elogio(
         });
         bridge.on(bridge.events.pluginActivated, function () {
             if (document.body) {
-                observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+                observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             }
         });
         bridge.on(bridge.events.startPageProcessing, processDocument);
@@ -106,10 +106,14 @@ new Elogio(
         observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
-                var i, j;
-                for (i = 0; i < mutation.addedNodes.length; i += 1) {
-                    if (mutation.addedNodes[i].nodeType === Node.ELEMENT_NODE) {
-                        nodesToBeProcessed[nodesToBeProcessed.length] = mutation.addedNodes[i];
+                var i, j, newNodes = mutation.addedNodes;
+                for (i = 0; i < newNodes.length; i += 1) {
+                    if (newNodes[i].nodeType === Node.ELEMENT_NODE) {
+                        nodesToBeProcessed[nodesToBeProcessed.length] = newNodes[i];//add itself
+                        var children = locator.findNodes(newNodes[i]);//and add all filtered children of this node
+                        for (j = 0; j < children.length; j++) {
+                            nodesToBeProcessed[nodesToBeProcessed.length] = children[j];
+                        }
                     }
                 }
                 // remove images from storage and panel once they disappear from DOM
@@ -134,7 +138,7 @@ new Elogio(
                     }
                 }
             });
-            processDocument();
+            processDocument(nodesToBeProcessed);
         });
     }
 );
