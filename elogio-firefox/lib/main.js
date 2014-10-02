@@ -184,7 +184,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     //put error to storage
                     imageObj.error = getTextStatusByStatusCode(response.status);
                     indicateError(imageObj);
-                }
+                },
+                config.global.apiServer.urlLookupOptions
             );
         });
     }

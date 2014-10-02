@@ -44,7 +44,11 @@ $(document).ready(function () {
             self.initializeDetails = function (imageObj, cardElement) {
                 var annotations = new Elogio.Annotations(imageObj, config);
                 if (imageObj.details) { // If we were abe to get annotations - populate details
-                    cardElement.find('.elogio-owner').text('Owner: ' + annotations.getOwner());
+                    if (annotations.getCreatorLabel()) {
+                        cardElement.find('.elogio-owner').text('Image by ' + annotations.getCreatorLabel());
+                    } else {
+                        cardElement.find('.elogio-owner').hide();
+                    }
                     cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
                     cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
                     if (annotations.getTitle()) {
