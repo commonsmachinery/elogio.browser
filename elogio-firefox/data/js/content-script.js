@@ -15,7 +15,7 @@ new Elogio(
          */
         var observer;
 
-        function processDocument(nodes) {
+        function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
@@ -100,7 +100,7 @@ new Elogio(
                 observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             }
         });
-        bridge.on(bridge.events.startPageProcessing, processDocument);
+        bridge.on(bridge.events.startPageProcessing, scanForImages);
         // Experiment with MutationObserver
         // create an observer instance
         observer = new MutationObserver(function (mutations) {
@@ -111,6 +111,7 @@ new Elogio(
                     if (newNodes[i].nodeType === Node.ELEMENT_NODE) {
                         nodesToBeProcessed[nodesToBeProcessed.length] = newNodes[i];//add itself
                         var children = locator.findNodes(newNodes[i]);//and add all filtered children of this node
+                        //add all children to store, which needs to be processed
                         for (j = 0; j < children.length; j++) {
                             nodesToBeProcessed[nodesToBeProcessed.length] = children[j];
                         }
@@ -138,7 +139,7 @@ new Elogio(
                     }
                 }
             });
-            processDocument(nodesToBeProcessed);
+            scanForImages(nodesToBeProcessed);
         });
     }
 );
