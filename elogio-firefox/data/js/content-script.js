@@ -97,6 +97,10 @@ new Elogio(
         });
         bridge.on(bridge.events.pluginActivated, function () {
             if (document.body) {
+                /**
+                 * careful, because we need to observe attributes too. For example: if node already exist in the DOM,
+                 * and script of the page just set attribute 'url' of this node.
+                 */
                 observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             }
         });
@@ -107,6 +111,9 @@ new Elogio(
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
                 var i, j, newNodes = mutation.addedNodes;
+                /**
+                 * we need to filter nodes which added to DOM
+                 */
                 for (i = 0; i < newNodes.length; i += 1) {
                     if (newNodes[i].nodeType === Node.ELEMENT_NODE) {
                         nodesToBeProcessed[nodesToBeProcessed.length] = newNodes[i];//add itself
@@ -117,6 +124,7 @@ new Elogio(
                         }
                     }
                 }
+
                 // remove images from storage and panel once they disappear from DOM
                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
@@ -139,6 +147,7 @@ new Elogio(
                     }
                 }
             });
+            //we scan only added to DOM nodes, don't need to rescan all DOM
             scanForImages(nodesToBeProcessed);
         });
     }
