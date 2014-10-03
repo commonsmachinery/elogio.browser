@@ -3,19 +3,21 @@ module.exports = function (grunt) {
     // Project configuration.
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
-        distDir: "dist",
+        distDir: "dist/",
         buildDir: "build",
 
         bower: {
             install: {
                 options: {
-                    targetDir: "elogio-firefox/data/deps"
+                    targetDir: "elogio-commons/data/deps"
                 }
             }
         },
 
         clean: {
-            src: ["<%= buildDir%>" , "<%= distDir %>"]
+            firefox: ["<%= buildDir%>/firefox" , "<%= distDir %>/firefox"],
+            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome"],
+            all: ["<%= buildDir%>" , "<%= distDir %>"]
         },
 
         less: {
@@ -24,8 +26,8 @@ module.exports = function (grunt) {
                     paths: ["elogio-firefox/data/less"]
                 },
                 files: {
-                    "<%= buildDir%>/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less",
-                    "<%= buildDir%>/data/css/highlight.css": "elogio-firefox/data/less/highlight.css"
+                    "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less",
+                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-firefox/data/less/highlight.css"
                 }
             }
         },
@@ -36,22 +38,41 @@ module.exports = function (grunt) {
                 banner: '/*! <%= pkg.name %> modules - v<%= pkg.version %> - ' +
                     '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
-            modules: {
+            firefoxModules: {
                 files: {
-                    '<%= buildDir%>/data/js/common-lib.js': [
-                        'elogio-firefox/data/js/common.js',
-                        'elogio-firefox/data/js/config.js',
-                        'elogio-firefox/data/js-modules/*.js',
-                        'elogio-firefox/data/deps/png.js/zlib.js',
-                        'elogio-firefox/data/deps/png.js/png.js',
-                        'elogio-firefox/data/deps/jpgjs/jpg.js',
-                        'elogio-firefox/data/deps/blockhash-js/blockhash.js'
+                    '<%= buildDir%>/firefox/data/js/common-lib.js': [
+                        'elogio-commons/data/js/common.js',
+                        'elogio-commons/data/js/config.js',
+                        'elogio-commons/data/js-modules/*.js',
+                        'elogio-commons/data/deps/png.js/zlib.js',
+                        'elogio-commons/data/deps/png.js/png.js',
+                        'elogio-commons/data/deps/jpgjs/jpg.js',
+                        'elogio-commons/data/deps/blockhash-js/blockhash.js'
                     ],
-                    '<%= buildDir%>/lib/common-chrome-lib.js': [
-                        'elogio-firefox/data/js/common.js',
-                        'elogio-firefox/data/js/config.js',
-                        'elogio-firefox/data/js-modules/*.js',
-                        'elogio-firefox/data/js-modules/chrome/*.js'
+                    '<%= buildDir%>/firefox/lib/common-chrome-lib.js': [
+                        'elogio-commons/data/js/common.js',
+                        'elogio-commons/data/js/config.js',
+                        'elogio-commons/data/js-modules/*.js',
+                        'elogio-commons/data/js-modules/chrome/*.js'
+                    ]
+                }
+            },
+            chromeModules: {
+                files: {
+                    '<%= buildDir%>/chrome/data/js/common-lib.js': [
+                        'elogio-commons/data/js/common.js',
+                        'elogio-commons/data/js/config.js',
+                        'elogio-commons/data/js-modules/*.js',
+                        'elogio-commons/data/deps/png.js/zlib.js',
+                        'elogio-commons/data/deps/png.js/png.js',
+                        'elogio-commons/data/deps/jpgjs/jpg.js',
+                        'elogio-commons/data/deps/blockhash-js/blockhash.js'
+                    ],
+                    '<%= buildDir%>/chrome/main/common-chrome-lib.js': [
+                        'elogio-commons/data/js/common.js',
+                        'elogio-commons/data/js/config.js',
+                        'elogio-commons/data/js-modules/*.js',
+                        'elogio-commons/data/js-modules/chrome/*.js'
                     ]
                 }
             }
@@ -69,7 +90,7 @@ module.exports = function (grunt) {
             "stable": {
                 options: {
                     "mozilla-addon-sdk": "1_17",
-                    extension_dir: "<%= buildDir%>",
+                    extension_dir: "<%= buildDir%>/firefox",
                     command: "run"
                 }
             }
@@ -79,19 +100,18 @@ module.exports = function (grunt) {
             "stable": {
                 options: {
                     "mozilla-addon-sdk": "1_17",
-                    extension_dir: "<%=buildDir%>",
-                    dist_dir: "dist"
+                    extension_dir: "<%=buildDir%>/firefox",
+                    dist_dir: "dist/firefox"
                 }
             }
         },
 
         "jshint": {
-            contentScript: {
+            firefoxContentScript: {
                 files: [
                     {
                         src: [
-                            'elogio-firefox/data/**/*.js',
-                            '!elogio-firefox/data/deps/**'
+                            'elogio-firefox/data/**/*.js'
                         ]
                     }
                 ],
@@ -99,19 +119,52 @@ module.exports = function (grunt) {
                     jshintrc: './elogio-firefox/data/js/.jshintrc'
                 }
             },
-
-            chrome: {
+            commonLibs: {
+                files: [
+                    {
+                        src: [
+                            'elogio-commons/data/js/*.js',
+                            'elogio-commons/data/js-modules/**'
+                        ]
+                    }
+                ],
+                options: {
+                    jshintrc: './elogio-commons/data/js/.jshintrc'
+                }
+            },
+            firefoxChrome: {
                 src: [
                     './elogio-firefox/lib/**/*.js'
                 ],
                 options: {
                     jshintrc: './elogio-firefox/lib/.jshintrc'
                 }
+            },
+            chromeContentScript: {
+                files: [
+                    {
+                        src: [
+                            'elogio-chrome/data/**/*.js'
+                        ]
+                    }
+                ],
+                options: {
+                    jshintrc: './elogio-chrome/data/js/.jshintrc'
+                }
+            },
+
+            chromeMain: {
+                src: [
+                    './elogio-chrome/main/**/*.js'
+                ],
+                options: {
+                    jshintrc: './elogio-chrome/main/.jshintrc'
+                }
             }
         },
 
         uglify: {
-            minify: {
+            minifyFirefox: {
                 options: {
                     mangle: true,
                     compress: true,
@@ -119,10 +172,10 @@ module.exports = function (grunt) {
                     beautify: false},
                 src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
-                dest: "<%= buildDir%>/",
+                dest: "<%= buildDir%>/firefox/",
                 expand: true
             },
-            beautify: {
+            beautifyFirefox: {
                 options: {
                     mangle: false,
                     compress: false,
@@ -131,7 +184,30 @@ module.exports = function (grunt) {
                 },
                 src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
-                dest: "<%= buildDir%>/",
+                dest: "<%= buildDir%>/firefox/",
+                expand: true
+            },
+            minifyChrome: {
+                options: {
+                    mangle: true,
+                    compress: true,
+                    preserveComments: false,
+                    beautify: false},
+                src: ["**/*.js", "!**/*.js/**"],
+                cwd: "elogio-chrome/",
+                dest: "<%= buildDir%>/chrome/",
+                expand: true
+            },
+            beautifyChrome: {
+                options: {
+                    mangle: false,
+                    compress: false,
+                    preserveComments: true,
+                    beautify: true
+                },
+                src: ["**/*.js", "!**/*.js/**"],
+                cwd: "elogio-chrome/",
+                dest: "<%= buildDir%>/chrome/",
                 expand: true
             },
             options: {
@@ -140,10 +216,29 @@ module.exports = function (grunt) {
         },
 
         copy: {
-            resourcesWithoutJS: {
+            resourcesWithoutJSForFirefox: {
                 src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
                 cwd: "elogio-firefox/",
-                dest: "<%= buildDir%>/",
+                dest: "<%= buildDir%>/firefox/",
+                expand: true
+            },
+            resourcesWithoutJSForChrome: {
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
+                cwd: "elogio-chrome/",
+                dest: "<%= buildDir%>/chrome/",
+                expand: true
+            },
+            //we need to copy libs (like jquery,mustache etc.) into build folder
+            chromeLibs: {
+                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**"],
+                cwd: "elogio-commons/data/deps/",
+                dest: "<%= buildDir%>/chrome/data/deps/",
+                expand: true
+            },
+            firefoxLibs: {
+                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**"],
+                cwd: "elogio-commons/data/deps/",
+                dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
             }
         }
@@ -164,8 +259,9 @@ module.exports = function (grunt) {
     /**
      * Helper tasks.
      */
-    grunt.registerTask('lint', ['jshint:chrome', 'jshint:contentScript']);
-
+    grunt.registerTask('lint-firefox', ['jshint:firefoxChrome', 'jshint:firefoxContentScript']);
+    grunt.registerTask('lint-chrome', ['jshint:chromeMain', 'jshint:chromeContentScript']);
+    grunt.registerTask('lint', ['jshint:firefoxChrome', 'jshint:firefoxContentScript', 'jshint:chromeMain', 'jshint:chromeContentScript']);
     /**
      * End-user tasks.
      *
@@ -178,35 +274,118 @@ module.exports = function (grunt) {
         grunt.log.write('\n   grunt dist-minified -- makes an XPI ready for production (uglified) ');
     });
 
-    grunt.registerTask('run', [
-        /*'clean',
-         'bower',*/
-        'lint',
-        'less',
-        'copy:resourcesWithoutJS',
-        'uglify:beautify',
-        'concat:modules',
-        'mozilla-addon-sdk',
-        'mozilla-cfx']);
+    grunt.registerTask('build', 'Task with parameters ', function (parameter) {
+        function buildFirefox() {
+            grunt.task.run([
+                'lint-firefox',
+                'less',
+                'copy:resourcesWithoutJSForFirefox',
+                'copy:firefoxLibs',
+                'uglify:beautifyFirefox',
+                'concat:firefoxModules'
+            ]);
+        }
 
-    grunt.registerTask('dist-debug', [
-        'clean',
-        'bower',
-        'lint',
-        'copy:resourcesWithoutJS',
-        'uglify:beautify',
-        'concat:modules',
-        'mozilla-addon-sdk',
-        'mozilla-cfx-xpi']);
+        function buildChrome() {
+            grunt.task.run([
+                'lint-chrome',
+                'copy:resourcesWithoutJSForChrome',
+                'copy:chromeLibs',
+                'uglify:beautifyChrome',
+                'concat:chromeModules'
+            ]);
+        }
 
-    grunt.registerTask('dist-minified', [
-        'clean',
-        'bower',
-        'lint',
-        'less',
-        'copy:resourcesWithoutJS',
-        'concat:modules',
-        'uglify:minify',
-        'mozilla-addon-sdk',
-        'mozilla-cfx-xpi']);
+        switch (parameter) {
+            case 'firefox':
+                buildFirefox();
+                break;
+            case 'chrome':
+                buildChrome();
+                break;
+            default:
+                buildFirefox();
+                buildChrome();
+        }
+
+    });
+    grunt.registerTask('run', 'Task with parameters ', function (parameter) {
+        function runFirefox() {
+            grunt.task.run([
+                'lint-firefox',
+                'less',
+                'copy:resourcesWithoutJSForFirefox',
+                'copy:firefoxLibs',
+                'uglify:beautifyFirefox',
+                'concat:firefoxModules',
+                'mozilla-addon-sdk',
+                'mozilla-cfx'
+            ]);
+        }
+
+        //how to run chrome?
+        function runChrome() {
+            grunt.task.run([
+                'lint-chrome',
+                'copy:resourcesWithoutJSForChrome',
+                'copy:chromeLibs',
+                'uglify:beautifyChrome',
+                'concat:chromeModules'
+            ]);
+        }
+
+        switch (parameter) {
+            case 'firefox':
+                runFirefox();
+                break;
+            case 'chrome':
+                runChrome();
+                break;
+            default:
+                runFirefox();
+                runChrome();
+        }
+
+    });
+    grunt.registerTask('dist', 'Task with parameters ', function (parameter) {
+        function distFirefox() {
+            grunt.task.run([
+                'clean:firefox',
+                'bower',
+                'lint-firefox',
+                'less',
+                'copy:resourcesWithoutJSForFirefox',
+                'concat:firefoxModules',
+                'uglify:minifyFirefox',
+                'mozilla-addon-sdk',
+                'mozilla-cfx-xpi'
+            ]);
+        }
+
+        //how to package chrome?
+        function distChrome() {
+            grunt.task.run([
+                'clean:chrome',
+                'bower',
+                'lint-chrome',
+                'copy:resourcesWithoutJSForChrome',
+                'copy:chromeLibs',
+                'concat:chromeModules',
+                'uglify:minifyChrome'
+            ]);
+        }
+
+        switch (parameter) {
+            case 'firefox':
+                distFirefox();
+                break;
+            case 'chrome':
+                distChrome();
+                break;
+            default:
+                distFirefox();
+                distChrome();
+        }
+
+    });
 };

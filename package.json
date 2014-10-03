@@ -1,7 +1,7 @@
 {
-    "name": "elogio-firefox",
+    "name": "elogio-browser",
     "version": "1.0.0",
-    "description": "elog.io Firefox Plugin",
+    "description": "elog.io browser plugins",
     "directories": {
         "test": "test"
     },
