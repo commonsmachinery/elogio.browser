@@ -28,10 +28,8 @@
                 <p class="elogio-annotations-title"></p>
                 <p class='elogio-addedAt'></p>
                 <p  class="elogio-license"></p>
-                <p>
-                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink &nbsp;&nbsp;&nbsp;</a>
+                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink </a>
                 <a target="_blank" href="" class="elogio-license-link">License</a>
-                </p>
             </p>
         </div>
         <div class="no-lookup-data" style="display:none">
@@ -41,7 +39,6 @@
         <div class="error-area" style="display:none"></div>
         <div class="loading" style="display:none"></div>
     </div>
-
 </script>
 <script id="clipboard-template" type="x-tmpl-mustache">
     <div>
@@ -54,32 +51,30 @@
         {{#imageObj.locatorLink}}
                 <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
         {{/imageObj.locatorLink}}
-
-        {{#imageObj.copyrightLink}}
+         {{#imageObj.copyrightLink}}
+            by
              <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
         {{/imageObj.copyrightLink}}
 
 
         {{^imageObj.copyrightLink}}
              {{#imageObj.creatorLink}}
-                by &nbsp;
-                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>&nbsp;
+                by 
+                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
             {{/imageObj.creatorLink}}
 
             {{^imageObj.creatorLink}}
-                 {{#imageObj.creatorLabel}}by &nbsp;{{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}&nbsp;
+                 {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
             {{/imageObj.creatorLink}}
         {{/imageObj.copyrightLink}}
-
         {{#imageObj.licenseLink}}
              <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
         {{/imageObj.licenseLink}}
         {{^imageObj.licenseLink}}
-             {{#imageObj.licenseLabel}}&nbsp; {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
+             {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
         {{/imageObj.licenseLink}}
         </p>
     </div>
-
 </script>
 <div class="header">
     <div class="pull-left">
