@@ -13,6 +13,13 @@
             "description": "If enabled plugin will outline each recognized image on the page",
             "type": "bool",
             "value": true
+        },
+        {
+            "name": "deepScan",
+            "title": "Deep scan",
+            "description": "If enabled plugin will scan images and backgrounds",
+            "type": "bool",
+            "value": true
         }
     ]
 }

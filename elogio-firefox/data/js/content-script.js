@@ -15,8 +15,9 @@ new Elogio(
          */
         var observer;
 
-        function processDocument() {
-            locator.findImages(document, null, function (imageObj) {
+        function scanForImages(nodes) {
+            nodes = nodes || null;
+            locator.findImages(document, nodes, function (imageObj) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }, function () {
                 //on error
@@ -55,10 +56,18 @@ new Elogio(
         bridge.on(bridge.events.pageShowEvent, function () {
             undecorate();
         });
-
+        //calculate hash
+        bridge.on(bridge.events.hashRequired, function (imageObj) {
+            blockhash(imageObj.uri, 16, 2, function (error, hash) {
+                imageObj.error = error;
+                imageObj.hash = hash;
+                bridge.emit(bridge.events.hashCalculated, imageObj);
+            });
+        });
         // Subscribe for events
         bridge.on(bridge.events.configUpdated, function (updatedConfig) {
             config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
+            config.global.locator.deepScan = updatedConfig.global.locator.deepScan;
             if (document.body) {
                 if (updatedConfig.ui.highlightRecognizedImages) {
                     if (document.body.className.indexOf('elogio-highlight') < 0) {
@@ -88,21 +97,34 @@ new Elogio(
         });
         bridge.on(bridge.events.pluginActivated, function () {
             if (document.body) {
-                observer.observe(document.body, { attributes: false, childList: true, subtree: true });
+                /**
+                 * careful, because we need to observe attributes too. For example: if node already exist in the DOM,
+                 * and script of the page just set attribute 'url' of this node.
+                 */
+                observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             }
         });
-        bridge.on(bridge.events.startPageProcessing, processDocument);
+        bridge.on(bridge.events.startPageProcessing, scanForImages);
         // Experiment with MutationObserver
         // create an observer instance
         observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
-                var i;
-                for (i = 0; i < mutation.addedNodes.length; i += 1) {
-                    if (mutation.addedNodes[i].nodeType === Node.ELEMENT_NODE) {
-                        nodesToBeProcessed[nodesToBeProcessed.length] = mutation.addedNodes[i];
+                var i, j, newNodes = mutation.addedNodes;
+                /**
+                 * we need to filter nodes which added to DOM
+                 */
+                for (i = 0; i < newNodes.length; i += 1) {
+                    if (newNodes[i].nodeType === Node.ELEMENT_NODE) {
+                        nodesToBeProcessed[nodesToBeProcessed.length] = newNodes[i];//add itself
+                        var children = locator.findNodes(newNodes[i]);//and add all filtered children of this node
+                        //add all children to store, which needs to be processed
+                        for (j = 0; j < children.length; j++) {
+                            nodesToBeProcessed[nodesToBeProcessed.length] = children[j];
+                        }
                     }
                 }
+
                 // remove images from storage and panel once they disappear from DOM
                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
@@ -115,7 +137,7 @@ new Elogio(
                         // check if node has another removed elements
                         elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
                         if (elements) {
-                            for (var j = 0; j < elements.length; j++) {
+                            for (j = 0; j < elements.length; j++) {
                                 uuid = elements[j].getAttribute(config.ui.dataAttributeName);
                                 if (uuid) {
                                     bridge.emit(bridge.events.onImageRemoved, uuid);
@@ -124,8 +146,9 @@ new Elogio(
                         }
                     }
                 }
-                processDocument();
             });
+            //we scan only added to DOM nodes, don't need to rescan all DOM
+            scanForImages(nodesToBeProcessed);
         });
     }
 );

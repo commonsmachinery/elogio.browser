@@ -19,7 +19,7 @@ Elogio.modules.locator = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-    var urlStorage = [], coefficientOfSpriteSize = 7;//needs for saving urls of images by request
+    var urlStorage = [], coefficientOfSpriteSize = 5;//needs for saving urls of images by request
     function applyFilters(elements, filters) {
         var nodesQty = elements.length,
             i, j, item, isSuitable,
@@ -67,14 +67,18 @@ Elogio.modules.locator = function (modules) {
         var elementDefaultView = document.defaultView || window;
         if (node.style[elementStyle]) {
             url = node.style[elementStyle];
-            url = /url\(['"]?([^")]+)/.exec(url) || [];
-            return url[1];
+            if (url) {
+                url = /url\(['"]?([^")]+)/.exec(url) || [];
+                return url[1];
+            }
         }
         if (null !== elementDefaultView.getComputedStyle(node, "")) {
             if (elementDefaultView.getComputedStyle(node, "").getPropertyValue(css)) {
                 url = elementDefaultView.getComputedStyle(node, "").getPropertyValue(css);
-                url = /url\(['"]?([^")]+)/.exec(url) || [];
-                return url[1];
+                if (url) {
+                    url = /url\(['"]?([^")]+)/.exec(url) || [];
+                    return url[1];
+                }
             }
         }
         return null;
@@ -98,15 +102,15 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
-            return node instanceof HTMLImageElement && !node.src.startsWith('data:') && isNotGifFile(node.src);
+            if (node instanceof HTMLImageElement) {
+                return !node.src.startsWith('data:') && isNotGifFile(node.src);
+            }
+            return null;
         },
         // Any tag with background-url excluding .gif
         function (node) {
             var url = getBackgroundUrl(node);
-            if (url && (isNotGifFile(url) || url.startsWith('data:'))) {
-                return false;
-            }
-            return !!url;
+            return url && isNotGifFile(url) && !url.startsWith('data:') && config.global.locator.deepScan;
         }
     ];
     this.imageFilters = [
@@ -118,12 +122,6 @@ Elogio.modules.locator = function (modules) {
             urlStorage.push(data.img.src);
             return null;
         },
-        // Min size is 100*100px
-        function (data) {
-            var img = data.img;
-            return img.width >= config.global.locator.limitImageWidth &&
-                img.height >= config.global.locator.limitImageWidth;
-        },
         // Skip sprites
         function (data) {
             var img = data.img;
@@ -134,6 +132,12 @@ Elogio.modules.locator = function (modules) {
                 return false;
             }
             return null;
+        },
+        // Min size is 100*100px
+        function (data) {
+            var img = data.img;
+            return img.width >= config.global.locator.limitImageWidth &&
+                img.height >= config.global.locator.limitImageWidth;
         }
     ];
 
@@ -152,10 +156,15 @@ Elogio.modules.locator = function (modules) {
 
     /**
      * Returns a list of nodes which should be processed (all nodes which match <code>this.nodeFilters</code>)
-     * @param document - document referrence
+     * @param context - context reference
      */
-    this.findNodes = function (document) {
-        var domElements = document.getElementsByTagName('*');
+    this.findNodes = function (context) {
+        var domElements;
+        if (!context.querySelectorAll) {
+            domElements = context.getElementsByTagName('*');
+        } else {
+            domElements = context.querySelectorAll('*');
+        }
         domElements = Array.prototype.slice.call(domElements, 0, domElements.length);
         return applyFilters(domElements, this.nodeFilters);
     };
@@ -185,7 +194,6 @@ Elogio.modules.locator = function (modules) {
      */
 
     this.findImages = function (document, nodes, onImageFound, onError, processFinished) {
-        urlStorage = [];//every request to find images we need to delete all of urls saved before
         var countOfProcessedImages = 0, countNodes = 0;
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {
