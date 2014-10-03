@@ -9,7 +9,8 @@ Elogio.modules.config = function (modules) {
             serverUrl: 'http://dev.commonsmachinery.se:8004',
             lookupContext: '/lookup/uri',
             imagesPerRequest: 10,
-            gravatarServerUrl: 'http://www.gravatar.com/avatar/'
+            gravatarServerUrl: 'http://www.gravatar.com/avatar/',
+            urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright']}
         },
         locator: {
             limitImageHeight: 100,
@@ -26,8 +27,7 @@ Elogio.modules.config = function (modules) {
         },
         highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
-        decoratedItemAttribute: 'elogiodecorated',
-        undecoratedItemAttribute: 'elogioundecorated'
+        decoratedItemAttribute: 'elogiodecorated'
     };
     this.errors = {
         requestError: 'Server responded, but with errors'

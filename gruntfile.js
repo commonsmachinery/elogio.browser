@@ -113,7 +113,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true
@@ -125,7 +125,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/*.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true
@@ -137,7 +137,7 @@ module.exports = function (grunt) {
 
         copy: {
             resourcesWithoutJS: {
-                src: ["**", "!**/*.js"],
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/",
                 expand: true
@@ -176,7 +176,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('run', [
         /*'clean',
-        'bower',*/
+         'bower',*/
         'lint',
         'less',
         'copy:resourcesWithoutJS',

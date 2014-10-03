@@ -26,24 +26,7 @@ new Elogio(
             });
         }
 
-        // Initialize bridge
-        bridge.registerClient(self.port);
-
-        // Subscribe for events
-        bridge.on(bridge.events.configUpdated, function (updatedConfig) {
-            config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
-            if (document.body) {
-                if (updatedConfig.ui.highlightRecognizedImages) {
-                    if (document.body.className.indexOf('elogio-highlight') < 0) {
-                        document.body.className += ' elogio-highlight';
-                    }
-                } else {
-                    document.body.className = document.body.className.replace(/\s?elogio-highlight\b/, '');
-                }
-            }
-        });
-        bridge.on(bridge.events.pluginStopped, function () {
-            //at first un-decorate all images with success lookup query
+        function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
             var i, n;
             for (i = 0, n = elements.length; i < n; i++) {
@@ -59,6 +42,35 @@ new Elogio(
             if (observer) {
                 observer.disconnect();
             }
+        }
+
+        // Initialize bridge
+        bridge.registerClient(self.port);
+
+        window.addEventListener('pageshow', function () {
+            bridge.emit(bridge.events.pageShowEvent);
+        }, false);
+
+        //is needed for undecorate page if it from the cache
+        bridge.on(bridge.events.pageShowEvent, function () {
+            undecorate();
+        });
+
+        // Subscribe for events
+        bridge.on(bridge.events.configUpdated, function (updatedConfig) {
+            config.ui.imageDecorator.iconUrl = updatedConfig.ui.imageDecorator.iconUrl;
+            if (document.body) {
+                if (updatedConfig.ui.highlightRecognizedImages) {
+                    if (document.body.className.indexOf('elogio-highlight') < 0) {
+                        document.body.className += ' elogio-highlight';
+                    }
+                } else {
+                    document.body.className = document.body.className.replace(/\s?elogio-highlight\b/, '');
+                }
+            }
+        });
+        bridge.on(bridge.events.pluginStopped, function () {
+            undecorate();
         });
         bridge.on(bridge.events.newImageFound, function (imageObj) {
             var element = dom.getElementByUUID(imageObj.uuid, document);

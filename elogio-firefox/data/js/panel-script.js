@@ -14,7 +14,8 @@ $(document).ready(function () {
                 imageObject: 'imageObj'
             };
             var template = {
-                imageItem: $("#image-template").html()
+                imageItem: $("#image-template").html(),
+                clipboardItem: $("#clipboard-template").html()
             };
             var eventHandlers = {},
                 self = {},
@@ -43,10 +44,18 @@ $(document).ready(function () {
             self.initializeDetails = function (imageObj, cardElement) {
                 var annotations = new Elogio.Annotations(imageObj, config);
                 if (imageObj.details) { // If we were abe to get annotations - populate details
-                    cardElement.find('.elogio-owner').text('Owner: ' + annotations.getOwner());
+                    if (annotations.getCreatorLabel()) {
+                        cardElement.find('.elogio-owner').text('Image by ' + annotations.getCreatorLabel());
+                    } else {
+                        cardElement.find('.elogio-owner').hide();
+                    }
                     cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
                     cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
-                    cardElement.find('.elogio-annotations-title').text('title');
+                    if (annotations.getTitle()) {
+                        cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
+                    } else {
+                        cardElement.find('.elogio-annotations-title').hide();
+                    }
                     if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
                         cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
                     } else {
@@ -85,7 +94,7 @@ $(document).ready(function () {
                     object.imageListView.append(cardElement);
                 }
                 // If we didn't send lookup query before - show loading
-                if (!imageObj.hasOwnProperty('lookup')&&!imageObj.hasOwnProperty('error')) {
+                if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
                     cardElement.find('.loading').show();
                     return; // Waiting for lookup....
                 } else {
@@ -220,12 +229,34 @@ $(document).ready(function () {
                 });
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
+                //handle click on copy button
+                object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        imageObj = imageCard.data(constants.imageObject), annotations,
+                        copyToClipBoard;
+                    annotations = new Elogio.Annotations(imageObj, config);
+                    annotations.uri = imageObj.uri;
+                    if (imageObj.details) {
+                        annotations.locatorLink = annotations.getLocatorLink();
+                        annotations.titleLabel = annotations.getTitle();
+                        annotations.creatorLink = annotations.getCreatorLink();
+                        annotations.creatorLabel = annotations.getCreatorLabel();
+                        annotations.licenseLink = annotations.getLicenseLink();
+                        annotations.licenseLabel = annotations.getLicenseLabel();
+                        annotations.copyrightLink = annotations.getCopyrightLink();
+                        annotations.copyrightLabel = annotations.getCopyrightLabel();
+                    }
+                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
+                    bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
+                });
+                //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
                     self.openImage(imageObj.uuid);
                 });
+                //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');
                     var imageObj = imageCard.data(constants.imageObject);

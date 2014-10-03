@@ -9,106 +9,141 @@ Elogio.Annotations = function (imageObj, config) {
         return details.annotations || null;
     }
 
-    //policy field will be an array always
-    function getPolicyField() {
-        var annotations = getAnnotationField();
-        if (!annotations) {
-            return false;
-        }
-        var policy = annotations.policy || null;
-        if (!policy) {
-            return false;
-        }
-        if (Array.isArray(policy)) {
-            if (policy.length > 0) {
-                return policy;
-            }
-        } else {
-            return [policy];
-        }
-        return null;
-    }
 
-    function getPropertyField() {
-        var policy = getPolicyField();
-        if (!policy) {
-            return false;
-        }
-        return policy[0].property || null;
-    }
-
-    //returns details.owner or null
-    function getOwnerField() {
-        return details.owner || null;
-    }
-
-    //returns owner.org or null
-    function getOwnersOrgField() {
-        var owner = getOwnerField();
-        if (owner) {
-            return owner.org || null;
-        }
-        return null;
-    }
-
-    function getLocatorField() {
-        var annotations = getAnnotationField();
-        if (!annotations && !annotations.locator) {
+    /**
+     *
+     * @param obj - object which maybe contains fieldName
+     * @param fieldName - searchable field name
+     * @returns {*}
+     */
+    function getFieldValue(obj, fieldName) {
+        if (!obj && !fieldName) {
             return null;
         }
-        if (Array.isArray(annotations.locator)) {
-            return annotations.locator[0] || null;
+        if (!Array.isArray(obj)) {
+            if (obj.hasOwnProperty(fieldName)) {
+                if (Array.isArray(obj[fieldName]) && obj[fieldName].length > 0) {
+                    return obj[fieldName][0].property || null;
+                } else {
+                    return obj[fieldName].property || null;
+                }
+            }
+            return null;
         }
-        return annotations.locator;
+        if (obj.length === 0) {
+            return null;
+        }
+        for (var i = 0; i < obj.length; i++) {
+            if (obj[i].hasOwnProperty('property')) {
+                if (obj[i].property.propertyName === fieldName) {
+                    return obj[i].property || null;
+                }
+            }
+        }
     }
 
     this.getOwner = function () {
-        var owner = getOwnersOrgField();
-        if (owner) {
-            return owner.added_by || null;
+        if (!details && !details.owner) {
+            return null;
         }
-        return null;
+        var some = details.owner.user || details.owner.org;
+        if (!some) {
+            return null;
+        }
+        return some.id || null;
     };
 
     this.getAddedAt = function () {
-        var owner = getOwnersOrgField();
-        if (owner) {
-            return owner.added_at || null;
+        if (details) {
+            return details.added_at || null;
         }
         return null;
     };
 
     this.getLicenseLabel = function () {
-        var propertyField = getPropertyField();
-        if (propertyField) {
-            return propertyField.statementLabel || null;
+        var policy = getFieldValue(getAnnotationField(), 'policy');
+        if (policy) {
+            return policy.statementLabel || null;
         }
         return null;
     };
 
     this.getLicenseLink = function () {
-        var propertyField = getPropertyField();
-        if (propertyField) {
-            return propertyField.statementLink || null;
+        var policy = getFieldValue(getAnnotationField(), 'policy');
+        if (policy) {
+            return policy.statementLink || null;
         }
         return null;
     };
 
     this.getLocatorLink = function () {
-        var locatorField = getLocatorField();
-        if (locatorField && locatorField.property) {
-            return locatorField.property.locatorLink || null;
+        var locatorField = getFieldValue(getAnnotationField(), 'locator');
+        if (locatorField) {
+            return locatorField.locatorLink || null;
         }
         return null;
     };
 
     this.getGravatarLink = function () {
-        var owner = getOwnersOrgField();
+        if (!details && !details.owner) {
+            return null;
+        }
+        var owner = details.owner.user || details.owner.org;
         if (!owner) {
             return null;
         }
         if (owner.profile && owner.profile.gravatar_hash) {
             return config.global.apiServer.gravatarServerUrl + owner.profile.gravatar_hash;
+        }
+        return null;
+    };
+    this.getTitle = function () {
+        var annotation = getAnnotationField();
+        var title = getFieldValue(annotation, 'title');
+        if (!title) {
+            return null;
+        }
+        return title.titleLabel || null;
+    };
+    function getCreator() {
+        var annotations = getAnnotationField();
+        var creator = getFieldValue(annotations, 'creator');
+        return creator || null;
+    }
+
+    function getCopyright() {
+        var annotation = getAnnotationField();
+        var copyright = getFieldValue(annotation, 'copyright');
+        return copyright || null;
+    }
+
+    this.getCopyrightLink = function () {
+        var copyright = getCopyright();
+        if (copyright) {
+            return copyright.holderLink || null;
+        }
+        return null;
+    };
+
+    this.getCopyrightLabel = function () {
+        var copyright = getCopyright();
+        if (copyright) {
+            return copyright.holderLabel || null;
+        }
+        return null;
+    };
+
+    this.getCreatorLabel = function () {
+        var creator = getCreator();
+        if (creator) {
+            return creator.creatorLabel || null;
+        }
+        return null;
+    };
+    this.getCreatorLink = function () {
+        var creator = getCreator();
+        if (creator) {
+            return creator.creatorLink || null;
         }
         return null;
     };
