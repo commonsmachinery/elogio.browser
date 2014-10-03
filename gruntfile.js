@@ -41,11 +41,7 @@ module.exports = function (grunt) {
                     '<%= buildDir%>/data/js/common-lib.js': [
                         'elogio-firefox/data/js/common.js',
                         'elogio-firefox/data/js/config.js',
-                        'elogio-firefox/data/js-modules/*.js',
-                        'elogio-firefox/data/deps/png.js/zlib.js',
-                        'elogio-firefox/data/deps/png.js/png.js',
-                        'elogio-firefox/data/deps/jpgjs/jpg.js',
-                        'elogio-firefox/data/deps/blockhash-js/blockhash.js'
+                        'elogio-firefox/data/js-modules/*.js'
                     ],
                     '<%= buildDir%>/lib/common-chrome-lib.js': [
                         'elogio-firefox/data/js/common.js',
