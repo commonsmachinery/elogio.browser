@@ -243,6 +243,8 @@ $(document).ready(function () {
                         annotations.creatorLabel = annotations.getCreatorLabel();
                         annotations.licenseLink = annotations.getLicenseLink();
                         annotations.licenseLabel = annotations.getLicenseLabel();
+                        annotations.copyrightLink = annotations.getCopyrightLink();
+                        annotations.copyrightLabel = annotations.getCopyrightLabel();
                     }
                     copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
                     bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
