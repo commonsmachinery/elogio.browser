@@ -5,7 +5,7 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         distDir: "dist/",
         buildDir: "build",
-
+        manifest: grunt.file.readJSON('elogio-chrome/manifest.json'),
         bower: {
             install: {
                 options: {
@@ -13,11 +13,20 @@ module.exports = function (grunt) {
                 }
             }
         },
-
+        crx: {
+            package: {
+                "src": "build/chrome",
+                "dest": "dist/chrome/elogio-chrome-<%= manifest.version %>.crx",
+                "exclude": [ ".git", ".svn" ],
+                "privateKey": "elogio-chrome/chrome.pem",
+                "options": {
+                    "maxBuffer": 3000 * 1024 //build extension with a weight up to 3MB
+                }
+            }
+        },
         clean: {
             firefox: ["<%= buildDir%>/firefox" , "<%= distDir %>/firefox"],
-            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome"],
-            all: ["<%= buildDir%>" , "<%= distDir %>"]
+            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome"]
         },
 
         less: {
@@ -223,7 +232,7 @@ module.exports = function (grunt) {
                 expand: true
             },
             resourcesWithoutJSForChrome: {
-                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**.pem"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
@@ -254,7 +263,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-concat');
-
+    grunt.loadNpmTasks('grunt-crx');
 
     /**
      * Helper tasks.
@@ -371,7 +380,8 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForChrome',
                 'copy:chromeLibs',
                 'concat:chromeModules',
-                'uglify:minifyChrome'
+                'uglify:minifyChrome',
+                'crx'
             ]);
         }
 
