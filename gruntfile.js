@@ -72,7 +72,7 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'elogio-commons/data/js-modules/chrome/*.js'
+                        'elogio-commons/data/js-modules/chrome/TabStateController.js'
                     ]
                 }
             }
@@ -236,7 +236,7 @@ module.exports = function (grunt) {
                 expand: true
             },
             firefoxLibs: {
-                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**"],
+                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**", "!requirejs/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true

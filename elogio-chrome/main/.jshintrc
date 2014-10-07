@@ -14,7 +14,9 @@
         "require",
         "exports",
         "chrome",
-        "screen"
+        "screen",
+        "Elogio",
+        "CustomEvent"
     ],
     "devel": true,
     "moz": true,
