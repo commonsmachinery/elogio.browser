@@ -174,6 +174,21 @@ $(document).ready(function () {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
+                imageCard.find('.image-details').show();
+                if (imageObj.details) {
+                    imageCard.find('.image-found').show();
+                    imageCard.find('.image-not-found').hide();
+                }
+                if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
+                    imageCard.find('.loading').show();//if we need annotations we wait for response
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                }
+                imageCard.highlight();
+            };
+            self.toggleImage = function (imageUUID, preventAnnotationsLoading) {
+                var imageCard = getImageCardByUUID(imageUUID);
+                $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
+                var imageObj = imageCard.data(constants.imageObject);
                 imageCard.find('.image-details').toggle();
                 if (imageObj.details) {
                     imageCard.find('.image-found').show();
@@ -271,14 +286,14 @@ $(document).ready(function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(constants.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj);
-                    self.openImage(imageObj.uuid);
+                    self.toggleImage(imageObj.uuid);
                 });
                 //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {
                     var imageCard = $(this).closest('.image-card');
                     var imageObj = imageCard.data(constants.imageObject);
                     imageCard.find('.loading').show();
-                    imageCard.find('.no-lookup-data').hide();
+                    imageCard.find('.image-not-found').hide();
                     bridge.emit(bridge.events.hashRequired, imageObj);
                 });
                 // Hide action buttons since state is not determined yet
