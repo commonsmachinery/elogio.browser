@@ -55,5 +55,9 @@ new Elogio(
             }
         });
         port.postMessage('registration');
+        //initialize jquery
+        if (!window.jQuery || !window.$) {
+            port.postMessage({eventName: 'jquery'});//jquery required
+        }
     }
 );
