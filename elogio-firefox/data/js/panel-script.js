@@ -51,17 +51,17 @@ $(document).ready(function () {
                     cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
                     cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
                     if (annotations.getTitle()) {
-                        cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
+                        cardElement.find('.elogio-annotations-title').text(annotations.getTitle());
                     } else {
                         cardElement.find('.elogio-annotations-title').hide();
                     }
                     if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
-                        cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
+                        cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink() + "?s=40");
                     } else {
                         cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
                     }
                     if (annotations.getLicenseLabel()) {
-                        cardElement.find('.elogio-license').text('License: ' + annotations.getLicenseLabel());
+                        cardElement.find('.elogio-license').text(annotations.getLicenseLabel());
                     } else {
                         cardElement.find('.elogio-license').hide();
                     }
@@ -71,7 +71,8 @@ $(document).ready(function () {
                         cardElement.find('.elogio-license-link').hide();
                     }
                 } else { // Otherwise - show message
-                    cardElement.find('.message-area').text('Sorry, no data available').show();
+                    cardElement.find('.message-area').show();
+                    cardElement.find('.image-not-found').hide();
                 }
             };
 
@@ -111,9 +112,9 @@ $(document).ready(function () {
                         // Nothing to do hear just waiting when user clicks on image to query details
                     }
                 } else { // Show Query button
-                    cardElement.find('.image-details').hide();
+                    cardElement.find('.image-found').hide();
                     if (!imageObj.error) {
-                        cardElement.find('.no-lookup-data').show();
+                        cardElement.find('.image-not-found').show();
                         errorArea.hide();//hide this anyway because it is wrong show both of messages
                     } else {
                         //at here imageObj has errors and need to show it in sidebar
@@ -173,8 +174,10 @@ $(document).ready(function () {
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(constants.imageObject);
+                imageCard.find('.image-details').toggle();
                 if (imageObj.details) {
-                    imageCard.find('.image-details').toggle();
+                    imageCard.find('.image-found').show();
+                    imageCard.find('.image-not-found').hide();
                 }
                 if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
                     imageCard.find('.loading').show();//if we need annotations we wait for response

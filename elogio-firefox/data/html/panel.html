@@ -21,24 +21,37 @@
             <img src="{{imageObj.uri}}" class="picture"/>
         </div>
         <div class="image-details" style="display:none">
-        <button  class="elogio-clipboard btn btn-primary">Copy</button>
-            <p>
+           <div class="image-found" style="display:none">
+              <div class="pull-left">
+                <div class="btn-group">
+                  <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                    Actions <span class="caret"></span>
+                  </button>
+                  <ul class="dropdown-menu" role="menu">
+                    <li><a class="elogio-clipboard">Copy to clipboard</a></li>
+                    <li><a target="_blank" href="" class='elogio-locatorlink'>Visit source</a></li>
+                    <li><a target="_blank" href="" class='elogio-license-link'>View license</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="pull-right">
                 <img class="elogio-gravatar" src=""/>
-                <p class='elogio-owner'></p>
-                <p class="elogio-annotations-title"></p>
-                <p class='elogio-addedAt'></p>
-                <p  class="elogio-license"></p>
-                <p>
-                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink </a>
-                <a target="_blank" href="" class="elogio-license-link">License</a>
-                </p>
+              </div>
+              <div class="clearfix"></div>
+            <p>
+                <i class="elogio-annotations-title"></i>
             </p>
-        </div>
-        <div class="no-lookup-data" style="display:none">
-            <button  class=" query-button btn btn-sm">Query to Elog.io</button>
+            <p>
+                <span class="label label-info elogio-license"></p>
+            </p>
+          </div>
+          <div class="image-not-found" style="display:none">
+            <div class="alert alert-warning">We don't have any information about this image, but you can query Elog.io to match it against images in the catalog.</div>
+            <button class="btn btn-primary query-button">Query</button>
+          </div>
         </div>
         <div class="message-area" style="display:none"></div>
-        <div class="error-area" style="display:none"></div>
+        <div class="alert error-area alert-danger" style="display:none"></div>
         <div class="loading" style="display:none"></div>
     </div>
 
@@ -82,7 +95,6 @@
 </script>
 <div class="header">
     <div class="pull-left">
-        Elog.io Plugin:
     </div>
     <div class="pull-right">
         <button id="on" class="btn-success btn btn-sm">Enable</button>

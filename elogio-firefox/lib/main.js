@@ -344,7 +344,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     });
                 } else {
                     //if we get error when using blockhash
-                    imageObjFromStorage.error = config.errors.noDataForImage;
+                    imageObjFromStorage.error = config.errors.blockhashError;
                     indicateError(imageObjFromStorage);
                 }
             });

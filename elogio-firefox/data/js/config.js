@@ -33,7 +33,8 @@ Elogio.modules.config = function (modules) {
     };
     this.errors = {
         requestError: 'Server responded, but with errors',
-        noDataForImage: 'Sorry, no data for this image'
+        noDataForImage: 'Sorry, we couldn\'t match this against any image in the Elog.io catalog',
+        blockhashError: "The image could not be matched (most likely the web site you\'re viewing has security restrictions that prevent us from reading the image."
     };
     this.logging = {
 
