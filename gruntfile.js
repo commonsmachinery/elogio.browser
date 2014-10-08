@@ -179,7 +179,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/*.js", "!**/*.js/**"],
+                src: ["**/**.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -191,7 +191,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js", "!**/*.js/**"],
+                src: ["**/*.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -289,8 +289,8 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less',
                 'copy:resourcesWithoutJSForFirefox',
-                'copy:firefoxLibs',
                 'uglify:beautifyFirefox',
+                'copy:firefoxLibs',
                 'concat:firefoxModules'
             ]);
         }
@@ -299,8 +299,8 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'copy:resourcesWithoutJSForChrome',
-                'copy:chromeLibs',
                 'uglify:beautifyChrome',
+                'copy:chromeLibs',
                 'concat:chromeModules'
             ]);
         }
@@ -324,8 +324,8 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less',
                 'copy:resourcesWithoutJSForFirefox',
+                'uglify:minifyFirefox',
                 'copy:firefoxLibs',
-                'uglify:beautifyFirefox',
                 'concat:firefoxModules',
                 'mozilla-addon-sdk',
                 'mozilla-cfx'
@@ -337,8 +337,8 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'copy:resourcesWithoutJSForChrome',
-                'copy:chromeLibs',
                 'uglify:beautifyChrome',
+                'copy:chromeLibs',
                 'concat:chromeModules'
             ]);
         }
@@ -364,8 +364,8 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less',
                 'copy:resourcesWithoutJSForFirefox',
-                'concat:firefoxModules',
                 'uglify:minifyFirefox',
+                'concat:firefoxModules',
                 'mozilla-addon-sdk',
                 'mozilla-cfx-xpi'
             ]);
@@ -378,9 +378,9 @@ module.exports = function (grunt) {
                 'bower',
                 'lint-chrome',
                 'copy:resourcesWithoutJSForChrome',
+                'uglify:minifyChrome',
                 'copy:chromeLibs',
                 'concat:chromeModules',
-                'uglify:minifyChrome',
                 'crx'
             ]);
         }
