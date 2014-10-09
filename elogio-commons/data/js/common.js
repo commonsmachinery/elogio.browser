@@ -83,7 +83,7 @@ Elogio.Observable = function () {
         }
         handlers = bus[eventName];
         for (i = 0; i < handlers.length; i += 1) {
-            bus[i].apply(null, arg);
+            handlers[i].apply(null, [arg]);
         }
     };
 

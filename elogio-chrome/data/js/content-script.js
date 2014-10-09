@@ -1,9 +1,10 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarModule'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarModule', 'messaging'],
     function (modules) {
         'use strict';
         var locator = modules.getModule('locator'),
             bridge = modules.getModule('bridge'),
+            messaging = modules.getModule('messaging'),
             sidebarModule = modules.getModule('sidebarModule'),
             dom = modules.getModule('dom'),
             imageDecorator = modules.getModule('imageDecorator'),
@@ -41,44 +42,41 @@ new Elogio(
             }
         }
 
+        messaging.on(events.jqueryRequired, function () {
+            port.postMessage({eventName: events.sidebarRequired});
+        });
+        messaging.on(events.pluginStopped, function () {
+            undecorate();
+        });
+        messaging.on(events.startPageProcessing, function () {
+            //is needed before startPageProcessing because it means what popup was closed and is active now
+            undecorate();
+            scanForImages();
+        });
+        messaging.on(events.ready, function (request) {
+            var template = $.parseHTML(request.template),
+                button = document.createElement('img'),
+                body = $('body'), sidebar;
+            $(button).addClass('elogio-button');
+            $(button).attr('href', "#elogio-panel");
+            var imgURL = chrome.extension.getURL("img/icon_48.png");
+            body.append(template);
+            body.append($(button));
+            $(button).attr('src', imgURL);
+            sidebar = $('#elogio-panel');
+            $(button).elogioSidebar({side: 'right', duration: 300, clickClose: true});
+            sidebarModule.startPageProcessing(document, null, sidebar, port);
+        });
         var port = chrome.runtime.connect({name: "content"});
         port.onMessage.addListener(function (request) {
-            switch (request.eventName) {
-                case events.startPageProcessing:
-                    //is needed before startPageProcessing because it means what popup was closed and is active now
-                    undecorate();
-                    scanForImages();
-                    break;
-                case events.pluginStopped:
-                    undecorate();
-                    break;
-                //it means what jquery loaded
-                case 'jquery':
-                    port.postMessage({eventName: 'sidebar'});
-                    break;
-                //it means what all scripts are loaded and we can start page processing
-                case 'ready':
-                    //also at here we can get template from 'request'
-                    var template = $.parseHTML(request.template),
-                        button = document.createElement('a'),
-                        body = $('body'), sidebar;
-                    $(button).addClass('elogio-button');
-                    $(button).attr('href', "#elogio-panel");
-                    $(button).text('open');
-                    body.append(template);
-                    body.append($(button));
-                    sidebar = $('#elogio-panel');
-                    $(button).elogioSidebar({side: 'right', duration: 300, clickClose: true});
-                    sidebarModule.startPageProcessing(document, null, sidebar);
-                    break;
-            }
+            messaging.emit(request.eventName, request);
         });
-        port.postMessage('registration');
+        port.postMessage({eventName: 'registration'});
         //initialize jquery
         if (!window.jQuery || !window.$) {
-            port.postMessage({eventName: 'jquery'});//jquery required
+            port.postMessage({eventName: events.jqueryRequired});//jquery required
         } else {
-            port.postMessage({eventName: 'sidebar'});
+            port.postMessage({eventName: events.sidebarRequired});
         }
     }
 );

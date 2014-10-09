@@ -1,7 +1,7 @@
 'use strict';
 var Elogio = require('./common-chrome-lib.js').Elogio;
 
-new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
+new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], function (modules) {
     // FF modules
     var buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
