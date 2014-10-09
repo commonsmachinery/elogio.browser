@@ -52,6 +52,7 @@ module.exports = function (grunt) {
                     '<%= buildDir%>/firefox/data/js/common-lib.js': [
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
+                        '',
                         'elogio-commons/data/js-modules/*.js',
                         'elogio-commons/data/deps/png.js/zlib.js',
                         'elogio-commons/data/deps/png.js/png.js',
@@ -75,7 +76,8 @@ module.exports = function (grunt) {
                         'elogio-commons/data/deps/png.js/zlib.js',
                         'elogio-commons/data/deps/png.js/png.js',
                         'elogio-commons/data/deps/jpgjs/jpg.js',
-                        'elogio-commons/data/deps/blockhash-js/blockhash.js'
+                        'elogio-commons/data/deps/blockhash-js/blockhash.js',
+                        'elogio-chrome/data/modules/sidebar-module.js'
                     ],
                     '<%= buildDir%>/chrome/main/common-chrome-lib.js': [
                         'elogio-commons/data/js/common.js',

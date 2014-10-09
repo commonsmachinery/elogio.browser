@@ -1,0 +1,88 @@
+<div id="elogio-panel" class="elogio-panel">
+    <script id="elogio-image-template" type="x-tmpl-mustache">
+    <div class="image-card" id="{{imageObj.uuid}}" >
+        <div class="thumbnail-image">
+            <img src="{{imageObj.uri}}" class="picture"/>
+        </div>
+        <div class="image-details" style="display:none">
+        <button  class="elogio-clipboard btn btn-primary">Copy</button>
+            <p>
+                <img class="elogio-gravatar" src=""/>
+                <p class='elogio-owner'></p>
+                <p class="elogio-annotations-title"></p>
+                <p class='elogio-addedAt'></p>
+                <p  class="elogio-license"></p>
+                <p>
+                <a target="_blank" href="" class='elogio-locatorlink'>LocatorLink </a>
+                <a target="_blank" href="" class="elogio-license-link">License</a>
+                </p>
+            </p>
+        </div>
+        <div class="no-lookup-data" style="display:none">
+            <button  class=" query-button btn btn-sm">Query to Elog.io</button>
+        </div>
+        <div class="message-area" style="display:none"></div>
+        <div class="error-area" style="display:none"></div>
+        <div class="loading" style="display:none"></div>
+    </div>
+
+
+
+
+    </script>
+    <script id="elogio-clipboard-template" type="x-tmpl-mustache">
+    <div>
+        <div>
+            {{#imageObj.uri}}
+             <img src="{{imageObj.uri}}" />
+            {{/imageObj.uri}}
+        </div>
+        <p>
+        {{#imageObj.locatorLink}}
+                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
+        {{/imageObj.locatorLink}}
+         {{#imageObj.copyrightLink}}
+            by
+             <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
+        {{/imageObj.copyrightLink}}
+
+
+        {{^imageObj.copyrightLink}}
+             {{#imageObj.creatorLink}}
+                by
+                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
+            {{/imageObj.creatorLink}}
+
+            {{^imageObj.creatorLink}}
+                 {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
+            {{/imageObj.creatorLink}}
+        {{/imageObj.copyrightLink}}
+        {{#imageObj.licenseLink}}
+             <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
+        {{/imageObj.licenseLink}}
+        {{^imageObj.licenseLink}}
+             {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
+        {{/imageObj.licenseLink}}
+        </p>
+    </div>
+
+    </script>
+    <div class="elogio-header">
+        <div class="pull-left">
+            Elog.io Plugin:
+        </div>
+        <div class="pull-right">
+            <button id="elogio-on">Enable</button>
+            <button id="elogio-off">Disable</button>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+
+    <div id="elogio-messageView" class="text-center">
+        <span id="elogio-messageText" style="display: none;" class="label label-default"></span>
+    </div>
+
+
+    <div id="elogio-imageListView" class="elogio-image-card-container">
+    </div>
+</div>

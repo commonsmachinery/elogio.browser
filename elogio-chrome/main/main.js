@@ -48,10 +48,10 @@
             //we need to set listeners only if we get a new port
             contentWorker.onMessage.addListener(function (request) {
                 //handler for content script
+                var tabState = appState.getTabState(currentTabId);
                 switch (request.eventName) {
                     //if content script was found image
                     case events.newImageFound:
-                        var tabState = appState.getTabState(currentTabId);
                         // Maybe we already have image with this URL in storage?
                         if (tabState.findImageInStorageByUrl(request.image.uri)) {
                             return;
@@ -60,9 +60,26 @@
                         break;
                     //init jquery if required
                     case 'jquery':
-                        chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery/jquery.js"});
-                        chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"});
-                        chrome.tabs.executeScript(currentTabId, {file: "data/js/sidebar.js"});
+                        chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery/jquery.js"}, function () {
+                            //send it back because content want know when jquery is ready
+                            tabState.getWorker().postMessage({eventName: 'jquery'});
+                        });
+                        break;
+                    case 'sidebar':
+                        chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
+                            //if loaded then load next
+                            chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
+                                //all scripts are loaded then start page processing
+                                $.ajax({
+                                    url: chrome.extension.getURL("html/template.html"),
+                                    dataType: "html",
+                                    success: function (response) {
+                                        tabState.getWorker().postMessage({eventName: 'ready', template: response});
+                                    }
+                                });
+                            });
+
+                        });
                         break;
                 }
             });

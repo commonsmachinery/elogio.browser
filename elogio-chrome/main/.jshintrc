@@ -16,7 +16,8 @@
         "chrome",
         "screen",
         "Elogio",
-        "CustomEvent"
+        "CustomEvent",
+        "$"
     ],
     "devel": true,
     "moz": true,
