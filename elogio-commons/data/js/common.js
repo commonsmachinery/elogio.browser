@@ -82,6 +82,10 @@ Elogio.Observable = function () {
             return;
         }
         handlers = bus[eventName];
+        if (!handlers) {
+            console.error("seems you doesn't have handlers for event " + eventName);
+            return;
+        }
         for (i = 0; i < handlers.length; i += 1) {
             handlers[i].apply(null, [arg]);
         }

@@ -10,16 +10,21 @@ new Elogio(
             imageDecorator = modules.getModule('imageDecorator'),
             config = modules.getModule('config'),
             events = bridge.events;
-
+        config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         /*
          =======================
          PRIVATE MEMBERS
          =======================
          */
+        //callback when scan page is finished
+        var finish = function () {
+            port.postMessage({eventName: events.pageProcessingFinished});
+        };
+
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
-                port.postMessage({eventName: events.newImageFound, image: imageObj});
+                port.postMessage({eventName: events.newImageFound, data: imageObj});
             }, function () {
                 //on error
             }, function () {
@@ -45,16 +50,37 @@ new Elogio(
         messaging.on(events.jqueryRequired, function () {
             port.postMessage({eventName: events.sidebarRequired});
         });
+        messaging.on(events.imageDetailsReceived, function (imageObj) {
+            sidebarModule.receivedImageDataFromServer(imageObj);
+        });
+        /**
+         * Fires when we get info for image or error
+         */
+        messaging.on(events.newImageFound, function (imageObj) {
+            //if we get lookup then decorate
+            if (imageObj.lookup) {
+                var element = dom.getElementByUUID(imageObj.uuid, document);
+                if (element) {
+                    imageDecorator.decorate(element, document, function (uuid) {
+                        var element = sidebarModule.getImageCardByUUID(uuid);
+                        $('#elogio-panel').animate({scrollTop: element.offset().top}, 500, 'swing', function () {
+                            sidebarModule.openImage(uuid);
+                        });
+                    });
+                }
+            }
+            sidebarModule.addOrUpdateCard(imageObj);
+        });
         messaging.on(events.pluginStopped, function () {
             undecorate();
         });
         messaging.on(events.startPageProcessing, function () {
-            //is needed before startPageProcessing because it means what popup was closed and is active now
+            //is needed before startScan because it means what popup was closed and is active now
             undecorate();
             scanForImages();
         });
-        messaging.on(events.ready, function (request) {
-            var template = $.parseHTML(request.template),
+        messaging.on(events.ready, function (templateString) {
+            var template = $.parseHTML(templateString),
                 button = document.createElement('img'),
                 body = $('body'), sidebar;
             $(button).addClass('elogio-button');
@@ -65,13 +91,14 @@ new Elogio(
             $(button).attr('src', imgURL);
             sidebar = $('#elogio-panel');
             $(button).elogioSidebar({side: 'right', duration: 300, clickClose: true});
-            sidebarModule.startPageProcessing(document, null, sidebar, port);
+            sidebarModule.startScan(document, null, sidebar, port, finish);
         });
         var port = chrome.runtime.connect({name: "content"});
         port.onMessage.addListener(function (request) {
-            messaging.emit(request.eventName, request);
+            messaging.emit(request.eventName, request.data);
         });
         port.postMessage({eventName: 'registration'});
+        //initialize jquery
         //initialize jquery
         if (!window.jQuery || !window.$) {
             port.postMessage({eventName: events.jqueryRequired});//jquery required

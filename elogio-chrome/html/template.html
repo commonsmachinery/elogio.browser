@@ -2,9 +2,9 @@
     <script id="elogio-image-template" type="x-tmpl-mustache">
     <div class="image-card" id="{{imageObj.uuid}}" >
         <div class="thumbnail-image">
-            <img src="{{imageObj.uri}}" class="picture"/>
+            <img src="{{imageObj.uri}}" class="picture" elogiopanelimage=""/>
         </div>
-        <div class="image-details" style="display:none">
+        <div class="elogio-image-details" style="display:none">
         <button  class="elogio-clipboard btn btn-primary">Copy</button>
             <p>
                 <img class="elogio-gravatar" src=""/>
@@ -25,11 +25,6 @@
         <div class="error-area" style="display:none"></div>
         <div class="loading" style="display:none"></div>
     </div>
-
-
-
-
-
     </script>
     <script id="elogio-clipboard-template" type="x-tmpl-mustache">
     <div>
@@ -66,6 +61,7 @@
         {{/imageObj.licenseLink}}
         </p>
     </div>
+
 
 
     </script>

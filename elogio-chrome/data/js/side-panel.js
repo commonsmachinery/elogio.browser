@@ -119,7 +119,7 @@
     };
 
     // Bind click outside panel and ESC key to close panel if clickClose is true
-    $(document).bind('click keyup', function (e) {
+    $(document).bind('keyup', function (e) {
         var active = $('.elogio-active-panel');
         if (e.type === 'keyup' && e.keyCode !== 27) {
             return;

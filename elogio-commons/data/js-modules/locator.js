@@ -102,6 +102,11 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
+            if (node.hasAttribute(config.ui.panelAttribute)) {
+                return false;
+            }
+        },
+        function (node) {
             if (node instanceof HTMLImageElement) {
                 return !utils.startsWith(node.src, 'data:') && isNotGifFile(node.src);
             }

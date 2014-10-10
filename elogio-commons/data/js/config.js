@@ -29,7 +29,8 @@ Elogio.modules.config = function (modules) {
         },
         highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
-        decoratedItemAttribute: 'elogiodecorated'
+        decoratedItemAttribute: 'elogiodecorated',
+        panelAttribute: 'elogiopanelimage'
     };
     this.errors = {
         requestError: 'Server responded, but with errors',

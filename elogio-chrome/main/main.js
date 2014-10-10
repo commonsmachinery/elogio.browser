@@ -11,14 +11,22 @@
             elogioLabel = 'elog.io plugin',
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioIcon = 'img/icon_19.png',
-            events = bridge.events, popupWorker;
+            events = bridge.events;
 
+        function loadPreferences() {
+            config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
+            config.ui.highlightRecognizedImages = true;
+            config.global.locator.deepScan = true;
+        }
+
+        loadPreferences();
         var appState = new Elogio.ApplicationStateController(), currentTabId,
             pluginState = {
                 isEnabled: true
             };
         chrome.browserAction.onClicked.addListener(function () {
             if (pluginState.isEnabled) {
+                loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
                 pluginState.isEnabled = false;
             } else {
@@ -42,17 +50,17 @@
             if (!imageObj) { //indicator if has errors then draw indicator on button
                 if (!tabState.hasErrors()) {
                     chrome.browserAction.setIcon({path: elogioIcon});
-                    chrome.browserAction.setTitle(elogioLabel);
+                    chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
                     chrome.browserAction.setIcon({path: elogioDisabledIcon});
-                    chrome.browserAction.setTitle('Something is wrong... Check Elog.io sidebar for details');
+                    chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
                 }
             }
             if (imageObj && imageObj.error) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
-                chrome.browserAction.setTitle('Something is wrong... Check Elog.io sidebar for details');
-                messaging.emit(bridge.events.newImageFound, imageObj);
+                chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
+                tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
         }
 
@@ -65,7 +73,7 @@
         function lookupQuery(lookupImageObjStorage, contentWorker) {
             var localStore = lookupImageObjStorage,
                 dictionary = {uri: []},
-                tabState = appState.getTabState(contentWorker.tab.id);
+                tabState = appState.getTabState(currentTabId);
             //create dictionary
             for (var i = 0; i < localStore.length; i++) {
                 dictionary.uri.push(localStore[i].uri);
@@ -88,14 +96,13 @@
                                 existsInResponse = true;
                                 // Extend data ImageObject with lookup data and save it
                                 imageFromStorage.lookup = lookupJson[j];
-                                bridge.emit(bridge.events.newImageFound, imageFromStorage);
-                                contentWorker.port.emit(bridge.events.newImageFound, imageFromStorage);
+                                contentWorker.postMessage({eventName: events.newImageFound, data: imageFromStorage});
                             }
                         }
                         // If it doesn't exist - assume it doesn't exist on server
                         if (!existsInResponse) {
                             imageFromStorage.lookup = false;
-                            bridge.emit(bridge.events.newImageFound, imageFromStorage);
+                            contentWorker.postMessage({eventName: events.newImageFound, data: imageFromStorage});
                         }
                     }
                 },
@@ -123,16 +130,9 @@
         chrome.tabs.onActivated.addListener(function (activeInfo) {
             currentTabId = activeInfo.tabId;
             var tabState = appState.getTabState(currentTabId);
-            if (pluginState.isEnabled) {
-                var images = tabState.getImagesFromStorage();
-                if (popupWorker) {
-                    popupWorker.postMessage({eventName: events.tabSwitched, images: images});
-                }
-            } else {
-                var contentWorker = tabState.getWorker();
-                if (contentWorker) {
-                    contentWorker.postMessage({eventName: events.pluginStopped});
-                }
+            var contentWorker = tabState.getWorker();
+            if (!pluginState.isEnabled && contentWorker) {
+                contentWorker.postMessage({eventName: events.pluginStopped});
             }
         });
         function setPort(port) {
@@ -140,20 +140,51 @@
             tabState.attachWorker(port);
         }
 
-
-        messaging.on(events.newImageFound, function (request) {
+        messaging.on(events.pageProcessingFinished, function () {
+            var tabState = appState.getTabState(currentTabId),
+                contentWorker = tabState.getWorker();
+            if (tabState.getImagesFromLookupStorage().length > 0) {
+                lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                appState.getTabState(currentTabId).clearLookupImageStorage();
+            }
+        });
+        messaging.on(events.imageDetailsRequired, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId),
+                contentWorker = tabState.getWorker();
+            elogioServer.annotationsQuery(imageObj.lookup.href,
+                function (annotationsJson) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.details = annotationsJson;
+                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                        indicateError();
+                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                },
+                function (response) {
+                    //put error to storage
+                    imageObj.error = getTextStatusByStatusCode(response.status);
+                    indicateError(imageObj);
+                },
+                config.global.apiServer.urlLookupOptions
+            );
+        });
+        messaging.on(events.newImageFound, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
                 contentWorker = tabState.getWorker();
             // Maybe we already have image with this URL in storage?
-            if (tabState.findImageInStorageByUrl(request.image.uri)) {
+            if (tabState.findImageInStorageByUrl(imageObj.uri)) {
                 return;
             }
             if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
                 lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                 tabState.clearLookupImageStorage();
             }
-            tabState.putImageToLookupStorage(request.image);
-            tabState.putImageToStorage(request.image);
+            tabState.putImageToLookupStorage(imageObj);
+            tabState.putImageToStorage(imageObj);
         });
 
         messaging.on(events.jqueryRequired, function (request) {
@@ -174,7 +205,7 @@
                         url: chrome.extension.getURL("html/template.html"),
                         dataType: "html",
                         success: function (response) {
-                            tabState.getWorker().postMessage({eventName: events.ready, template: response});
+                            tabState.getWorker().postMessage({eventName: events.ready, data: response});
                         }
                     });
                 });
@@ -189,7 +220,7 @@
             //we need to set listeners only if we get a new port
             contentWorker.onMessage.addListener(function (request) {
                 if (request.eventName !== 'registration') {
-                    messaging.emit(request.eventName, request);
+                    messaging.emit(request.eventName, request.data);
                 }
             });
         });
