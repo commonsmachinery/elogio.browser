@@ -72,23 +72,6 @@ new Elogio(
             }
             sidebarModule.addOrUpdateCard(imageObj);
         });
-        messaging.on(events.pluginStopped, function () {
-            isPluginEnabled = false;
-            if ($) {
-                var sideBar = $('#elogio-panel');
-                sideBar.hide();
-                sidebarModule.cleanUp();
-                $('#elogio-button-panel').hide();
-            }
-            undecorate();
-        });
-        messaging.on(events.pluginActivated, function () {
-            isPluginEnabled = true;
-            if ($) {
-                $('#elogio-button-panel').show();
-            }
-            port.postMessage({eventName: events.startPageProcessing});
-        });
         messaging.on(events.startPageProcessing, function () {
             //is needed before startScan because it means what popup was closed and is active now
             undecorate();
@@ -100,7 +83,6 @@ new Elogio(
                 body = $('body'), sidebar;
             $(button).addClass('elogio-button');
             $(button).attr('href', "#elogio-panel");
-            $(button).attr('id', 'elogio-button-panel');
             var imgURL = chrome.extension.getURL("img/icon_48.png");
             body.append(template);
             body.append($(button));

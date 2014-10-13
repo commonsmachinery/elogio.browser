@@ -212,7 +212,6 @@
         });
 
         messaging.on(events.sidebarRequired, function () {
-            var tabState = appState.getTabState(currentTabId);
             chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
                 //if loaded then load next
                 chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
@@ -221,6 +220,9 @@
                         url: chrome.extension.getURL("html/template.html"),
                         dataType: "html",
                         success: function (response) {
+                            var tabState = appState.getTabState(currentTabId);
+                            tabState.clearImageStorage();
+                            tabState.clearLookupImageStorage();
                             tabState.getWorker().postMessage({eventName: events.ready, data: response});
                         }
                     });
