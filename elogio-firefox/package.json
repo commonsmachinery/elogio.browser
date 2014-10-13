@@ -1,23 +1,28 @@
 {
-    "name": "elogio-firefox",
-    "title": "elogio-firefox",
+    "name": "elog.io",
+    "title": "Elog.io",
     "id": "jid1-GeU6gWF8UtDrQw",
-    "description": "Add-on for getting metadata from image on the web page",
-    "author": "Fedorov Artem",
-    "license": "MPL 2.0",
-    "version": "1.0",
+    "description": "Look up images on webpages in the Elog.io catalog while browsing.",
+    "homepage": "http://elog.io/",
+    "icon": "data/img/icon-48.png",
+    "author": "Commons Machinery (http://commonsmachinery.se) <dev@commonsmachinery.se>",
+    "contributors": [
+        "Artem Fedorov (http://logicify.com/) <artem.fedorov@logicify.com>"
+    ],
+    "license": "GPLv3",
+    "version": "0.1",
     "preferences": [
         {
             "name": "highlightRecognizedImages",
-            "title": "Highlight Recognized Images",
-            "description": "If enabled plugin will outline each recognized image on the page",
+            "title": "Highlight recognized images",
+            "description": "Mark each recognized image on a page with a red border.",
             "type": "bool",
             "value": true
         },
         {
             "name": "deepScan",
-            "title": "Deep scan",
-            "description": "If enabled plugin will scan images and backgrounds",
+            "title": "Look up background images",
+            "description": "Enables a more thorough but also more time-consuming search that includes element background images.  Websites often use background images even for the main content to achieve more dynamic effects or to make it difficult to copy images.",
             "type": "bool",
             "value": true
         }
