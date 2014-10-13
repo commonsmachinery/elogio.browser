@@ -6,6 +6,7 @@ $(document).ready(function () {
             var object = {
                 onButton: $('#on'),
                 offButton: $('#off'),
+                feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#imageListView"),
                 messageBox: $('#messageText')
             };
@@ -260,6 +261,18 @@ $(document).ready(function () {
 
                 object.onButton.on('click', self.startPlugin);
                 object.offButton.on('click', self.stopPlugin);
+                object.imageListView.on('click', '.image-card .elogio-report-work', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        imageObj = imageCard.data(constants.imageObject);
+                    /* global doorbell */
+                    doorbell.setProperty('uri', imageObj.uri);
+                    doorbell.show();
+                });
+                object.feedbackButton.on('click', function () {
+                    /* global doorbell */
+                    doorbell.show();
+                });
+
                 //handle click on copy button
                 object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
                     var imageCard = $(this).closest('.image-card'),
@@ -267,6 +280,7 @@ $(document).ready(function () {
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
                     annotations.uri = imageObj.uri;
+
                     if (imageObj.details) {
                         annotations.locatorLink = annotations.getLocatorLink();
                         annotations.titleLabel = annotations.getTitle();

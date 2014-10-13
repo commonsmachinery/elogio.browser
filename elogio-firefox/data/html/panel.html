@@ -31,6 +31,7 @@
                     <li><a class="elogio-clipboard">Copy to clipboard</a></li>
                     <li><a target="_blank" href="" class='elogio-locatorlink'>Visit source</a></li>
                     <li><a target="_blank" href="" class='elogio-license-link'>View license</a></li>
+                    <li><a class='elogio-report-work'>Report</a></li>
                   </ul>
                 </div>
               </div>
@@ -96,6 +97,7 @@
 </script>
 <div class="header">
     <div class="pull-left">
+        <button id="elogio-feedback" class="btn-success btn btn-sm">Leave feedback</button>
     </div>
     <div class="pull-right">
         <button id="on" class="btn-success btn btn-sm">Enable</button>
@@ -112,6 +114,15 @@
 <div id="imageListView" class="image-card-container">
 </div>
 
+<script type="text/javascript">
+    window.doorbellOptions = {
+        hideButton: true,
+        appKey: 'yuKV0gmIM91d4crYqSTyTVwXi79UH564JAOJ575IkgywVFFCnPbScIGhsp1yipeM'
+    };
+    (function(d, t) {
+        var g = d.createElement(t);g.id = 'doorbellScript';g.type = 'text/javascript';g.async = true;g.src = 'https://doorbell.io/button/423';(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(g);
+    }(document, 'script'));
+</script>
 
 </body>
 </html>
