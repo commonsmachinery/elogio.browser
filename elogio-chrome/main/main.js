@@ -29,11 +29,12 @@
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
                 pluginState.isEnabled = false;
-                //sendPluginState();
+                sendPluginState();
             } else {
+                loadPreferences();
                 chrome.browserAction.setIcon({path: elogioIcon});
                 pluginState.isEnabled = true;
-                //sendPluginState();
+                sendPluginState();
             }
         });
         function getTextStatusByStatusCode(statusCode) {

@@ -2,7 +2,7 @@ new Elogio(
     ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarModule', 'messaging'],
     function (modules) {
         'use strict';
-        var locator = modules.getModule('locator'),
+        var
             bridge = modules.getModule('bridge'),
             messaging = modules.getModule('messaging'),
             sidebarModule = modules.getModule('sidebarModule'),
@@ -21,17 +21,6 @@ new Elogio(
         var finish = function () {
             port.postMessage({eventName: events.pageProcessingFinished});
         };
-
-        function scanForImages(nodes) {
-            nodes = nodes || null;
-            locator.findImages(document, nodes, function (imageObj) {
-                port.postMessage({eventName: events.newImageFound, data: imageObj});
-            }, function () {
-                //on error
-            }, function () {
-                //on finished
-            });
-        }
 
         function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
@@ -72,23 +61,45 @@ new Elogio(
             }
             sidebarModule.addOrUpdateCard(imageObj);
         });
-        messaging.on(events.startPageProcessing, function () {
-            //is needed before startScan because it means what popup was closed and is active now
+        messaging.on(events.pluginStopped, function () {
+            isPluginEnabled = false;
+            if ($) {
+                var sideBar = $('#elogio-panel');
+                sideBar.hide();
+                sidebarModule.cleanUp();
+                var button = $('#elogio-button-panel');
+                button.css({
+                    top: 0,
+                    right: 5
+                });
+                button.hide();
+            }
             undecorate();
-            scanForImages();
+        });
+        messaging.on(events.pluginActivated, function () {
+            isPluginEnabled = true;
+            if ($) {
+                $('#elogio-button-panel').show();
+            }
+            port.postMessage({eventName: events.startPageProcessing});
+        });
+        messaging.on(events.startPageProcessing, function () {
+            var sidebar = $('#elogio-panel');
+            sidebarModule.startScan(document, null, sidebar, port, finish);
         });
         messaging.on(events.ready, function (templateString) {
             var template = $.parseHTML(templateString),
-                button = document.createElement('img'),
+                button = $(document.createElement('img')),
                 body = $('body'), sidebar;
-            $(button).addClass('elogio-button');
-            $(button).attr('href', "#elogio-panel");
+            button.addClass('elogio-button');
+            button.attr('href', "#elogio-panel");
+            button.attr('id', 'elogio-button-panel');
             var imgURL = chrome.extension.getURL("img/icon_48.png");
             body.append(template);
-            body.append($(button));
-            $(button).attr('src', imgURL);
+            body.append(button);
+            button.attr('src', imgURL);
             sidebar = $('#elogio-panel');
-            $(button).elogioSidebar({side: 'right', duration: 300, clickClose: true});
+            button.elogioSidebar({side: 'right', duration: 300, clickClose: true});
             sidebarModule.startScan(document, null, sidebar, port, finish);
         });
         var port = chrome.runtime.connect({name: "content"});
