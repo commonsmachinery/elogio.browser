@@ -105,6 +105,10 @@ Elogio.modules.bridge = function (modules) {
          */
         jqueryRequired: "jqueryRequired",
         /**
+         * Fires when content script needs for mustache
+         */
+        mustacheRequired: 'mustacheRequired',
+        /**
          * Fires when all scripts loaded and sidebar required
          */
         sidebarRequired: "sidebarRequired",

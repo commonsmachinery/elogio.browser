@@ -38,7 +38,11 @@ new Elogio(
         }
 
         messaging.on(events.jqueryRequired, function () {
-            port.postMessage({eventName: events.sidebarRequired});
+            if (typeof Mustache === 'undefined') {
+                port.postMessage({eventName: events.mustacheRequired});
+            } else {
+                port.postMessage({eventName: events.sidebarRequired});
+            }
         });
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             sidebarModule.receivedImageDataFromServer(imageObj);
@@ -109,12 +113,14 @@ new Elogio(
             }
         });
         port.postMessage({eventName: 'registration'});
-        //initialize jquery
-        //initialize jquery
         if (!window.jQuery || !window.$) {
             port.postMessage({eventName: events.jqueryRequired});//jquery required
         } else {
-            port.postMessage({eventName: events.sidebarRequired});
+            if (!Mustache) {
+                port.postMessage({eventName: events.mustacheRequired});
+            } else {
+                port.postMessage({eventName: events.sidebarRequired});
+            }
         }
     }
 );

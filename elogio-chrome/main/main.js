@@ -48,6 +48,23 @@
             }
         }
 
+        function loadPanelScripts() {
+            chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
+                //if loaded then load next
+                $.ajax({
+                    url: chrome.extension.getURL("html/template.html"),
+                    dataType: "html",
+                    success: function (response) {
+                        var tabState = appState.getTabState(currentTabId);
+                        tabState.clearImageStorage();
+                        tabState.clearLookupImageStorage();
+                        tabState.getWorker().postMessage({eventName: events.ready, data: response});
+                    }
+                });
+
+            });
+        }
+
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
             if (!imageObj) { //indicator if has errors then draw indicator on button
@@ -133,6 +150,8 @@
             var tabState = appState.getTabState(currentTabId);
             var contentWorker = tabState.getWorker();
             if (!pluginState.isEnabled && contentWorker) {
+                tabState.clearImageStorage();
+                tabState.clearLookupImageStorage();
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
             if (pluginState.isEnabled && contentWorker) {
@@ -212,24 +231,14 @@
             });
         });
 
-        messaging.on(events.sidebarRequired, function () {
-            chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
-                //if loaded then load next
-                chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
-                    //all scripts are loaded then start page processing
-                    $.ajax({
-                        url: chrome.extension.getURL("html/template.html"),
-                        dataType: "html",
-                        success: function (response) {
-                            var tabState = appState.getTabState(currentTabId);
-                            tabState.clearImageStorage();
-                            tabState.clearLookupImageStorage();
-                            tabState.getWorker().postMessage({eventName: events.ready, data: response});
-                        }
-                    });
-                });
 
+        messaging.on(events.mustacheRequired, function () {
+            chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
+                loadPanelScripts();
             });
+        });
+        messaging.on(events.sidebarRequired, function () {
+            loadPanelScripts();
         });
 
         chrome.runtime.onConnect.addListener(function (port) {
@@ -244,4 +253,5 @@
             });
         });
     });
-})();
+})
+();
