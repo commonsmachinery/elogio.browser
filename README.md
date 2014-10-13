@@ -1,7 +1,7 @@
-elogio.firefox
+elogio.browser
 ==============
 
-Firefox addon for Elog.io
+Firefox and Chrome addons for Elog.io
 
 ## Building
 
@@ -36,12 +36,18 @@ Before you run any grunt tasks, you need `npm` to download grunt itself and its 
 Here you can do following:
 
  * `grunt lint` - runs the jshint process with the appropriate check rules for the chrome and injected pieces.
+ * `grunt lint-firefox` - for firefox plugin
+ * `grunt lint-chrome` - for google chrome plugin
  * `grunt bower` - downloads bower-managed dependencies used in extension.
- * `grunt run` - runs the extension in browser (basically, comes down to `cfx run` command in the end).
- * `grunt dist-debug` - in the `dist` folder, creates a packaged extension (XPI) ready to be passed over. The sources
-   are not processed anyhow. Surely, this implies the lint check also passes.
- * `grunt dist-minified` - pretty same as `dist-debug`, except for that the sources were minified and obfuscated, to make
-   the downloadable XPI minimal. Same location.
+ * `grunt build` - builds both of extensions into build dir (folders 'chrome' and 'firefox')
+ * `grunt build:firefox` - builds firefox extensions to build dir (folder 'firefox')
+ * `grunt build:chrome` - builds google chrome extensions to build dir (folder 'chrome')
+ * `grunt run:firefox` - runs the firefox plugin in the browser
+ * `grunt dist` - in the `dist` folder, creates two packaged extensions (XPI for firefox into `dist\firefox` folder and CRX for google chrome into `dist\chrome` folder) ready to be passed over. The sources
+   are not processed anyhow. Surely, this implies the lint check also passes.(minimal)
+ * `grunt dist:firefox` - same as `dist` but only for firefox addon. (minimal)
+ * `grunt dist:chrome` - same as `dist` but only for google chrome addon. (minimal)
+
 
 
 ## Development notes
