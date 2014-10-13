@@ -57,7 +57,11 @@ new Elogio(
                 if (element) {
                     imageDecorator.decorate(element, document, function (uuid) {
                         var element = sidebarModule.getImageCardByUUID(uuid);
-                        $('#elogio-panel').animate({scrollTop: element.offset().top}, 500, 'swing', function () {
+                        var sidebar = $('#elogio-panel');
+                        if (sidebar.is(':hidden')) {
+                            $('#elogio-button-panel').trigger('click');
+                        }
+                        sidebar.animate({scrollTop: element.offset().top}, 500, 'swing', function () {
                             sidebarModule.openImage(uuid);
                         });
                     });
@@ -91,17 +95,17 @@ new Elogio(
             var sidebar = $('#elogio-panel');
             sidebarModule.startScan(document, null, sidebar, port, finish);
         });
-        messaging.on(events.ready, function (templateString) {
-            var template = $.parseHTML(templateString),
-                button = $(document.createElement('img')),
+        messaging.on(events.ready, function (data) {
+            var template = $.parseHTML(data.stringTemplate),
+                button = new Image(),
                 body = $('body'), sidebar;
+            button.src = data.imgUrl;
+            button = $(button);
             button.addClass('elogio-button');
             button.attr('href', "#elogio-panel");
             button.attr('id', 'elogio-button-panel');
-            var imgURL = chrome.extension.getURL("img/icon_48.png");
             body.append(template);
             body.append(button);
-            button.attr('src', imgURL);
             sidebar = $('#elogio-panel');
             button.elogioSidebar({side: 'right', duration: 300, clickClose: true});
             sidebarModule.startScan(document, null, sidebar, port, finish);

@@ -11,6 +11,7 @@
             elogioLabel = 'elog.io plugin',
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioIcon = 'img/icon_19.png',
+            openButton = chrome.extension.getURL("img/icon_48.png"),
             events = bridge.events;
 
         function loadPreferences() {
@@ -58,7 +59,7 @@
                         var tabState = appState.getTabState(currentTabId);
                         tabState.clearImageStorage();
                         tabState.clearLookupImageStorage();
-                        tabState.getWorker().postMessage({eventName: events.ready, data: response});
+                        tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton}});
                     }
                 });
 
