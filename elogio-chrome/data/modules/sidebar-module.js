@@ -48,7 +48,6 @@ Elogio.modules.sidebarModule = function (modules) {
 
     function initializeDetails(imageObj, cardElement) {
         var annotations = new Elogio.Annotations(imageObj, config);
-        console.log(annotations);
         if (imageObj.details) { // If we were abe to get annotations - populate details
             if (annotations.getCreatorLabel()) {
                 cardElement.find('.elogio-owner').text('Image by ' + annotations.getCreatorLabel());

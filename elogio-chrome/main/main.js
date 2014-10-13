@@ -29,9 +29,11 @@
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
                 pluginState.isEnabled = false;
+                //sendPluginState();
             } else {
                 chrome.browserAction.setIcon({path: elogioIcon});
                 pluginState.isEnabled = true;
+                //sendPluginState();
             }
         });
         function getTextStatusByStatusCode(statusCode) {
@@ -126,20 +128,34 @@
             currentTabId = tab[0].id;
             appState.getTabState(currentTabId);
         });
-        //when tab switched
-        chrome.tabs.onActivated.addListener(function (activeInfo) {
-            currentTabId = activeInfo.tabId;
+        function sendPluginState() {
             var tabState = appState.getTabState(currentTabId);
             var contentWorker = tabState.getWorker();
             if (!pluginState.isEnabled && contentWorker) {
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
+            if (pluginState.isEnabled && contentWorker) {
+                contentWorker.postMessage({eventName: events.pluginActivated});
+            }
+        }
+
+        //when tab switched
+        chrome.tabs.onActivated.addListener(function (activeInfo) {
+            currentTabId = activeInfo.tabId;
+            sendPluginState();
         });
         function setPort(port) {
             var tabState = appState.getTabState(currentTabId);
             tabState.attachWorker(port);
         }
 
+        messaging.on(events.startPageProcessing, function () {
+            var tabState = appState.getTabState(currentTabId),
+                contentWorker = tabState.getWorker();
+            if (contentWorker) {
+                contentWorker.postMessage({eventName: events.startPageProcessing});//send it back
+            }
+        });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
                 contentWorker = tabState.getWorker();
@@ -219,7 +235,7 @@
                 contentWorker = tabState.getWorker();
             //we need to set listeners only if we get a new port
             contentWorker.onMessage.addListener(function (request) {
-                if (request.eventName !== 'registration') {
+                if (request.eventName !== 'registration' && pluginState.isEnabled) {
                     messaging.emit(request.eventName, request.data);
                 }
             });
