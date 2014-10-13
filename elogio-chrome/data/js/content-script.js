@@ -58,6 +58,7 @@ new Elogio(
                     imageDecorator.decorate(element, document, function (uuid) {
                         var element = sidebarModule.getImageCardByUUID(uuid);
                         var sidebar = $('#elogio-panel');
+                        //if sidebar hidden then show it
                         if (sidebar.is(':hidden')) {
                             $('#elogio-button-panel').trigger('click');
                         }

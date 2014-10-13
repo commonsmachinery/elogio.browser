@@ -218,7 +218,8 @@ Elogio.modules.locator = function (modules) {
                     var imgObj = {
                         uri: src,
                         uuid: imageUuid,
-                        size: { width: this.width, height: this.height }
+                        size: { width: this.width, height: this.height },
+                        domain: document.location.href
                     };
                     onImageFound(imgObj);
                 }

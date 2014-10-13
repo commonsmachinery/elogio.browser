@@ -326,7 +326,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                     .findImageInStorageByUuid(imageObj.uuid);
                 if (!imageObj.error) {
                     imageObjFromStorage.hash = imageObj.hash;
-                    elogioServer.hashLookupQuery(imageObjFromStorage.hash, function (json) {
+                    console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
+                    elogioServer.hashLookupQuery(imageObjFromStorage.hash, {src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
                             imageObjFromStorage.lookup = json[0];
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
@@ -339,11 +340,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                             indicateError(imageObjFromStorage);
                         }
                     }, function (response) {
+                        console.log('text status ' + response.statusText + ' ; status code ' + response.status);
                         imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
                         indicateError(imageObjFromStorage);
                     });
                 } else {
                     //if we get error when using blockhash
+                    console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
                     imageObjFromStorage.error = config.errors.blockhashError;
                     indicateError(imageObjFromStorage);
                 }
