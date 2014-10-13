@@ -13,6 +13,7 @@ Elogio.modules.sidebarModule = function (modules) {
     var locator = modules.getModule('locator'),
         bridge = modules.getModule('bridge'),
         events = bridge.events,
+        dom = modules.getModule('dom'),
         config = modules.getModule('config');
 
     /*
@@ -25,6 +26,7 @@ Elogio.modules.sidebarModule = function (modules) {
         imageObject: 'imageObj'
     };
     var object = {
+        document: {},
         sidebar: {},
         port: {},
         imageListView: {},
@@ -35,9 +37,10 @@ Elogio.modules.sidebarModule = function (modules) {
         clipboardItem: {}
     };
 
-    function initModule(sidebar, port) {
+    function initModule(sidebar, port, document) {
         object.sidebar = sidebar;
         object.port = port;
+        object.document = document;
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
         template.imageItem = $("#elogio-image-template").html();
@@ -97,6 +100,7 @@ Elogio.modules.sidebarModule = function (modules) {
             cardElement.find('img').on('click', function () {
                 var card = $(this).closest('.image-card');
                 var imageObj = card.data(constants.imageObject);
+                dom.getElementByUUID(imageObj.uuid).scrollIntoView();
                 self.openImage(imageObj.uuid);
             });
             var imgURL = chrome.extension.getURL("img/process-indicator.png");
@@ -137,16 +141,17 @@ Elogio.modules.sidebarModule = function (modules) {
     };
     /**
      *
-     * @param context - context which need to scan
+     * @param context - context which need to scan (may be a document)
      * @param nodes - nodes for search images
      * @param sidebar - element of DOM which contains all founded images
      * @param port - port for messaging with background
      * @param finish - callback which calls when scan is finished
+     * @param document - reference on the document for animation 'body'
      */
 
-    self.startScan = function (context, nodes, sidebar, port, finish) {
+    self.startScan = function (document, context, nodes, sidebar, port, finish) {
         //init nodes and sidebar
-        initModule(sidebar, port);
+        initModule(sidebar, port, document);
         hideMessage();
         if (object.imageListView.length) {
             object.imageListView.empty();

@@ -56,13 +56,13 @@ new Elogio(
                 var element = dom.getElementByUUID(imageObj.uuid, document);
                 if (element) {
                     imageDecorator.decorate(element, document, function (uuid) {
-                        var element = sidebarModule.getImageCardByUUID(uuid);
+                        var element = document.getElementById(uuid);
                         var sidebar = $('#elogio-panel');
                         //if sidebar hidden then show it
                         if (sidebar.is(':hidden')) {
                             $('#elogio-button-panel').trigger('click');
                         }
-                        sidebar.animate({scrollTop: element.offset().top}, 500, 'swing', function () {
+                        sidebar.animate({scrollTop: element.offsetTop}, 500, 'swing', function () {
                             sidebarModule.openImage(uuid);
                         });
                     });
@@ -94,7 +94,7 @@ new Elogio(
         });
         messaging.on(events.startPageProcessing, function () {
             var sidebar = $('#elogio-panel');
-            sidebarModule.startScan(document, null, sidebar, port, finish);
+            sidebarModule.startScan(document, document, null, sidebar, port, finish);
         });
         messaging.on(events.ready, function (data) {
             var template = $.parseHTML(data.stringTemplate),
@@ -109,7 +109,7 @@ new Elogio(
             body.append(button);
             sidebar = $('#elogio-panel');
             button.elogioSidebar({side: 'right', duration: 300, clickClose: true});
-            sidebarModule.startScan(document, null, sidebar, port, finish);
+            sidebarModule.startScan(document, document, null, sidebar, port, finish);
         });
         var port = chrome.runtime.connect({name: "content"});
         port.onMessage.addListener(function (request) {
