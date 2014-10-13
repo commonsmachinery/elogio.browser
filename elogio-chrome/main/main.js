@@ -155,12 +155,21 @@
                 tabState.clearLookupImageStorage();
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
+            if (pluginState.isEnabled && contentWorker) {
+                contentWorker.postMessage({eventName: events.pluginActivated});
+            }
         }
 
         //when tab switched
         chrome.tabs.onActivated.addListener(function (activeInfo) {
             currentTabId = activeInfo.tabId;
-            sendPluginState();
+            var tabState = appState.getTabState(currentTabId);
+            var contentWorker = tabState.getWorker();
+            if (!pluginState.isEnabled && contentWorker) {
+                tabState.clearImageStorage();
+                tabState.clearLookupImageStorage();
+                contentWorker.postMessage({eventName: events.pluginStopped});
+            }
         });
         function setPort(port) {
             var tabState = appState.getTabState(currentTabId);
