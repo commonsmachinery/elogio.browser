@@ -38,7 +38,7 @@ new Elogio(
         }
 
         messaging.on(events.jqueryRequired, function () {
-            if (!Mustache) {
+            if (typeof Mustache === 'undefined') {
                 port.postMessage({eventName: events.mustacheRequired});
             } else {
                 port.postMessage({eventName: events.sidebarRequired});
@@ -113,8 +113,6 @@ new Elogio(
             }
         });
         port.postMessage({eventName: 'registration'});
-        //initialize jquery
-        //initialize jquery
         if (!window.jQuery || !window.$) {
             port.postMessage({eventName: events.jqueryRequired});//jquery required
         } else {

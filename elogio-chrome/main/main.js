@@ -150,6 +150,8 @@
             var tabState = appState.getTabState(currentTabId);
             var contentWorker = tabState.getWorker();
             if (!pluginState.isEnabled && contentWorker) {
+                tabState.clearImageStorage();
+                tabState.clearLookupImageStorage();
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
             if (pluginState.isEnabled && contentWorker) {
