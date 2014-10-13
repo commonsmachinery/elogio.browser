@@ -327,7 +327,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 if (!imageObj.error) {
                     imageObjFromStorage.hash = imageObj.hash;
                     console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
-                    elogioServer.hashLookupQuery(imageObjFromStorage.hash, {src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
+                    elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
                             imageObjFromStorage.lookup = json[0];
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received

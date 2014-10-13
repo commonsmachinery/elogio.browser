@@ -59,16 +59,11 @@ Elogio.modules.elogioServer = function (modules) {
      * @param onError
      * @param parameters
      */
-    self.hashLookupQuery = function (hash, parameters, onLoad, onError) {
-        if (!hash) {
+    self.hashLookupQuery = function (parameters, onLoad, onError) {
+        if (!parameters.hash) {
             return;
         }
-        if (parameters) {
-            parameters = urlHelperBuilder(parameters);
-        } else {
-            parameters = '';
-        }
-        var url = config.global.apiServer.serverUrl + config.global.apiServer.hashLookupContext + urlHelperBuilder({hash: hash}) + parameters;
+        var url = config.global.apiServer.serverUrl + config.global.apiServer.hashLookupContext + urlHelperBuilder(parameters);
         elogioRequest.sendRequest(url, onLoad, onError, 'GET');
     };
     /**
