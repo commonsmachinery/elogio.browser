@@ -155,9 +155,6 @@
                 tabState.clearLookupImageStorage();
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
-            if (pluginState.isEnabled && contentWorker) {
-                contentWorker.postMessage({eventName: events.pluginActivated});
-            }
         }
 
         //when tab switched
