@@ -9,7 +9,9 @@ new Elogio(
             dom = modules.getModule('dom'),
             imageDecorator = modules.getModule('imageDecorator'),
             config = modules.getModule('config'),
+            locator = modules.getModule('locator'),
             events = bridge.events,
+            observer,
             isPluginEnabled = true;
         config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         /*
@@ -21,6 +23,18 @@ new Elogio(
         var finish = function () {
             port.postMessage({eventName: events.pageProcessingFinished});
         };
+
+        function scanForImages(nodes) {
+            nodes = nodes || null;
+            locator.findImages(document, nodes, function (imageObj) {
+                port.postMessage({eventName: events.newImageFound, data: imageObj});
+            }, function () {
+                //on error
+            }, function () {
+                //on finished
+                port.postMessage({eventName: events.pageProcessingFinished});
+            });
+        }
 
         function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
@@ -34,6 +48,9 @@ new Elogio(
                 if (elementsWithUUID[i].hasAttribute(config.ui.dataAttributeName)) {
                     elementsWithUUID[i].removeAttribute(config.ui.dataAttributeName);
                 }
+            }
+            if (observer) {
+                observer.disconnect();
             }
         }
 
@@ -93,6 +110,7 @@ new Elogio(
         });
 
         messaging.on(events.ready, function (data) {
+            observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             var template = $.parseHTML(data.stringTemplate),
                 button = new Image(),
                 body = $('body'), sidebar;
@@ -123,5 +141,48 @@ new Elogio(
                 port.postMessage({eventName: events.sidebarRequired});
             }
         }
+        observer = new MutationObserver(function (mutations) {
+            var nodesToBeProcessed = [];
+            mutations.forEach(function (mutation) {
+                var i, j, newNodes = mutation.addedNodes;
+                /**
+                 * we need to filter nodes which added to DOM
+                 */
+                for (i = 0; i < newNodes.length; i += 1) {
+                    if (newNodes[i].nodeType === Node.ELEMENT_NODE) {
+                        nodesToBeProcessed[nodesToBeProcessed.length] = newNodes[i];//add itself
+                        var children = locator.findNodes(newNodes[i]);//and add all filtered children of this node
+                        //add all children to store, which needs to be processed
+                        for (j = 0; j < children.length; j++) {
+                            nodesToBeProcessed[nodesToBeProcessed.length] = children[j];
+                        }
+                    }
+                }
+
+                // remove images from storage and panel once they disappear from DOM
+                for (i = 0; i < mutation.removedNodes.length; i += 1) {
+                    if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
+                        // if node is removed element
+                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
+                            elements;
+                        if (uuid) {
+                            bridge.emit(bridge.events.onImageRemoved, uuid);
+                        }
+                        // check if node has another removed elements
+                        elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
+                        if (elements) {
+                            for (j = 0; j < elements.length; j++) {
+                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
+                                if (uuid) {
+                                    bridge.emit(bridge.events.onImageRemoved, uuid);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            //we scan only added to DOM nodes, don't need to rescan all DOM
+            scanForImages(nodesToBeProcessed);
+        });
     }
 );
