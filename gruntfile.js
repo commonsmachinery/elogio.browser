@@ -291,6 +291,7 @@ module.exports = function (grunt) {
         grunt.log.write('\n   grunt dist -- in the `dist` folder, creates two packaged extensions (XPI for firefox into `dist/firefox` folder and CRX for google chrome into `dist/chrome` folder) ready to be passed over. The sources ');
         grunt.log.write('\n   grunt dist:firefox - same as `dist` but only for firefox addon. (minimal)');
         grunt.log.write('\n   dist:chrome` - same as `dist` but only for google chrome addon. (minimal)');
+
     });
 
     grunt.registerTask('build', 'Task with parameters ', function (parameter) {
