@@ -112,11 +112,13 @@ new Elogio(
         messaging.on(events.ready, function (data) {
             observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             var template = $.parseHTML(data.stringTemplate),
-                button = new Image(),
+                button = $(document.createElement('button')),
                 body = $('body'), sidebar;
-            button.src = data.imgUrl;
-            button = $(button);
             button.addClass('elogio-button');
+            button.addClass('btn-success');
+            button.addClass('btn-sm');
+            button.addClass('btn');
+            button.text('Open');
             button.attr('href', "#elogio-panel");
             button.attr('id', 'elogio-button-panel');
             body.append(template);

@@ -1,0 +1,78 @@
+
+.elogio-button {
+  position: fixed;
+  z-index: 10000;
+  top: 0;
+  right: 5px;
+}
+
+.elogio-panel {
+  padding: 5px;
+  display: none;
+  width: 220px;
+  background: rgba(100, 100, 10, 0.5);
+  text-decoration-color: black;
+  box-shadow: inset 0 0 5px 5px #222;
+  overflow-y: scroll;
+  .elogio-header {
+    left: 0px;
+    top: 0px;
+    margin: 12px 0;
+    width: 100%;
+    color: #ffffff;
+  }
+  .elogio-image-card-container {
+    width: 100%;
+    padding: 10px;
+
+    .image-card {
+      background: #ffffff;
+      width: 100%;
+      border-bottom: 1px solid black;
+      margin: 5px 0;
+      .no-lookup-data {
+        width: 100%;
+      }
+      .query-button {
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .thumbnail-image {
+        width: 100%;
+        height: 150px;
+
+        img {
+          display: block;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        &:hover {
+          opacity: .75;
+          cursor: pointer
+        }
+
+        .picture {
+          max-height: 150px;
+          max-width: 100%;
+        }
+      }
+      .elogio-image-details {
+        padding-top: 5px;
+      }
+    }
+  }
+
+  #messageView span {
+    font-size: 1.2rem;
+  }
+
+  .loading {
+    width: auto;
+    height: 40px;
+    display: block;
+    z-index: 10000;
+  }
+
+}
+

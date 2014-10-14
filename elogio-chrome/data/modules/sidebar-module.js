@@ -29,8 +29,13 @@ Elogio.modules.sidebarModule = function (modules) {
         document: {},
         sidebar: {},
         port: {},
+        feedbackButton: {},
         imageListView: {},
         messageBox: {}
+    };
+    window.doorbellOptions = {
+        hideButton: true,
+        appKey: 'yuKV0gmIM91d4crYqSTyTVwXi79UH564JAOJ575IkgywVFFCnPbScIGhsp1yipeM'
     };
     var template = {
         imageItem: {},
@@ -42,10 +47,21 @@ Elogio.modules.sidebarModule = function (modules) {
         template.imageItem = $("#elogio-image-template").html();
         Mustache.parse(template.imageItem);
         object.port = port;
+        object.feedbackButton = $('#elogio-feedback');
         object.document = document;
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
         template.clipboardItem = $("#elogio-clipboard-template").html();
+        /**
+         *
+         * Init doorbell
+         */
+        var g = document.createElement('script');
+        g.id = 'doorbellScript';
+        g.type = 'text/javascript';
+        g.async = true;
+        g.src = 'https://doorbell.io/button/423';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(g);
 
         //init
         object.imageListView.on('click', '.image-card .query-button', function () {
@@ -65,31 +81,50 @@ Elogio.modules.sidebarModule = function (modules) {
             dom.getElementByUUID(imageObj.uuid).scrollIntoView();
             self.openImage(imageObj.uuid);
         });
+        object.imageListView.on('click', '.image-card .elogio-report-work', function () {
+            var imageCard = $(this).closest('.image-card'),
+                imageObj = imageCard.data(constants.imageObject);
+            /* global doorbell */
+            if (typeof doorbell !== 'undefined') {
+                doorbell.setProperty('uri', imageObj.uri);
+                doorbell.show();
+            } else {
+                console.error('Seems like doorbell is not defined');
+            }
+        });
+
+        object.feedbackButton.on('click', function () {
+            /* global doorbell */
+            if (typeof doorbell !== 'undefined') {
+                doorbell.show();
+            } else {
+                console.error('Seems like doorbell is not defined');
+            }
+        });
     }
 
 
     function initializeDetails(imageObj, cardElement) {
         var annotations = new Elogio.Annotations(imageObj, config);
         if (imageObj.details) { // If we were abe to get annotations - populate details
-            if (annotations.getCreatorLabel()) {
-                cardElement.find('.elogio-owner').text('Image by ' + annotations.getCreatorLabel());
-            } else {
-                cardElement.find('.elogio-owner').hide();
+            if (annotations.getCopyrightLabel()) {
+                cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCopyrightLabel());
+            } else if (annotations.getCreatorLabel()) {
+                cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCreatorLabel());
             }
-            cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
             cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
             if (annotations.getTitle()) {
-                cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
+                cardElement.find('.elogio-annotations-title').text(annotations.getTitle());
             } else {
                 cardElement.find('.elogio-annotations-title').hide();
             }
             if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
-                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
+                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink() + "?s=40");
             } else {
                 cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
             }
             if (annotations.getLicenseLabel()) {
-                cardElement.find('.elogio-license').text('License: ' + annotations.getLicenseLabel());
+                cardElement.find('.elogio-license').text(annotations.getLicenseLabel());
             } else {
                 cardElement.find('.elogio-license').hide();
             }
@@ -99,7 +134,8 @@ Elogio.modules.sidebarModule = function (modules) {
                 cardElement.find('.elogio-license-link').hide();
             }
         } else { // Otherwise - show message
-            cardElement.find('.message-area').text('Sorry, no data available').show();
+            cardElement.find('.message-area').show();
+            cardElement.find('.image-not-found').hide();
         }
     }
 
@@ -214,6 +250,12 @@ Elogio.modules.sidebarModule = function (modules) {
         var imageObj = imageCard.data(constants.imageObject);
         if (imageObj.details) {
             imageCard.find('.elogio-image-details').toggle();
+            imageCard.find('.image-found').show();
+            imageCard.find('.image-not-found').hide();
+        } else if (!imageObj.lookup) {
+            imageCard.find('.elogio-image-details').toggle();
+            imageCard.find('.image-found').hide();
+            imageCard.find('.image-not-found').show();
         }
         if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
             imageCard.find('.loading').show();//if we need annotations we wait for response
