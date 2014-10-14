@@ -10,6 +10,7 @@
             messaging = modules.getModule('messaging'),
             elogioLabel = 'elog.io plugin',
             elogioDisabledIcon = 'img/icon_19_disabled.png',
+            elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
             openButton = chrome.extension.getURL("img/icon_48.png"),
             events = bridge.events;
@@ -30,12 +31,12 @@
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
                 pluginState.isEnabled = false;
-                sendPluginState();
+                notifyPluginState();
             } else {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioIcon});
                 pluginState.isEnabled = true;
-                sendPluginState();
+                notifyPluginState();
             }
         });
         function getTextStatusByStatusCode(statusCode) {
@@ -49,20 +50,25 @@
             }
         }
 
+        /**
+         * Load template and send it to content
+         */
+        function loadTemplate() {
+            $.ajax({
+                url: chrome.extension.getURL("html/template.html"),
+                dataType: "html",
+                success: function (response) {
+                    var tabState = appState.getTabState(currentTabId);
+                    tabState.clearImageStorage();
+                    tabState.clearLookupImageStorage();
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton}});
+                }
+            });
+        }
         function loadPanelScripts() {
             chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
                 //if loaded then load next
-                $.ajax({
-                    url: chrome.extension.getURL("html/template.html"),
-                    dataType: "html",
-                    success: function (response) {
-                        var tabState = appState.getTabState(currentTabId);
-                        tabState.clearImageStorage();
-                        tabState.clearLookupImageStorage();
-                        tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton}});
-                    }
-                });
-
+                loadTemplate();
             });
         }
 
@@ -73,13 +79,13 @@
                     chrome.browserAction.setIcon({path: elogioIcon});
                     chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
-                    chrome.browserAction.setIcon({path: elogioDisabledIcon});
+                    chrome.browserAction.setIcon({path: elogioErrorIcon});
                     chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
                 }
             }
             if (imageObj && imageObj.error) {
                 tabState.putImageToStorage(imageObj);
-                chrome.browserAction.setIcon({path: elogioDisabledIcon});
+                chrome.browserAction.setIcon({path: elogioErrorIcon});
                 chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
@@ -143,11 +149,15 @@
 
 
         //init current tab when browser or extension started
-        chrome.tabs.query({active: true}, function (tab) {
-            currentTabId = tab[0].id;
-            appState.getTabState(currentTabId);
-        });
-        function sendPluginState() {
+        function initTab() {
+            chrome.tabs.query({active: true}, function (tab) {
+                currentTabId = tab[0].id;
+                appState.getTabState(currentTabId);
+            });
+        }
+
+        initTab();
+        function notifyPluginState() {
             var tabState = appState.getTabState(currentTabId);
             var contentWorker = tabState.getWorker();
             if (!pluginState.isEnabled && contentWorker) {
@@ -162,14 +172,7 @@
 
         //when tab switched
         chrome.tabs.onActivated.addListener(function (activeInfo) {
-            currentTabId = activeInfo.tabId;
-            var tabState = appState.getTabState(currentTabId);
-            var contentWorker = tabState.getWorker();
-            if (!pluginState.isEnabled && contentWorker) {
-                tabState.clearImageStorage();
-                tabState.clearLookupImageStorage();
-                contentWorker.postMessage({eventName: events.pluginStopped});
-            }
+            initTab();
         });
         function setPort(port) {
             var tabState = appState.getTabState(currentTabId);
@@ -177,11 +180,7 @@
         }
 
         messaging.on(events.startPageProcessing, function () {
-            var tabState = appState.getTabState(currentTabId),
-                contentWorker = tabState.getWorker();
-            if (contentWorker) {
-                contentWorker.postMessage({eventName: events.startPageProcessing});//send it back
-            }
+            loadTemplate();
         });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
@@ -214,6 +213,36 @@
                 },
                 config.global.apiServer.urlLookupOptions
             );
+        });
+        messaging.on(events.hashCalculated, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId),
+                imageObjFromStorage = tabState.findImageInStorageByUuid(imageObj.uuid),
+                contentWorker = tabState.getWorker();
+            if (!imageObj.error) {
+                imageObjFromStorage.hash = imageObj.hash;
+                console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
+                elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
+                    if (Array.isArray(json) && json.length > 0) {
+                        imageObjFromStorage.lookup = json[0];
+                        contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received
+                        //it means, what we need details, because user click on 'query to elog.io'
+                        contentWorker.postMessage({eventName: events.imageDetailsRequired, data: imageObjFromStorage});
+                    } else {
+                        //if we get an empty array, that's mean what no data for this image
+                        imageObjFromStorage.error = config.errors.noDataForImage;
+                        indicateError(imageObjFromStorage);
+                    }
+                }, function (response) {
+                    console.log('text status ' + response.statusText + ' ; status code ' + response.status);
+                    imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
+                    indicateError(imageObjFromStorage);
+                });
+            } else {
+                //if we get error when using blockhash
+                console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
+                imageObjFromStorage.error = config.errors.blockhashError;
+                indicateError(imageObjFromStorage);
+            }
         });
         messaging.on(events.newImageFound, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),

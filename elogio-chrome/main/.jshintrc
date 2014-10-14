@@ -17,7 +17,8 @@
         "screen",
         "Elogio",
         "CustomEvent",
-        "$"
+        "$",
+        "document"
     ],
     "devel": true,
     "moz": true,

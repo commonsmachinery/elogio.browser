@@ -37,6 +37,13 @@ new Elogio(
             }
         }
 
+        /**
+         * Fires when query lookup is ready and we need to get annotations for image
+         */
+        messaging.on(events.imageDetailsRequired, function (imageObj) {
+            port.postMessage({eventName: events.imageDetailsRequired, dtat: imageObj});
+        });
+
         messaging.on(events.jqueryRequired, function () {
             if (typeof Mustache === 'undefined') {
                 port.postMessage({eventName: events.mustacheRequired});
@@ -72,17 +79,9 @@ new Elogio(
         });
         messaging.on(events.pluginStopped, function () {
             isPluginEnabled = false;
-            if ($) {
-                var sideBar = $('#elogio-panel');
-                sideBar.hide();
-                sidebarModule.cleanUp();
-                var button = $('#elogio-button-panel');
-                button.css({
-                    top: 0,
-                    right: 5
-                });
-                button.hide();
-            }
+            $('#elogio-panel').remove();
+            sidebarModule.cleanUp();
+            $('#elogio-button-panel').remove();
             undecorate();
         });
         messaging.on(events.pluginActivated, function () {
@@ -92,10 +91,7 @@ new Elogio(
             }
             port.postMessage({eventName: events.startPageProcessing});
         });
-        messaging.on(events.startPageProcessing, function () {
-            var sidebar = $('#elogio-panel');
-            sidebarModule.startScan(document, document, null, sidebar, port, finish);
-        });
+
         messaging.on(events.ready, function (data) {
             var template = $.parseHTML(data.stringTemplate),
                 button = new Image(),

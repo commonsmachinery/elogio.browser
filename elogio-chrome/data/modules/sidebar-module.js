@@ -39,13 +39,32 @@ Elogio.modules.sidebarModule = function (modules) {
 
     function initModule(sidebar, port, document) {
         object.sidebar = sidebar;
+        template.imageItem = $("#elogio-image-template").html();
+        Mustache.parse(template.imageItem);
         object.port = port;
         object.document = document;
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
-        template.imageItem = $("#elogio-image-template").html();
         template.clipboardItem = $("#elogio-clipboard-template").html();
-        Mustache.parse(template.imageItem);
+
+        //init
+        object.imageListView.on('click', '.image-card .query-button', function () {
+            var imageCard = $(this).closest('.image-card');
+            var imageObj = imageCard.data(constants.imageObject);
+            imageCard.find('.loading').show();
+            imageCard.find('.image-not-found').hide();
+            blockhash(imageObj.uri, 16, 2, function (error, hash) {
+                imageObj.error = error;
+                imageObj.hash = hash;
+                object.port.postMessage({eventName: events.hashCalculated, data: imageObj});
+            });
+        });
+        object.imageListView.on('click', '.image-card img', function () {
+            var card = $(this).closest('.image-card');
+            var imageObj = card.data(constants.imageObject);
+            dom.getElementByUUID(imageObj.uuid).scrollIntoView();
+            self.openImage(imageObj.uuid);
+        });
     }
 
 
@@ -97,12 +116,6 @@ Elogio.modules.sidebarModule = function (modules) {
         if (!cardElement.length) {
             cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
             cardElement.data(constants.imageObject, imageObj);
-            cardElement.find('img').on('click', function () {
-                var card = $(this).closest('.image-card');
-                var imageObj = card.data(constants.imageObject);
-                dom.getElementByUUID(imageObj.uuid).scrollIntoView();
-                self.openImage(imageObj.uuid);
-            });
             var imgURL = chrome.extension.getURL("img/process-indicator.png");
             cardElement.find('.loading').css({
                 background: "rgba(255, 255, 255, .8) url('" + imgURL + "') 50% 50% no-repeat;"
@@ -120,6 +133,7 @@ Elogio.modules.sidebarModule = function (modules) {
         // If there is lookup data available check if there is image details
         var errorArea = cardElement.find('.error-area');
         if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
+            cardElement.find('.query-button').hide();//if lookup exist then query button must be hidden
             cardElement.data(constants.imageObject, imageObj);// save lookup data to card
             if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                 initializeDetails(imageObj, cardElement);
@@ -136,6 +150,7 @@ Elogio.modules.sidebarModule = function (modules) {
                 //at here imageObj has errors and need to show it in sidebar
                 errorArea.text(imageObj.error);
                 errorArea.show();
+                cardElement.find('.query-button').hide();//because error
             }
         }
     };
@@ -187,7 +202,12 @@ Elogio.modules.sidebarModule = function (modules) {
         return object.imageListView.find('#' + uuid);
     };
     self.cleanUp = function () {
-        object.imageListView.empty();
+        object.imageListView = {};
+        object.document = {};
+        object.sidebar = {};
+        object.port = {};
+        object.imageListView = {};
+        object.messageBox = {};
     };
     self.openImage = function (imageUUID, preventAnnotationsLoading) {
         var imageCard = self.getImageCardByUUID(imageUUID);
