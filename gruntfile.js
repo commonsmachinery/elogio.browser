@@ -282,11 +282,15 @@ module.exports = function (grunt) {
      *
      * These are used to build, run and test the product.
      */
-    grunt.registerTask('default', function () {
+    grunt.registerTask('help', function () {
         grunt.log.write('\n\nElog.io Mozilla plugin build system. Please use any of following: ');
-        grunt.log.write('\n   grunt run -- runs the firefox with the extension in debug mode.');
-        grunt.log.write('\n   grunt dist-debug -- makes an XPI packaged (see dist folder), with all the resources and sources unchanged ');
-        grunt.log.write('\n   grunt dist-minified -- makes an XPI ready for production (uglified) ');
+        grunt.log.write('\n   grunt build -- builds both of extensions into build dir (folders chrome and firefox).');
+        grunt.log.write('\n   grunt build:firefox -- builds firefox extensions to build dir (folder firefox)');
+        grunt.log.write('\n   grunt build:chrome -- builds chrome extensions to build dir (folder chrome)');
+        grunt.log.write('\n   grunt grunt run:firefox -- runs the firefox plugin in the browser');
+        grunt.log.write('\n   grunt dist -- in the `dist` folder, creates two packaged extensions (XPI for firefox into `dist/firefox` folder and CRX for google chrome into `dist/chrome` folder) ready to be passed over. The sources ');
+        grunt.log.write('\n   grunt dist:firefox - same as `dist` but only for firefox addon. (minimal)');
+        grunt.log.write('\n   dist:chrome` - same as `dist` but only for google chrome addon. (minimal)');
     });
 
     grunt.registerTask('build', 'Task with parameters ', function (parameter) {
