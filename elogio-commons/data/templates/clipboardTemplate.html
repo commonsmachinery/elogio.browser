@@ -1,0 +1,38 @@
+<script id="elogio-clipboard-template" type="x-tmpl-mustache">
+    <div>
+        <div>
+            {{#imageObj.uri}}
+             <img src="{{imageObj.uri}}" />
+            {{/imageObj.uri}}
+        </div>
+        <p>
+        {{#imageObj.locatorLink}}
+                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
+        {{/imageObj.locatorLink}}
+         {{#imageObj.copyrightLink}}
+            by
+             <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
+        {{/imageObj.copyrightLink}}
+
+
+        {{^imageObj.copyrightLink}}
+             {{#imageObj.creatorLink}}
+                by
+                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
+            {{/imageObj.creatorLink}}
+
+            {{^imageObj.creatorLink}}
+                 {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
+            {{/imageObj.creatorLink}}
+        {{/imageObj.copyrightLink}}
+        {{#imageObj.licenseLink}}
+             <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
+        {{/imageObj.licenseLink}}
+        {{^imageObj.licenseLink}}
+             {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
+        {{/imageObj.licenseLink}}
+        </p>
+    </div>
+
+
+</script>

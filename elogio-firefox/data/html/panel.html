@@ -15,88 +15,10 @@
 </head>
 
 <body class="container-fluid elogio-panel">
-<script id="elogio-image-template" type="x-tmpl-mustache">
-    <div class="image-card" id="{{imageObj.uuid}}" >
-        <div class="thumbnail-image">
-            <img src="{{imageObj.uri}}" class="picture"/>
-        </div>
-        <div class="elogio-image-details" style="display:none">
-           <div class="image-found" style="display:none">
-              <div class="pull-left">
-                <div class="btn-group">
-                  <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
-                    Actions <span class="caret"></span>
-                  </button>
-                  <ul class="dropdown-menu" role="menu">
-                    <li><a class="elogio-clipboard">Copy to clipboard</a></li>
-                    <li><a target="_blank" href="" class='elogio-locatorlink'>Visit source</a></li>
-                    <li><a target="_blank" href="" class='elogio-license-link'>View license</a></li>
-                    <li><a class='elogio-report-work'>Report</a></li>
-                  </ul>
-                </div>
-              </div>
-              <div class="pull-right">
-                <img class="elogio-gravatar" src=""/>
-              </div>
-              <div class="clearfix"></div>
-            <p>
-                <strong class="elogio-annotations-title"></strong><br />
-		<i><span class="elogio-annotations-by"></span></i>
-            </p>
-            <p>
-                <span class="label label-info elogio-license"></p>
-            </p>
-          </div>
-          <div class="image-not-found" style="display:none">
-            <div class="alert alert-warning">We don't have any information about this image, but you can query Elog.io to match it against images in the catalog.</div>
-            <button class="btn btn-primary query-button">Query</button>
-          </div>
-        </div>
-        <div class="message-area" style="display:none"></div>
-        <div class="alert error-area alert-danger" style="display:none"></div>
-        <div class="loading" style="display:none"></div>
-    </div>
-
-
-</script>
-<script id="clipboard-template" type="x-tmpl-mustache">
-    <div>
-        <div>
-            {{#imageObj.uri}}
-             <img src="{{imageObj.uri}}" />
-            {{/imageObj.uri}}
-        </div>
-        <p>
-        {{#imageObj.locatorLink}}
-                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
-        {{/imageObj.locatorLink}}
-         {{#imageObj.copyrightLink}}
-            by
-             <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
-        {{/imageObj.copyrightLink}}
-
-
-        {{^imageObj.copyrightLink}}
-             {{#imageObj.creatorLink}}
-                by 
-                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
-            {{/imageObj.creatorLink}}
-
-            {{^imageObj.creatorLink}}
-                 {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
-            {{/imageObj.creatorLink}}
-        {{/imageObj.copyrightLink}}
-        {{#imageObj.licenseLink}}
-             <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
-        {{/imageObj.licenseLink}}
-        {{^imageObj.licenseLink}}
-             {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
-        {{/imageObj.licenseLink}}
-        </p>
-    </div>
-
-
-</script>
+<!-- build:section imageCard -->
+<!-- /build -->
+<!-- build:section clipboard -->
+<!-- /build -->
 <div class="elogio-header">
     <div class="pull-left">
         <button id="elogio-feedback" class="btn-success btn btn-sm">Leave feedback</button>
@@ -107,14 +29,8 @@
     </div>
     <div class="clearfix"></div>
 </div>
-
-<div id="messageView" class="text-center">
-    <span id="elogio-messageText" style="display: none;" class="label label-default"></span>
-</div>
-
-
-<div id="elogio-imageListView" class="elogio-image-card-container">
-</div>
+<!-- build:section common -->
+<!-- /build -->
 
 <script type="text/javascript">
     window.doorbellOptions = {

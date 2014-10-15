@@ -13,6 +13,30 @@ module.exports = function (grunt) {
                 }
             }
         },
+        htmlbuild: {
+            chrome: {
+                src: 'elogio-chrome/html/template.html',
+                dest: '<%= buildDir%>/chrome/html/',
+                options: {
+                    sections: {
+                        imageCard: 'elogio-commons/data/templates/imageTemplate.html',
+                        clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
+                        common: 'elogio-commons/data/templates/commonTemplate.html'
+                    }
+                }
+            },
+            firefox: {
+                src: 'elogio-firefox/data/html/panel.html',
+                dest: '<%= buildDir%>/firefox/data/html/',
+                options: {
+                    sections: {
+                        imageCard: 'elogio-commons/data/templates/imageTemplate.html',
+                        clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
+                        common: 'elogio-commons/data/templates/commonTemplate.html'
+                    }
+                }
+            }
+        },
         crx: {
             package: {
                 "src": "build/chrome",
@@ -242,13 +266,13 @@ module.exports = function (grunt) {
 
         copy: {
             resourcesWithoutJSForFirefox: {
-                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**"],
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**/panel.html"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
             },
             resourcesWithoutJSForChrome: {
-                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**.pem", "!**less/"],
+                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**.pem", "!**/template.html"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
@@ -271,6 +295,7 @@ module.exports = function (grunt) {
     });
 
     // Load the plugin that provides the "uglify" task.
+    grunt.loadNpmTasks('grunt-html-build');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-mozilla-addon-sdk');
@@ -309,6 +334,7 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
+                'htmlbuild:firefox',
                 'uglify:beautifyFirefox',
                 'copy:firefoxLibs',
                 'concat:firefoxModules'
@@ -320,6 +346,7 @@ module.exports = function (grunt) {
                 'lint-chrome',
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
+                'htmlbuild:chrome',
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
                 'concat:chromeModules'
@@ -345,6 +372,7 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
+                'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
@@ -359,6 +387,7 @@ module.exports = function (grunt) {
                 'lint-chrome',
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
+                'htmlbuild:chrome',
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
                 'concat:chromeModules'
@@ -386,6 +415,7 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
+                'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'uglify:minifyFirefox',
                 'concat:firefoxModules',
@@ -402,6 +432,7 @@ module.exports = function (grunt) {
                 'lint-chrome',
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
+                'htmlbuild:chrome',
                 'uglify:minifyChrome',
                 'copy:chromeLibs',
                 'concat:chromeModules',

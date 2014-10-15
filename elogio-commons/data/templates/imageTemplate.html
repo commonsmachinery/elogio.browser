@@ -1,0 +1,44 @@
+<script id="elogio-image-template" type="x-tmpl-mustache">
+    <div class="image-card" id="{{imageObj.uuid}}" >
+        <div class="thumbnail-image">
+            <img src="{{imageObj.uri}}" class="picture"/>
+        </div>
+        <div class="elogio-image-details" style="display:none">
+           <div class="image-found" style="display:none">
+              <div class="pull-left">
+                <div class="btn-group">
+                  <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                    Actions <span class="caret"></span>
+                  </button>
+                   <ul class="dropdown-menu" role="menu">
+                    <li><a class="elogio-clipboard">Copy to clipboard</a></li>
+                    <li><a target="_blank" href="" class='elogio-locatorlink'>Visit source</a></li>
+                    <li><a target="_blank" href="" class='elogio-license-link'>View license</a></li>
+                    <li><a class='elogio-report-work'>Report</a></li>
+                  </ul>
+                </div>
+              </div>
+              <div class="pull-right">
+                <img class="elogio-gravatar" src=""/>
+              </div>
+              <div class="clearfix"></div>
+            <p>
+                <strong class="elogio-annotations-title"></strong><br />
+		<i><span class="elogio-annotations-by"></span></i>
+            </p>
+            <p>
+                <span class="label label-info elogio-license"></p>
+            </p>
+          </div>
+          <div class="image-not-found" style="display:none">
+            <div class="alert alert-warning">We don't have any information about this image, but you can query Elog.io to match it against images in the catalog.</div>
+            <button class="btn btn-primary query-button">Query</button>
+          </div>
+        </div>
+        <div class="message-area" style="display:none"></div>
+        <div class="alert error-area alert-danger" style="display:none"></div>
+        <div class="loading" style="display:none"></div>
+    </div>
+
+
+</script>
