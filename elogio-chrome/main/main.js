@@ -289,6 +289,12 @@
                 contentWorker = tabState.getWorker();
             //we need to set listeners only if we get a new port
             contentWorker.onMessage.addListener(function (request) {
+                //clear if page was reloaded
+                if (request.eventName === 'registration') {
+                    var tabState = appState.getTabState(currentTabId);
+                    tabState.clearImageStorage();
+                    tabState.clearLookupImageStorage();
+                }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
                     messaging.emit(request.eventName, request.data);
                 }
