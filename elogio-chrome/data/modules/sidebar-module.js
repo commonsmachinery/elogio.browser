@@ -14,7 +14,8 @@ Elogio.modules.sidebarModule = function (modules) {
         bridge = modules.getModule('bridge'),
         events = bridge.events,
         dom = modules.getModule('dom'),
-        sidebarHelper = modules.getModule('sidebarHelper');
+        sidebarHelper = modules.getModule('sidebarHelper'),
+        wnd = window;
 
     /*
      =======================
@@ -79,6 +80,9 @@ Elogio.modules.sidebarModule = function (modules) {
         });
 
         object.feedbackButton.on('click', function () {
+            console.log(wnd.Doorbell);
+            console.log(window.doorbell);
+            console.log(window.doorbellOptions);
             /* global doorbell */
             if (typeof doorbell !== 'undefined') {
                 doorbell.show();
@@ -173,7 +177,9 @@ Elogio.modules.sidebarModule = function (modules) {
             imageCard.find('.loading').show();//if we need annotations we wait for response
             object.port.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         }
-        imageCard.highlight();
+        if (imageCard.highlight) {
+            imageCard.highlight();
+        }
     };
 
 };

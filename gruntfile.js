@@ -168,7 +168,8 @@ module.exports = function (grunt) {
                 files: [
                     {
                         src: [
-                            'elogio-chrome/data/**/*.js'
+                            'elogio-chrome/data/js/*.js',
+                            'elogio-chrome/data/modules/*.js'
                         ]
                     }
                 ],

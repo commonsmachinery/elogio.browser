@@ -111,7 +111,7 @@ new Elogio(
 
         messaging.on(events.ready, function (data) {
             observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-            var template = $.parseHTML(data.stringTemplate),
+            var template = $.parseHTML(data.stringTemplate, document, true),
                 button = $(document.createElement('button')),
                 body = $('body'), sidebar;
             button.addClass('elogio-button');
