@@ -191,6 +191,17 @@
                 appState.getTabState(currentTabId).clearLookupImageStorage();
             }
         });
+        messaging.on(events.copyToClipBoard, function (selection) {
+            var copyElement = $.parseHTML(selection);
+            $('body').append(copyElement);
+            copyElement = $('#clipboard-item');
+            copyElement.contentEditable = true;
+            copyElement.unselectable = "off";
+            copyElement.focus();
+            document.execCommand('SelectAll');
+            document.execCommand("Copy", false, null);
+            document.body.removeChild(copyElement);
+        });
         messaging.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
                 contentWorker = tabState.getWorker();

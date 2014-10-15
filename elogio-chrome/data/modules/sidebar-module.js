@@ -15,7 +15,7 @@ Elogio.modules.sidebarModule = function (modules) {
         events = bridge.events,
         dom = modules.getModule('dom'),
         sidebarHelper = modules.getModule('sidebarHelper'),
-        wnd = window;
+        config = modules.getModule('config');
 
     /*
      =======================
@@ -42,13 +42,14 @@ Elogio.modules.sidebarModule = function (modules) {
     function initModule(sidebar, port, document) {
         object.sidebar = sidebar;
         template.imageItem = $("#elogio-image-template").html();
+        template.clipboardItem = $("#elogio-clipboard-template").html();
         Mustache.parse(template.imageItem);
+        Mustache.parse(template.clipboardItem);
         object.port = port;
         object.feedbackButton = $('#elogio-feedback');
         object.document = document;
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
-        template.clipboardItem = $("#elogio-clipboard-template").html();
         //init
         object.imageListView.on('click', '.image-card .query-button', function () {
             var imageCard = $(this).closest('.image-card');
@@ -67,6 +68,26 @@ Elogio.modules.sidebarModule = function (modules) {
             dom.getElementByUUID(imageObj.uuid).scrollIntoView();
             self.openImage(imageObj.uuid);
         });
+        object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
+            var imageCard = $(this).closest('.image-card'),
+                imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+                copyToClipBoard;
+            annotations = new Elogio.Annotations(imageObj, config);
+            annotations.uri = imageObj.uri;
+
+            if (imageObj.details) {
+                annotations.locatorLink = annotations.getLocatorLink();
+                annotations.titleLabel = annotations.getTitle();
+                annotations.creatorLink = annotations.getCreatorLink();
+                annotations.creatorLabel = annotations.getCreatorLabel();
+                annotations.licenseLink = annotations.getLicenseLink();
+                annotations.licenseLabel = annotations.getLicenseLabel();
+                annotations.copyrightLink = annotations.getCopyrightLink();
+                annotations.copyrightLabel = annotations.getCopyrightLabel();
+            }
+            copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
+            object.port.postMessage({eventName: events.copyToClipBoard, data: copyToClipBoard});
+        });
         object.imageListView.on('click', '.image-card .elogio-report-work', function () {
             var imageCard = $(this).closest('.image-card'),
                 imageObj = imageCard.data(constants.imageObject);
@@ -80,9 +101,6 @@ Elogio.modules.sidebarModule = function (modules) {
         });
 
         object.feedbackButton.on('click', function () {
-            console.log(wnd.Doorbell);
-            console.log(window.doorbell);
-            console.log(window.doorbellOptions);
             /* global doorbell */
             if (typeof doorbell !== 'undefined') {
                 doorbell.show();
