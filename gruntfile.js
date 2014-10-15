@@ -375,6 +375,7 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less',
                 'copy:resourcesWithoutJSForFirefox',
+                'copy:firefoxLibs',
                 'uglify:minifyFirefox',
                 'concat:firefoxModules',
                 'mozilla-addon-sdk',
