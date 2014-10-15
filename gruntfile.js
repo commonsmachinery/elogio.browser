@@ -4,7 +4,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         distDir: "dist/",
-        buildDir: "build",
+        buildDir: "build/",
         manifest: grunt.file.readJSON('elogio-chrome/manifest.json'),
         bower: {
             install: {
@@ -254,7 +254,7 @@ module.exports = function (grunt) {
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**", "!**less/"],
+                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
@@ -344,9 +344,9 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
-                'uglify:minifyFirefox',
                 'copy:firefoxLibs',
                 'concat:firefoxModules',
+                'uglify:minifyFirefox',
                 'mozilla-addon-sdk',
                 'mozilla-cfx'
             ]);
@@ -385,6 +385,7 @@ module.exports = function (grunt) {
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
+                'copy:firefoxLibs',
                 'uglify:minifyFirefox',
                 'concat:firefoxModules',
                 'mozilla-addon-sdk',

@@ -33,10 +33,6 @@ Elogio.modules.sidebarModule = function (modules) {
         imageListView: {},
         messageBox: {}
     };
-    window.doorbellOptions = {
-        hideButton: true,
-        appKey: 'yuKV0gmIM91d4crYqSTyTVwXi79UH564JAOJ575IkgywVFFCnPbScIGhsp1yipeM'
-    };
     var template = {
         imageItem: {},
         clipboardItem: {}
@@ -52,17 +48,6 @@ Elogio.modules.sidebarModule = function (modules) {
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
         template.clipboardItem = $("#elogio-clipboard-template").html();
-        /**
-         *
-         * Init doorbell
-         */
-        var g = document.createElement('script');
-        g.id = 'doorbellScript';
-        g.type = 'text/javascript';
-        g.async = true;
-        g.src = 'https://doorbell.io/button/423';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(g);
-
         //init
         object.imageListView.on('click', '.image-card .query-button', function () {
             var imageCard = $(this).closest('.image-card');

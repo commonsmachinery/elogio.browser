@@ -32,6 +32,9 @@ Elogio.modules.config = function (modules) {
         decoratedItemAttribute: 'elogiodecorated',
         panelAttribute: 'elogiopanelimage'
     };
+    this.sidebar = {
+        imageObject: 'imageObj'
+    };
     this.errors = {
         requestError: 'Server responded, but with errors',
         noDataForImage: 'Sorry, we couldn\'t match this against any image in the Elog.io catalog',
