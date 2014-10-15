@@ -7,11 +7,11 @@ $(document).ready(function () {
                 onButton: $('#on'),
                 offButton: $('#off'),
                 feedbackButton: $('#elogio-feedback'),
-                imageListView: $("#imageListView"),
-                messageBox: $('#messageText')
+                imageListView: $("#elogio-imageListView"),
+                messageBox: $('#elogio-messageText')
             };
             var template = {
-                imageItem: $("#image-template").html(),
+                imageItem: $("#elogio-image-template").html(),
                 clipboardItem: $("#clipboard-template").html()
             };
             var eventHandlers = {},
@@ -104,11 +104,11 @@ $(document).ready(function () {
                 $('html, body').animate({scrollTop: imageCard.offsetTop}, 500);
                 var imageObj = imageCard.data(config.sidebar.imageObject);
                 if (imageObj.details) {
-                    imageCard.find('.image-details').toggle();
+                    imageCard.find('.elogio-image-details').toggle();
                     imageCard.find('.image-found').show();
                     imageCard.find('.image-not-found').hide();
                 } else if (!imageObj.lookup) {
-                    imageCard.find('.image-details').toggle();
+                    imageCard.find('.elogio-image-details').toggle();
                     imageCard.find('.image-found').hide();
                     imageCard.find('.image-not-found').show();
                 }

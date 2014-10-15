@@ -14,13 +14,13 @@
     <script src="../js/panel-script.js" type="text/javascript"></script>
 </head>
 
-<body class="container-fluid sidebar">
-<script id="image-template" type="x-tmpl-mustache">
+<body class="container-fluid elogio-panel">
+<script id="elogio-image-template" type="x-tmpl-mustache">
     <div class="image-card" id="{{imageObj.uuid}}" >
         <div class="thumbnail-image">
             <img src="{{imageObj.uri}}" class="picture"/>
         </div>
-        <div class="image-details" style="display:none">
+        <div class="elogio-image-details" style="display:none">
            <div class="image-found" style="display:none">
               <div class="pull-left">
                 <div class="btn-group">
@@ -56,6 +56,7 @@
         <div class="alert error-area alert-danger" style="display:none"></div>
         <div class="loading" style="display:none"></div>
     </div>
+
 
 </script>
 <script id="clipboard-template" type="x-tmpl-mustache">
@@ -94,8 +95,9 @@
         </p>
     </div>
 
+
 </script>
-<div class="header">
+<div class="elogio-header">
     <div class="pull-left">
         <button id="elogio-feedback" class="btn-success btn btn-sm">Leave feedback</button>
     </div>
@@ -107,11 +109,11 @@
 </div>
 
 <div id="messageView" class="text-center">
-    <span id="messageText" style="display: none;" class="label label-default"></span>
+    <span id="elogio-messageText" style="display: none;" class="label label-default"></span>
 </div>
 
 
-<div id="imageListView" class="image-card-container">
+<div id="elogio-imageListView" class="elogio-image-card-container">
 </div>
 
 <script type="text/javascript">
@@ -119,8 +121,13 @@
         hideButton: true,
         appKey: 'yuKV0gmIM91d4crYqSTyTVwXi79UH564JAOJ575IkgywVFFCnPbScIGhsp1yipeM'
     };
-    (function(d, t) {
-        var g = d.createElement(t);g.id = 'doorbellScript';g.type = 'text/javascript';g.async = true;g.src = 'https://doorbell.io/button/423';(d.getElementsByTagName('head')[0]||d.getElementsByTagName('body')[0]).appendChild(g);
+    (function (d, t) {
+        var g = d.createElement(t);
+        g.id = 'doorbellScript';
+        g.type = 'text/javascript';
+        g.async = true;
+        g.src = 'https://doorbell.io/button/423';
+        (d.getElementsByTagName('head')[0] || d.getElementsByTagName('body')[0]).appendChild(g);
     }(document, 'script'));
 </script>
 

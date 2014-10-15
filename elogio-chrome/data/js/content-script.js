@@ -1,5 +1,5 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarModule', 'messaging'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'sidebarModule', 'messaging'],
     function (modules) {
         'use strict';
         var
@@ -111,7 +111,7 @@ new Elogio(
 
         messaging.on(events.ready, function (data) {
             observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-            var template = $.parseHTML(data.stringTemplate, document, true),
+            var template = $.parseHTML(data.stringTemplate),
                 button = $(document.createElement('button')),
                 body = $('body'), sidebar;
             button.addClass('elogio-button');

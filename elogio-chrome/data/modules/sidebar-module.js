@@ -14,7 +14,7 @@ Elogio.modules.sidebarModule = function (modules) {
         bridge = modules.getModule('bridge'),
         events = bridge.events,
         dom = modules.getModule('dom'),
-        config = modules.getModule('config');
+        sidebarHelper = modules.getModule('sidebarHelper');
 
     /*
      =======================
@@ -88,93 +88,20 @@ Elogio.modules.sidebarModule = function (modules) {
         });
     }
 
-
-    function initializeDetails(imageObj, cardElement) {
-        var annotations = new Elogio.Annotations(imageObj, config);
-        if (imageObj.details) { // If we were abe to get annotations - populate details
-            if (annotations.getCopyrightLabel()) {
-                cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCopyrightLabel());
-            } else if (annotations.getCreatorLabel()) {
-                cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCreatorLabel());
-            }
-            cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
-            if (annotations.getTitle()) {
-                cardElement.find('.elogio-annotations-title').text(annotations.getTitle());
-            } else {
-                cardElement.find('.elogio-annotations-title').hide();
-            }
-            if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
-                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink() + "?s=40");
-            } else {
-                cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
-            }
-            if (annotations.getLicenseLabel()) {
-                cardElement.find('.elogio-license').text(annotations.getLicenseLabel());
-            } else {
-                cardElement.find('.elogio-license').hide();
-            }
-            if (annotations.getLicenseLink()) {
-                cardElement.find('.elogio-license-link').attr('href', annotations.getLicenseLink());
-            } else {
-                cardElement.find('.elogio-license-link').hide();
-            }
-        } else { // Otherwise - show message
-            cardElement.find('.message-area').show();
-            cardElement.find('.image-not-found').hide();
-        }
-    }
-
     /*
      =======================
      PUBLIC MEMBERS
      =======================
      */
 
-
+    /**
+     * Override method which needs only imagObj for adding to sidebar an Image card
+     * @param imageObj
+     */
     self.addOrUpdateCard = function (imageObj) {
-        var sidebar = object.sidebar;
-        var cardElement = sidebar.find('#' + imageObj.uuid);
-        if (!cardElement.length) {
-            cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
-            cardElement.data(constants.imageObject, imageObj);
-            var imgURL = chrome.extension.getURL("img/process-indicator.png");
-            cardElement.find('.loading').css({
-                background: "rgba(255, 255, 255, .8) url('" + imgURL + "') 50% 50% no-repeat;"
-            });
-            object.imageListView.append(cardElement);
-        }
-        // If we didn't send lookup query before - show loading
-        if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
-            cardElement.find('.loading').show();
-            return; // Waiting for lookup....
-        } else {
-            cardElement.find('.loading').hide();
-            cardElement.find('.message-area').hide();
-        }
-        // If there is lookup data available check if there is image details
-        var errorArea = cardElement.find('.error-area');
-        if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
-            cardElement.find('.query-button').hide();//if lookup exist then query button must be hidden
-            cardElement.data(constants.imageObject, imageObj);// save lookup data to card
-            if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
-                initializeDetails(imageObj, cardElement);
-                errorArea.hide();//hide this anyway because it is wrong show both of messages
-            } else {
-                // Nothing to do hear just waiting when user clicks on image to query details
-            }
-        } else { // Show Query button
-            cardElement.find('.elogio-image-details').hide();
-            if (!imageObj.error) {
-                cardElement.find('.no-lookup-data').show();
-                errorArea.hide();//hide this anyway because it is wrong show both of messages
-            } else {
-                //at here imageObj has errors and need to show it in sidebar
-                errorArea.text(imageObj.error);
-                errorArea.show();
-                cardElement.find('.query-button').hide();//because error
-            }
-        }
+        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
     };
+
     /**
      *
      * @param context - context which need to scan (may be a document)
@@ -194,7 +121,7 @@ Elogio.modules.sidebarModule = function (modules) {
         }
         nodes = nodes || null;
         locator.findImages(context, nodes, function (imageObj) {
-            self.addOrUpdateCard(imageObj, sidebar);
+            sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
             //emit to background js
             port.postMessage({eventName: events.newImageFound, data: imageObj});
         }, function () {
@@ -210,7 +137,7 @@ Elogio.modules.sidebarModule = function (modules) {
     self.receivedImageDataFromServer = function (imageObj) {
         var card = self.getImageCardByUUID(imageObj.uuid);
         card.data(constants.imageObject, imageObj);
-        self.addOrUpdateCard(imageObj);
+        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
         self.openImage(imageObj.uuid, true);
     };
 
