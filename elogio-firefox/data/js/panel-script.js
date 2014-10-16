@@ -108,9 +108,12 @@ $(document).ready(function () {
                     imageCard.find('.image-found').show();
                     imageCard.find('.image-not-found').hide();
                 } else if (!imageObj.lookup) {
-                    imageCard.find('.elogio-image-details').toggle();
-                    imageCard.find('.image-found').hide();
-                    imageCard.find('.image-not-found').show();
+                    var notFound = imageCard.find('.elogio-not-found');
+                    if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
+                        imageCard.find('.elogio-image-details').toggle();
+                        imageCard.find('.image-found').hide();
+                        imageCard.find('.elogio-not-found').show();
+                    }
                 }
                 if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
                     imageCard.find('.loading').show();//if we need annotations we wait for response
