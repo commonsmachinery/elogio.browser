@@ -67,9 +67,13 @@
         }
 
         function loadPanelScripts() {
-            chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
-                //if loaded then load next
-                loadTemplate();
+            chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery-color/jquery.color.js"}, function () {
+                chrome.tabs.executeScript(currentTabId, {file: "data/deps/bootstrap/bootstrap.js"}, function () {
+                    chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
+                        //if loaded then load next
+                        loadTemplate();
+                    });
+                });
             });
         }
 
@@ -275,12 +279,7 @@
             var tabState = appState.getTabState(currentTabId);
             chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery/jquery.js"}, function () {
                 //send it back because content want know when jquery is ready
-                chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery-color/jquery.color.js"}, function () {
-                    chrome.tabs.executeScript(currentTabId, {file: "data/deps/bootstrap/bootstrap.js"}, function () {
-                        //send it back because content want know when jquery is ready
-                        tabState.getWorker().postMessage({eventName: events.jqueryRequired});
-                    });
-                });
+                tabState.getWorker().postMessage({eventName: events.jqueryRequired});
             });
         });
 

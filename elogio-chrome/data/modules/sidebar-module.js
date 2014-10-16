@@ -91,22 +91,16 @@ Elogio.modules.sidebarModule = function (modules) {
         object.imageListView.on('click', '.image-card .elogio-report-work', function () {
             var imageCard = $(this).closest('.image-card'),
                 imageObj = imageCard.data(constants.imageObject);
-            /* global doorbell */
-            if (typeof doorbell !== 'undefined') {
-                doorbell.setProperty('uri', imageObj.uri);
-                doorbell.show();
-            } else {
-                console.error('Seems like doorbell is not defined');
-            }
+            //send to page content script doorbell command
+            object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
+                detail: {eventName: 'feedbackClick', uri: imageObj.uri}
+            }));
         });
 
         object.feedbackButton.on('click', function () {
-            /* global doorbell */
-            if (typeof doorbell !== 'undefined') {
-                doorbell.show();
-            } else {
-                console.error('Seems like doorbell is not defined');
-            }
+            object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
+                detail: {eventName: 'reportClick'}
+            }));
         });
     }
 
@@ -115,6 +109,7 @@ Elogio.modules.sidebarModule = function (modules) {
      PUBLIC MEMBERS
      =======================
      */
+
 
     /**
      * Override method which needs only imagObj for adding to sidebar an Image card

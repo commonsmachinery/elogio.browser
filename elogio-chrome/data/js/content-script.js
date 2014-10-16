@@ -19,6 +19,15 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        /**
+         * doorbell injection
+         */
+        var s = document.createElement('script');
+        s.src = chrome.extension.getURL('data/js/doorbell-injection.js');
+        (document.head || document.documentElement).appendChild(s);
+        /**
+         * end of doorbell injection
+         */
         //callback when scan page is finished
         var finish = function () {
             port.postMessage({eventName: events.pageProcessingFinished});
