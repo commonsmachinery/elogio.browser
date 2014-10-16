@@ -242,7 +242,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/*.js", "!**/*.js/**"],
+                src: ["**/*.js", "!**/modules/**"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
@@ -254,7 +254,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js", "!**/*.js/**"],
+                src: ["**/*.js", "!**/modules/**"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
@@ -266,13 +266,13 @@ module.exports = function (grunt) {
 
         copy: {
             resourcesWithoutJSForFirefox: {
-                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**/panel.html"],
+                src: ["**", "!**/*.js", "!**/panel.html"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
             },
             resourcesWithoutJSForChrome: {
-                src: ["**", "!**/*.js", "!**/deps/blockhash-js/**", "!**/deps/jpgjs/**", "!**/deps/png.js/**", "!**.pem", "!**/template.html"],
+                src: ["**", "!**/*.js", "!**.pem", "!html/", "!**/modules"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
