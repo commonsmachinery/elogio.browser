@@ -45,6 +45,11 @@ new Elogio(
             });
         }
 
+        function setPreferences(changedSettings) {
+            config.global.locator.deepScan = changedSettings.global.locator.deepScan;
+            config.ui.highlightRecognizedImages = changedSettings.ui.highlightRecognizedImages;
+        }
+
         function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
             var i, n;
@@ -110,11 +115,12 @@ new Elogio(
             $('#elogio-button-panel').remove();
             undecorate();
         });
-        messaging.on(events.pluginActivated, function () {
+        messaging.on(events.pluginActivated, function (changedSettings) {
             isPluginEnabled = true;
             if ($) {
                 $('#elogio-button-panel').show();
             }
+            setPreferences(changedSettings);
             port.postMessage({eventName: events.startPageProcessing});
         });
 
@@ -123,6 +129,13 @@ new Elogio(
             var template = $.parseHTML(data.stringTemplate, document, true),
                 button = $(document.createElement('button')),
                 body = $('body'), sidebar;
+            setPreferences(data.config);
+            console.log(config);
+            if (config.ui.highlightRecognizedImages) {
+                body.addClass('elogio-highlight');
+            } else {
+                body.removeClass('elogio-highlight');
+            }
             button.addClass('elogio-button');
             button.addClass('btn-success');
             button.addClass('btn-sm');

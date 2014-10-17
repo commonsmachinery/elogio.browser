@@ -3,7 +3,7 @@
     "name": "Elogio plugin",
     "version": "1.0",
     "minimum_chrome_version": "23",
-    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab"],
+    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage"],
     "content_scripts": [
         {
             "js": [ "data/js/common-lib.js", "data/js/content-script.js"],
@@ -23,6 +23,7 @@
         "48": "img/icon_48.png",
         "128": "img/icon_128.png"
     },
+    "options_page": "prefs/preferences.html",
     "background": {
         "scripts": ["data/deps/jquery/jquery.js", "main/common-chrome-lib.js", "main/main.js"],
         "run_at": "document_end"

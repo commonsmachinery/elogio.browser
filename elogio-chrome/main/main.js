@@ -16,9 +16,14 @@
             events = bridge.events;
 
         function loadPreferences() {
+            chrome.storage.sync.get({
+                deepScan: true,
+                highlightRecognizedImages: true
+            }, function (items) {
+                config.ui.highlightRecognizedImages = items.highlightRecognizedImages;
+                config.global.locator.deepScan = items.deepScan;
+            });
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
-            config.ui.highlightRecognizedImages = true;
-            config.global.locator.deepScan = true;
         }
 
         loadPreferences();
@@ -61,7 +66,7 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton}});
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton, config: config}});
                 }
             });
         }
@@ -171,7 +176,7 @@
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
             if (pluginState.isEnabled && contentWorker) {
-                contentWorker.postMessage({eventName: events.pluginActivated});
+                contentWorker.postMessage({eventName: events.pluginActivated, data: config});
             }
         }
 
