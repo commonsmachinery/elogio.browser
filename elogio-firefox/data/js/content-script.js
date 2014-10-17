@@ -58,7 +58,6 @@ new Elogio(
         });
         //calculate hash
         bridge.on(bridge.events.hashRequired, function (imageObj) {
-            console.log('calculating hash for image: ' + imageObj.uri);
             blockhash(imageObj.uri, 16, 2, function (error, hash) {
                 imageObj.error = error;
                 imageObj.hash = hash;
