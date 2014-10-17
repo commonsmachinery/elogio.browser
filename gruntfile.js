@@ -242,8 +242,8 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/*.js", "!**/modules/**"],
-                cwd: "elogio-chrome/",
+                src: ["**/*.js"],
+                cwd: "<%= buildDir%>/chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
             },
@@ -266,26 +266,38 @@ module.exports = function (grunt) {
 
         copy: {
             resourcesWithoutJSForFirefox: {
-                src: ["**", "!**/*.js", "!**/panel.html"],
+                src: ["**", "!**/*.js", "!**/panel.html", "!**/test", "!**/tests"],
+                cwd: "elogio-firefox/",
+                dest: "<%= buildDir%>/firefox/",
+                expand: true
+            },
+            scriptsffx: {
+                src: ["**lib/*.js", "**/data/js/*.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
             },
             resourcesWithoutJSForChrome: {
-                src: ["**", "!**/*.js", "!**.pem", "!html/", "!**/modules"],
+                src: ["**", "!**/*.js", "!**.pem", "!html/", "!**/modules", "!**/test", "!**/tests"],
+                cwd: "elogio-chrome/",
+                dest: "<%= buildDir%>/chrome/",
+                expand: true
+            },
+            scriptscrx: {
+                src: ["**/data/js/*.js", "main/*.js"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/jquery.js", "**/bootstrap.js", "**/mustache.js", "**/bootstrap.css", "!**/test/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
             },
             firefoxLibs: {
-                src: ["**", "!blockhash-js/**", "!jpgjs/**", "!png.js/**", "!requirejs/**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/jquery.js", "**/bootstrap.js", "**/mustache.js", "**/bootstrap.css", "!**/test/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
@@ -335,9 +347,10 @@ module.exports = function (grunt) {
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
-                'uglify:beautifyFirefox',
                 'copy:firefoxLibs',
-                'concat:firefoxModules'
+                'copy:scriptsffx',
+                'concat:firefoxModules',
+                'uglify:beautifyFirefox'
             ]);
         }
 
@@ -347,9 +360,10 @@ module.exports = function (grunt) {
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
-                'uglify:beautifyChrome',
                 'copy:chromeLibs',
-                'concat:chromeModules'
+                'copy:scriptscrx',
+                'concat:chromeModules',
+                'uglify:beautifyChrome'
             ]);
         }
 
@@ -374,6 +388,7 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
+                'copy:scriptsffx',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
                 'mozilla-addon-sdk',
@@ -390,6 +405,7 @@ module.exports = function (grunt) {
                 'htmlbuild:chrome',
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
+                'copy:scriptscrx',
                 'concat:chromeModules'
             ]);
         }
@@ -417,8 +433,9 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
-                'uglify:minifyFirefox',
+                'copy:scriptsffx',
                 'concat:firefoxModules',
+                'uglify:minifyFirefox',
                 'mozilla-addon-sdk',
                 'mozilla-cfx-xpi'
             ]);
@@ -433,9 +450,10 @@ module.exports = function (grunt) {
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
-                'uglify:minifyChrome',
                 'copy:chromeLibs',
+                'copy:scriptscrx',
                 'concat:chromeModules',
+                'uglify:minifyChrome',
                 'crx'
             ]);
         }
