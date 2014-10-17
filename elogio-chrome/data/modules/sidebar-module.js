@@ -14,6 +14,7 @@ Elogio.modules.sidebarModule = function (modules) {
         bridge = modules.getModule('bridge'),
         events = bridge.events,
         dom = modules.getModule('dom'),
+        sidebarHelper = modules.getModule('sidebarHelper'),
         config = modules.getModule('config');
 
     /*
@@ -29,6 +30,7 @@ Elogio.modules.sidebarModule = function (modules) {
         document: {},
         sidebar: {},
         port: {},
+        feedbackButton: {},
         imageListView: {},
         messageBox: {}
     };
@@ -40,13 +42,14 @@ Elogio.modules.sidebarModule = function (modules) {
     function initModule(sidebar, port, document) {
         object.sidebar = sidebar;
         template.imageItem = $("#elogio-image-template").html();
+        template.clipboardItem = $("#elogio-clipboard-template").html();
         Mustache.parse(template.imageItem);
+        Mustache.parse(template.clipboardItem);
         object.port = port;
+        object.feedbackButton = $('#elogio-feedback');
         object.document = document;
         object.imageListView = $("#elogio-imageListView");
         object.messageBox = $('#elogio-messageText');
-        template.clipboardItem = $("#elogio-clipboard-template").html();
-
         //init
         object.imageListView.on('click', '.image-card .query-button', function () {
             var imageCard = $(this).closest('.image-card');
@@ -65,42 +68,40 @@ Elogio.modules.sidebarModule = function (modules) {
             dom.getElementByUUID(imageObj.uuid).scrollIntoView();
             self.openImage(imageObj.uuid);
         });
-    }
+        object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
+            var imageCard = $(this).closest('.image-card'),
+                imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+                copyToClipBoard;
+            annotations = new Elogio.Annotations(imageObj, config);
+            annotations.uri = imageObj.uri;
 
+            if (imageObj.details) {
+                annotations.locatorLink = annotations.getLocatorLink();
+                annotations.titleLabel = annotations.getTitle();
+                annotations.creatorLink = annotations.getCreatorLink();
+                annotations.creatorLabel = annotations.getCreatorLabel();
+                annotations.licenseLink = annotations.getLicenseLink();
+                annotations.licenseLabel = annotations.getLicenseLabel();
+                annotations.copyrightLink = annotations.getCopyrightLink();
+                annotations.copyrightLabel = annotations.getCopyrightLabel();
+            }
+            copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
+            object.port.postMessage({eventName: events.copyToClipBoard, data: copyToClipBoard});
+        });
+        object.imageListView.on('click', '.image-card .elogio-report-work', function () {
+            var imageCard = $(this).closest('.image-card'),
+                imageObj = imageCard.data(constants.imageObject);
+            //send to page content script doorbell command
+            object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
+                detail: {eventName: 'reportClick', uri: imageObj.uri}
+            }));
+        });
 
-    function initializeDetails(imageObj, cardElement) {
-        var annotations = new Elogio.Annotations(imageObj, config);
-        if (imageObj.details) { // If we were abe to get annotations - populate details
-            if (annotations.getCreatorLabel()) {
-                cardElement.find('.elogio-owner').text('Image by ' + annotations.getCreatorLabel());
-            } else {
-                cardElement.find('.elogio-owner').hide();
-            }
-            cardElement.find('.elogio-addedAt').text('Added at: ' + annotations.getAddedAt());
-            cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
-            if (annotations.getTitle()) {
-                cardElement.find('.elogio-annotations-title').text('title: ' + annotations.getTitle());
-            } else {
-                cardElement.find('.elogio-annotations-title').hide();
-            }
-            if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
-                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
-            } else {
-                cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
-            }
-            if (annotations.getLicenseLabel()) {
-                cardElement.find('.elogio-license').text('License: ' + annotations.getLicenseLabel());
-            } else {
-                cardElement.find('.elogio-license').hide();
-            }
-            if (annotations.getLicenseLink()) {
-                cardElement.find('.elogio-license-link').attr('href', annotations.getLicenseLink());
-            } else {
-                cardElement.find('.elogio-license-link').hide();
-            }
-        } else { // Otherwise - show message
-            cardElement.find('.message-area').text('Sorry, no data available').show();
-        }
+        object.feedbackButton.on('click', function () {
+            object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
+                detail: {eventName: 'feedbackClick'}
+            }));
+        });
     }
 
     /*
@@ -110,50 +111,14 @@ Elogio.modules.sidebarModule = function (modules) {
      */
 
 
+    /**
+     * Override method which needs only imagObj for adding to sidebar an Image card
+     * @param imageObj
+     */
     self.addOrUpdateCard = function (imageObj) {
-        var sidebar = object.sidebar;
-        var cardElement = sidebar.find('#' + imageObj.uuid);
-        if (!cardElement.length) {
-            cardElement = $(Mustache.render(template.imageItem, {'imageObj': imageObj}));
-            cardElement.data(constants.imageObject, imageObj);
-            var imgURL = chrome.extension.getURL("img/process-indicator.png");
-            cardElement.find('.loading').css({
-                background: "rgba(255, 255, 255, .8) url('" + imgURL + "') 50% 50% no-repeat;"
-            });
-            object.imageListView.append(cardElement);
-        }
-        // If we didn't send lookup query before - show loading
-        if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
-            cardElement.find('.loading').show();
-            return; // Waiting for lookup....
-        } else {
-            cardElement.find('.loading').hide();
-            cardElement.find('.message-area').hide();
-        }
-        // If there is lookup data available check if there is image details
-        var errorArea = cardElement.find('.error-area');
-        if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
-            cardElement.find('.query-button').hide();//if lookup exist then query button must be hidden
-            cardElement.data(constants.imageObject, imageObj);// save lookup data to card
-            if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
-                initializeDetails(imageObj, cardElement);
-                errorArea.hide();//hide this anyway because it is wrong show both of messages
-            } else {
-                // Nothing to do hear just waiting when user clicks on image to query details
-            }
-        } else { // Show Query button
-            cardElement.find('.elogio-image-details').hide();
-            if (!imageObj.error) {
-                cardElement.find('.no-lookup-data').show();
-                errorArea.hide();//hide this anyway because it is wrong show both of messages
-            } else {
-                //at here imageObj has errors and need to show it in sidebar
-                errorArea.text(imageObj.error);
-                errorArea.show();
-                cardElement.find('.query-button').hide();//because error
-            }
-        }
+        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
     };
+
     /**
      *
      * @param context - context which need to scan (may be a document)
@@ -173,7 +138,7 @@ Elogio.modules.sidebarModule = function (modules) {
         }
         nodes = nodes || null;
         locator.findImages(context, nodes, function (imageObj) {
-            self.addOrUpdateCard(imageObj, sidebar);
+            sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
             //emit to background js
             port.postMessage({eventName: events.newImageFound, data: imageObj});
         }, function () {
@@ -189,7 +154,9 @@ Elogio.modules.sidebarModule = function (modules) {
     self.receivedImageDataFromServer = function (imageObj) {
         var card = self.getImageCardByUUID(imageObj.uuid);
         card.data(constants.imageObject, imageObj);
-        self.addOrUpdateCard(imageObj);
+        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+        card.find('.loading').hide();
+        card.find('.elogio-image-details').hide();
         self.openImage(imageObj.uuid, true);
     };
 
@@ -214,10 +181,22 @@ Elogio.modules.sidebarModule = function (modules) {
         var imageObj = imageCard.data(constants.imageObject);
         if (imageObj.details) {
             imageCard.find('.elogio-image-details').toggle();
+            imageCard.find('.image-found').show();
+            imageCard.find('.image-not-found').hide();
+        } else if (!imageObj.lookup) {
+            var notFound = imageCard.find('.elogio-not-found');
+            if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
+                imageCard.find('.elogio-image-details').toggle();
+                imageCard.find('.image-found').hide();
+                imageCard.find('.elogio-not-found').show();
+            }
         }
         if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
             imageCard.find('.loading').show();//if we need annotations we wait for response
             object.port.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
+        }
+        if (imageCard.highlight) {
+            imageCard.highlight();
         }
     };
 

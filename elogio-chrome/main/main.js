@@ -16,9 +16,16 @@
             events = bridge.events;
 
         function loadPreferences() {
+            chrome.storage.sync.get({
+                deepScan: true,
+                highlightRecognizedImages: true,
+                serverUrl: config.global.apiServer.serverUrl
+            }, function (items) {
+                config.ui.highlightRecognizedImages = items.highlightRecognizedImages;
+                config.global.locator.deepScan = items.deepScan;
+                config.global.apiServer.serverUrl = items.serverUrl;
+            });
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
-            config.ui.highlightRecognizedImages = true;
-            config.global.locator.deepScan = true;
         }
 
         loadPreferences();
@@ -61,16 +68,11 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton}});
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton, config: config}});
                 }
             });
         }
-        function loadPanelScripts() {
-            chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
-                //if loaded then load next
-                loadTemplate();
-            });
-        }
+
 
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
@@ -166,7 +168,7 @@
                 contentWorker.postMessage({eventName: events.pluginStopped});
             }
             if (pluginState.isEnabled && contentWorker) {
-                contentWorker.postMessage({eventName: events.pluginActivated});
+                contentWorker.postMessage({eventName: events.pluginActivated, data: config});
             }
         }
 
@@ -189,6 +191,17 @@
                 lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
                 appState.getTabState(currentTabId).clearLookupImageStorage();
             }
+        });
+        messaging.on(events.copyToClipBoard, function (selection) {
+            var copyElement = $.parseHTML(selection);
+            $('body').append(copyElement);
+            copyElement = $('#clipboard-item');
+            copyElement.contentEditable = true;
+            copyElement.unselectable = "off";
+            copyElement.focus();
+            document.execCommand('SelectAll');
+            document.execCommand("Copy", false, null);
+            document.body.removeChild(copyElement);
         });
         messaging.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
@@ -259,30 +272,19 @@
             tabState.putImageToStorage(imageObj);
         });
 
-        messaging.on(events.jqueryRequired, function (request) {
-            var tabState = appState.getTabState(currentTabId);
-            chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery/jquery.js"}, function () {
-                //send it back because content want know when jquery is ready
-                tabState.getWorker().postMessage({eventName: events.jqueryRequired});
-            });
-        });
-
-
-        messaging.on(events.mustacheRequired, function () {
-            chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
-                loadPanelScripts();
-            });
-        });
-        messaging.on(events.sidebarRequired, function () {
-            loadPanelScripts();
-        });
-
         chrome.runtime.onConnect.addListener(function (port) {
             setPort(port);
             var tabState = appState.getTabState(currentTabId),
                 contentWorker = tabState.getWorker();
             //we need to set listeners only if we get a new port
             contentWorker.onMessage.addListener(function (request) {
+                //clear if page was reloaded
+                if (request.eventName === 'registration') {
+                    var tabState = appState.getTabState(currentTabId);
+                    tabState.clearImageStorage();
+                    tabState.clearLookupImageStorage();
+                    loadTemplate();
+                }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
                     messaging.emit(request.eventName, request.data);
                 }

@@ -1,5 +1,5 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarModule', 'messaging'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'sidebarModule', 'messaging'],
     function (modules) {
         'use strict';
         var
@@ -19,6 +19,15 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        /**
+         * doorbell injection
+         */
+        var s = document.createElement('script');
+        s.src = chrome.extension.getURL('data/js/doorbell-injection.js');
+        (document.head || document.documentElement).appendChild(s);
+        /**
+         * end of doorbell injection
+         */
         //callback when scan page is finished
         var finish = function () {
             port.postMessage({eventName: events.pageProcessingFinished});
@@ -34,6 +43,11 @@ new Elogio(
                 //on finished
                 port.postMessage({eventName: events.pageProcessingFinished});
             });
+        }
+
+        function setPreferences(changedSettings) {
+            config.global.locator.deepScan = changedSettings.global.locator.deepScan;
+            config.ui.highlightRecognizedImages = changedSettings.ui.highlightRecognizedImages;
         }
 
         function undecorate() {
@@ -58,16 +72,10 @@ new Elogio(
          * Fires when query lookup is ready and we need to get annotations for image
          */
         messaging.on(events.imageDetailsRequired, function (imageObj) {
-            port.postMessage({eventName: events.imageDetailsRequired, dtat: imageObj});
+            port.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         });
 
-        messaging.on(events.jqueryRequired, function () {
-            if (typeof Mustache === 'undefined') {
-                port.postMessage({eventName: events.mustacheRequired});
-            } else {
-                port.postMessage({eventName: events.sidebarRequired});
-            }
-        });
+
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             sidebarModule.receivedImageDataFromServer(imageObj);
         });
@@ -101,22 +109,32 @@ new Elogio(
             $('#elogio-button-panel').remove();
             undecorate();
         });
-        messaging.on(events.pluginActivated, function () {
+        messaging.on(events.pluginActivated, function (changedSettings) {
             isPluginEnabled = true;
             if ($) {
                 $('#elogio-button-panel').show();
             }
+            setPreferences(changedSettings);
             port.postMessage({eventName: events.startPageProcessing});
         });
 
         messaging.on(events.ready, function (data) {
             observer.observe(document.body, { attributes: true, childList: true, subtree: true });
-            var template = $.parseHTML(data.stringTemplate),
-                button = new Image(),
+            var template = $.parseHTML(data.stringTemplate, document, true),
+                button = $(document.createElement('button')),
                 body = $('body'), sidebar;
-            button.src = data.imgUrl;
-            button = $(button);
+            setPreferences(data.config);
+            console.log(config);
+            if (config.ui.highlightRecognizedImages) {
+                body.addClass('elogio-highlight');
+            } else {
+                body.removeClass('elogio-highlight');
+            }
             button.addClass('elogio-button');
+            button.addClass('btn-success');
+            button.addClass('btn-sm');
+            button.addClass('btn');
+            button.text('Open');
             button.attr('href', "#elogio-panel");
             button.attr('id', 'elogio-button-panel');
             body.append(template);
@@ -132,15 +150,6 @@ new Elogio(
             }
         });
         port.postMessage({eventName: 'registration'});
-        if (!window.jQuery || !window.$) {
-            port.postMessage({eventName: events.jqueryRequired});//jquery required
-        } else {
-            if (!Mustache) {
-                port.postMessage({eventName: events.mustacheRequired});
-            } else {
-                port.postMessage({eventName: events.sidebarRequired});
-            }
-        }
         observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {
