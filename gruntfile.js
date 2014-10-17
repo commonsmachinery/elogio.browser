@@ -49,8 +49,8 @@ module.exports = function (grunt) {
             }
         },
         clean: {
-            firefox: ["<%= buildDir%>/firefox" , "<%= distDir %>/firefox"],
-            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome"]
+            firefox: ["<%= buildDir%>/firefox" , "<%= distDir %>/firefox", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"],
+            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"]
         },
 
         less: {
