@@ -5,9 +5,11 @@
 function save_options() {
     var deepScan = document.getElementById('deepScan').checked;
     var highlightRecognizedImages = document.getElementById('highlightRecognizedImages').checked;
+    var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');
     chrome.storage.sync.set({
         deepScan: deepScan,
-        highlightRecognizedImages: highlightRecognizedImages
+        highlightRecognizedImages: highlightRecognizedImages,
+        serverUrl: serverUrl
     }, function () {
         // Update status to let user know options were saved.
         var status = document.getElementById('status');
@@ -22,12 +24,15 @@ function save_options() {
 // stored in chrome.storage.
 function restore_options() {
     // Use default value color = 'red' and likesColor = true.
+    var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');
     chrome.storage.sync.get({
         deepScan: true,
-        highlightRecognizedImages: true
+        highlightRecognizedImages: true,
+        serverUrl: serverUrl
     }, function (items) {
         document.getElementById('deepScan').checked = items.deepScan;
         document.getElementById('highlightRecognizedImages').checked = items.highlightRecognizedImages;
+        document.getElementById('serverUrl').setAttribute('serverUrl', items.serverUrl);
     });
 }
 document.addEventListener('DOMContentLoaded', restore_options);

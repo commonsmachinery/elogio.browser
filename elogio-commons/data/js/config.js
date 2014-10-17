@@ -6,7 +6,7 @@ Elogio.modules.config = function (modules) {
     'use strict';
     this.global = {
         apiServer: {
-            serverUrl: 'http://dev.commonsmachinery.se:8004',
+            serverUrl: 'https://catalog.elog.io',
             lookupContext: '/lookup/uri',
             hashLookupContext: '/lookup/blockhash',
             imagesPerRequest: 10,

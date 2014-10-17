@@ -18,10 +18,12 @@
         function loadPreferences() {
             chrome.storage.sync.get({
                 deepScan: true,
-                highlightRecognizedImages: true
+                highlightRecognizedImages: true,
+                serverUrl: config.global.apiServer.serverUrl
             }, function (items) {
                 config.ui.highlightRecognizedImages = items.highlightRecognizedImages;
                 config.global.locator.deepScan = items.deepScan;
+                config.global.apiServer.serverUrl = items.serverUrl;
             });
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         }

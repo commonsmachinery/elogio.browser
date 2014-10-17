@@ -18,7 +18,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
-
     var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
@@ -243,6 +242,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
+        if (simplePrefs.prefs.serverUrl) {
+            config.global.apiServer.serverUrl = simplePrefs.prefs.serverUrl;
+        }
         config.global.locator.deepScan = simplePrefs.prefs.deepScan;
         bridge.emit(bridge.events.configUpdated, config);
         for (i = 0; i < tabsState.length; i += 1) {
