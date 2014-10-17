@@ -12,7 +12,7 @@ $(document).ready(function () {
             };
             var template = {
                 imageItem: $("#elogio-image-template").html(),
-                clipboardItem: $("#clipboard-template").html()
+                clipboardItem: $("#elogio-clipboard-template").html()
             };
             var eventHandlers = {},
                 self = {},
