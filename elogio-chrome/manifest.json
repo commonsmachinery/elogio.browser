@@ -11,6 +11,7 @@
             "css": ["styles/highlight.css", "styles/panel.css"]
         }
     ],
+
     "browser_action": {
         "default_icon": {
             "19": "img/icon_19.png"
