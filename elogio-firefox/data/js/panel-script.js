@@ -103,7 +103,7 @@ $(document).ready(function () {
 
             self.openImage = function (imageUUID, preventAnnotationsLoading) {
                 var imageCard = getImageCardByUUID(imageUUID);
-                $('html, body').animate({scrollTop: imageCard.offsetTop}, 500);
+                $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(config.sidebar.imageObject);
                 if (imageObj.details) {
                     imageCard.find('.elogio-image-details').toggle();
