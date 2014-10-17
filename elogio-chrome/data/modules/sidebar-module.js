@@ -93,13 +93,13 @@ Elogio.modules.sidebarModule = function (modules) {
                 imageObj = imageCard.data(constants.imageObject);
             //send to page content script doorbell command
             object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
-                detail: {eventName: 'feedbackClick', uri: imageObj.uri}
+                detail: {eventName: 'reportClick', uri: imageObj.uri}
             }));
         });
 
         object.feedbackButton.on('click', function () {
             object.document.dispatchEvent(new CustomEvent('doorbell-injection', {
-                detail: {eventName: 'reportClick'}
+                detail: {eventName: 'feedbackClick'}
             }));
         });
     }
