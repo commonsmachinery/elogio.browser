@@ -67,7 +67,7 @@ new Elogio(
          * Fires when query lookup is ready and we need to get annotations for image
          */
         messaging.on(events.imageDetailsRequired, function (imageObj) {
-            port.postMessage({eventName: events.imageDetailsRequired, dtat: imageObj});
+            port.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         });
 
         messaging.on(events.jqueryRequired, function () {

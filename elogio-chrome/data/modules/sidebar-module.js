@@ -155,6 +155,8 @@ Elogio.modules.sidebarModule = function (modules) {
         var card = self.getImageCardByUUID(imageObj.uuid);
         card.data(constants.imageObject, imageObj);
         sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+        card.find('.loading').hide();
+        card.find('.elogio-image-details').hide();
         self.openImage(imageObj.uuid, true);
     };
 
