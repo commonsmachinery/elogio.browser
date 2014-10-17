@@ -75,13 +75,7 @@ new Elogio(
             port.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         });
 
-        messaging.on(events.jqueryRequired, function () {
-            if (typeof Mustache === 'undefined') {
-                port.postMessage({eventName: events.mustacheRequired});
-            } else {
-                port.postMessage({eventName: events.sidebarRequired});
-            }
-        });
+
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             sidebarModule.receivedImageDataFromServer(imageObj);
         });
@@ -156,15 +150,6 @@ new Elogio(
             }
         });
         port.postMessage({eventName: 'registration'});
-        if (!window.jQuery || !window.$) {
-            port.postMessage({eventName: events.jqueryRequired});//jquery required
-        } else {
-            if (!Mustache) {
-                port.postMessage({eventName: events.mustacheRequired});
-            } else {
-                port.postMessage({eventName: events.sidebarRequired});
-            }
-        }
         observer = new MutationObserver(function (mutations) {
             var nodesToBeProcessed = [];
             mutations.forEach(function (mutation) {

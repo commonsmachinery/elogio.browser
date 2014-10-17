@@ -73,16 +73,6 @@
             });
         }
 
-        function loadPanelScripts() {
-            chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery-color/jquery.color.js"}, function () {
-                chrome.tabs.executeScript(currentTabId, {file: "data/deps/bootstrap/bootstrap.js"}, function () {
-                    chrome.tabs.executeScript(currentTabId, {file: "data/js/side-panel.js"}, function () {
-                        //if loaded then load next
-                        loadTemplate();
-                    });
-                });
-            });
-        }
 
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
@@ -282,24 +272,6 @@
             tabState.putImageToStorage(imageObj);
         });
 
-        messaging.on(events.jqueryRequired, function (request) {
-            var tabState = appState.getTabState(currentTabId);
-            chrome.tabs.executeScript(currentTabId, {file: "data/deps/jquery/jquery.js"}, function () {
-                //send it back because content want know when jquery is ready
-                tabState.getWorker().postMessage({eventName: events.jqueryRequired});
-            });
-        });
-
-
-        messaging.on(events.mustacheRequired, function () {
-            chrome.tabs.executeScript(currentTabId, {file: "data/deps/mustache/mustache.js"}, function () {
-                loadPanelScripts();
-            });
-        });
-        messaging.on(events.sidebarRequired, function () {
-            loadPanelScripts();
-        });
-
         chrome.runtime.onConnect.addListener(function (port) {
             setPort(port);
             var tabState = appState.getTabState(currentTabId),
@@ -311,6 +283,7 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
+                    loadTemplate();
                 }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
                     messaging.emit(request.eventName, request.data);

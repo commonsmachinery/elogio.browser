@@ -6,9 +6,9 @@
     "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage"],
     "content_scripts": [
         {
-            "js": [ "data/js/common-lib.js", "data/js/content-script.js"],
+            "js": [ "data/deps/jquery/jquery.js", "data/deps/bootstrap/bootstrap.js", "data/deps/jquery-color/jquery.color.js", "data/deps/mustache/mustache.js", "data/js/side-panel.js", "data/js/common-lib.js", "data/js/content-script.js"],
             "matches": [ "*://*/*", "https://*/*"],
-            "css": ["styles/highlight.css", "styles/panel.css", "data/deps/bootstrap/bootstrap.css"]
+            "css": ["styles/highlight.css", "styles/panel.css"]
         }
     ],
     "browser_action": {
@@ -32,7 +32,8 @@
         "img/**",
         "html/**",
         "data/**",
-        "styles/**"
+        "styles/**",
+        "data/**"
     ],
     "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
 }
