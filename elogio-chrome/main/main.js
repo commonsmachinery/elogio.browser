@@ -182,7 +182,9 @@
         }
 
         messaging.on(events.startPageProcessing, function () {
-            loadTemplate();
+            if (pluginState.isEnabled) {
+                loadTemplate();
+            }
         });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
@@ -283,7 +285,9 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    loadTemplate();
+                    if (pluginState.isEnabled) {
+                        loadTemplate();
+                    }
                 }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
                     messaging.emit(request.eventName, request.data);

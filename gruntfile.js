@@ -297,7 +297,7 @@ module.exports = function (grunt) {
                 expand: true
             },
             firefoxLibs: {
-                src: ["**/jquery.color.js", "**/jquery.js", "**/jquery.js", "**/bootstrap.js", "**/mustache.js", "**/bootstrap.css", "!**/test/**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/mustache.js", "!**/test/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
