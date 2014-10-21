@@ -59,7 +59,7 @@ module.exports = function (grunt) {
                     paths: ["elogio-firefox/data/less"]
                 },
                 files: {
-                    "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-firefox/data/less/sidebar.less",
+                    "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-commons/less/sidebar.less",
                     "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/highlight.css"
                 }
             },
@@ -69,7 +69,8 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
-                    "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/highlight.css"
+                    "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/highlight.css",
+                    "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
             }
         },
@@ -111,7 +112,6 @@ module.exports = function (grunt) {
                         'elogio-commons/data/deps/png.js/png.js',
                         'elogio-commons/data/deps/jpgjs/jpg.js',
                         'elogio-commons/data/deps/blockhash-js/blockhash.js',
-                        'elogio-chrome/data/modules/sidebar-module.js',
                         'elogio-chrome/data/modules/messaging.js'
                     ],
                     '<%= buildDir%>/chrome/main/common-chrome-lib.js': [

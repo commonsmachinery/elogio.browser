@@ -33,7 +33,8 @@
             pluginState = {
                 isEnabled: true
             };
-        chrome.browserAction.onClicked.addListener(function () {
+
+        function togglePluginState() {
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
@@ -45,6 +46,10 @@
                 pluginState.isEnabled = true;
                 notifyPluginState();
             }
+        }
+
+        chrome.browserAction.onClicked.addListener(function () {
+            togglePluginState();
         });
         function getTextStatusByStatusCode(statusCode) {
             switch (statusCode) {
@@ -62,7 +67,7 @@
          */
         function loadTemplate() {
             $.ajax({
-                url: chrome.extension.getURL("html/template.html"),
+                url: chrome.extension.getURL("html/panel.html"),
                 dataType: "html",
                 success: function (response) {
                     var tabState = appState.getTabState(currentTabId);
@@ -228,6 +233,10 @@
                 },
                 config.global.apiServer.urlLookupOptions
             );
+        });
+        messaging.on(events.onImageRemoved, function (uuid) {
+            var tabState = appState.getTabState(currentTabId);
+            tabState.removeImageFromStorageByUuid(uuid);
         });
         messaging.on(events.hashCalculated, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
