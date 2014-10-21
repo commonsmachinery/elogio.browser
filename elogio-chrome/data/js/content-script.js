@@ -191,6 +191,7 @@ new Elogio(
             button.text('Open');
             button.attr('href', "#elogio-panel");
             button.attr('id', 'elogio-button-panel');
+            //injecting iFrame
             template.attr('src', panelUrl);
             body.append(template);
             body.append(button);
