@@ -29,14 +29,6 @@ $(document).ready(function () {
                     self.hideMessage();
                 }
             };
-            self.on = function (eventName, callback) {
-                eventHandlers[eventName] = callback;
-            };
-            self.emit = function (eventName, argument) {
-                if (eventHandlers[eventName]) {
-                    eventHandlers[eventName](argument);
-                }
-            };
             // method needs to init data in the template
 
 

@@ -11,7 +11,7 @@ Elogio.modules.sidebarHelper = function (modules) {
      */
 
 
-    var config = modules.getModule('config');
+    var config = modules.getModule('config'), utils = modules.getModule('utils');
 
 
     /*
@@ -19,7 +19,21 @@ Elogio.modules.sidebarHelper = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
-
+    function setLicenseColor(licensePlaceHolder, license) {
+        if (utils.startsWith(license, 'CC-ND') || utils.startsWith(license, 'CC-NC')) {
+            licensePlaceHolder.css({
+                backgroundColor: 'yellow'
+            });
+        } else if (utils.startsWith(license, 'public')) {
+            licensePlaceHolder.css({
+                backgroundColor: 'green'
+            });
+        } else {
+            licensePlaceHolder.css({
+                backgroundColor: 'red'
+            });
+        }
+    }
 
     /*
      =======================
@@ -90,7 +104,10 @@ Elogio.modules.sidebarHelper = function (modules) {
                 cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
             }
             if (annotations.getLicenseLabel()) {
-                cardElement.find('.elogio-license').text(annotations.getLicenseLabel());
+                var license = annotations.getLicenseLabel().trim(),
+                    licensePlaceHolder = cardElement.find('.elogio-license');
+                setLicenseColor(licensePlaceHolder, license);
+                licensePlaceHolder.text(annotations.getLicenseLabel());
             } else {
                 cardElement.find('.elogio-license').hide();
             }

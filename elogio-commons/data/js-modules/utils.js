@@ -29,7 +29,7 @@ Elogio.modules.utils = function (modules) {
      * @return {boolean}
      */
     this.startsWith = function (st, prefix) {
-        return st.indexOf(prefix) === 0;
+        return st.toLowerCase().indexOf(prefix.toLowerCase()) === 0;
     };
 
     /**
