@@ -200,15 +200,15 @@
             }
         });
         messaging.on(events.copyToClipBoard, function (selection) {
-            var copyElement = $.parseHTML(selection);
-            $('body').append(copyElement);
+            var copyElement = $.parseHTML(selection), body = $('body');
+            body.append(copyElement);
             copyElement = $('#clipboard-item');
             copyElement.contentEditable = true;
             copyElement.unselectable = "off";
             copyElement.focus();
             document.execCommand('SelectAll');
             document.execCommand("Copy", false, null);
-            document.body.removeChild(copyElement);
+            copyElement.remove();
         });
         messaging.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
