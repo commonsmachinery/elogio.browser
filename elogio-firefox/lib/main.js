@@ -224,13 +224,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 button.label = elogioLabel;
             } else {
                 button.icon = errorIndicator;
-                button.label = 'Something is wrong... Check Elog.io sidebar for details';
+                button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
             }
         }
         if (imageObj && imageObj.error) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = 'Something is wrong... Check Elog.io sidebar for details';
+            button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
             if (!sidebarIsHidden) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }

@@ -87,13 +87,13 @@
                     chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
                     chrome.browserAction.setIcon({path: elogioErrorIcon});
-                    chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
+                    chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
                 }
             }
             if (imageObj && imageObj.error) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioErrorIcon});
-                chrome.browserAction.setTitle({title: 'Something is wrong... Check Elog.io sidebar for details'});
+                chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
         }
