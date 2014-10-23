@@ -117,9 +117,9 @@ Elogio.modules.bridge = function (modules) {
          */
         ready: 'ready',
         /**
-         * Fires when context menu item click
+         * Fires when context menu shows up
          */
-        imageDataRequired: 'imageDataRequired'
+        setUUID: 'setUUID'
     };
 
     this.registerClient = function (transportObj, name) {

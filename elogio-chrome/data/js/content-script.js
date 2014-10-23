@@ -34,7 +34,6 @@ new Elogio(
 
         }
 
-
         /**
          * Listener for panel
          */
@@ -58,9 +57,15 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.pageProcessingFinished});
         };
 
+        function contextMenuHandler(event) {
+            var uuid = event.target.getAttribute(config.ui.dataAttributeName);
+            portToPlugin.postMessage({eventName: events.setUUID, data: uuid});
+        }
+
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
+                dom.getElementByUUID(imageObj.uuid).addEventListener('contextmenu', contextMenuHandler);
                 portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
                 portToPlugin.postMessage({eventName: events.newImageFound, data: imageObj});
             }, function () {
@@ -94,6 +99,18 @@ new Elogio(
             }
         }
 
+        function onImageActionHandler(uuid) {
+            var element = dom.getElementByUUID(uuid, document);
+            var sidebar = $('#elogio-panel');
+            //if sidebar hidden then show it
+            if (sidebar.is(':hidden')) {
+                $('#elogio-button-panel').trigger('click');
+            }
+            if (element) {
+                portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
+            }
+        }
+
         /*
          =======================
          PANEL LISTENERS
@@ -103,8 +120,8 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         }, 'panel');
 
-        messaging.on(events.onImageAction, function (imageObj) {
-            var elem = dom.getElementByUUID(imageObj.uuid, document);
+        messaging.on(events.onImageAction, function (uuid) {
+            var elem = dom.getElementByUUID(uuid, document);
             if (elem) {
                 elem.scrollIntoView();
             }
@@ -135,7 +152,7 @@ new Elogio(
          EXTENSION LISTENERS
          =======================
          */
-
+        messaging.on(events.onImageAction, onImageActionHandler);
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             portToPanel.contentWindow.postMessage({eventName: events.imageDetailsReceived, data: imageObj}, panelUrl);
         });
@@ -147,17 +164,7 @@ new Elogio(
             if (imageObj.lookup) {
                 var element = dom.getElementByUUID(imageObj.uuid, document);
                 if (element) {
-                    imageDecorator.decorate(element, document, function (uuid) {
-                        var element = dom.getElementByUUID(uuid, document);
-                        var sidebar = $('#elogio-panel');
-                        //if sidebar hidden then show it
-                        if (sidebar.is(':hidden')) {
-                            $('#elogio-button-panel').trigger('click');
-                        }
-                        if (element) {
-                            portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
-                        }
-                    });
+                    imageDecorator.decorate(element, document, onImageActionHandler);
                 }
             }
             portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);

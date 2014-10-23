@@ -3,7 +3,7 @@
     "name": "Elogio plugin",
     "version": "1.0",
     "minimum_chrome_version": "23",
-    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage"],
+    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage", "contextMenus"],
     "content_scripts": [
         {
             "js": [ "data/deps/jquery/jquery.js",

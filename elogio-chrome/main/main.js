@@ -12,6 +12,7 @@
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
+            selectedImageUUID = null,
             openButton = chrome.extension.getURL("img/icon_48.png"),
             events = bridge.events;
 
@@ -52,6 +53,20 @@
                 notifyPluginState();
             }
         }
+
+        function contextMenuItemClick() {
+            if (selectedImageUUID) {
+                var tabState = appState.getTabState(currentTabId);
+                tabState.getWorker().postMessage({eventName: events.onImageAction, data: selectedImageUUID});
+                selectedImageUUID = null;
+            }
+        }
+
+        chrome.contextMenus.create({
+            'title': 'elogio',
+            'contexts': ['all'],
+            'onclick': contextMenuItemClick
+        });
 
         chrome.browserAction.onClicked.addListener(function () {
             togglePluginState();
@@ -196,6 +211,9 @@
             if (pluginState.isEnabled) {
                 loadTemplate();
             }
+        });
+        messaging.on(events.setUUID, function (uuid) {
+            selectedImageUUID = uuid;
         });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
