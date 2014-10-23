@@ -210,11 +210,13 @@ Elogio.modules.locator = function (modules) {
                 //
                 countOfProcessedImages++;
                 // Apply filters:
+                var foundedNode = dom.getElementByUUID(imageUuid, document);
                 var result = applyFilters([
-                    {img: this, node: dom.getElementByUUID(imageUuid, document)}
+                    {img: this, node: foundedNode}
                 ], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {
+                    foundedNode.setAttribute(config.ui.elogioFounded, "founded");
                     var imgObj = {
                         uri: src,
                         uuid: imageUuid,

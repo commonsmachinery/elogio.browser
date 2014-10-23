@@ -29,6 +29,7 @@ Elogio.modules.config = function (modules) {
         },
         highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
+        elogioFounded: 'elogiofounded',
         decoratedItemAttribute: 'elogiodecorated',
         panelAttribute: 'elogiopanelimage'
     };
