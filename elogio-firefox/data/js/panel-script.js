@@ -14,7 +14,7 @@ $(document).ready(function () {
                 imageItem: $("#elogio-image-template").html(),
                 clipboardItem: $("#elogio-clipboard-template").html()
             };
-            var eventHandlers = {},
+            var
                 self = {},
                 isPluginEnabled = true;
 
@@ -78,7 +78,7 @@ $(document).ready(function () {
                         sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem);
                     }
                     if (imageCardToOpen) {
-                        self.openImage(imageCardToOpen.uuid);
+                        self.openImage(imageCardToOpen);
                     }
                 }
             };
@@ -158,8 +158,8 @@ $(document).ready(function () {
                     getImageCardByUUID(uuid).remove();
                 });
 
-                bridge.on(bridge.events.onImageAction, function (imageObject) {
-                    self.openImage(imageObject.uuid);
+                bridge.on(bridge.events.onImageAction, function (uuid) {
+                    self.openImage(uuid);
                 });
 
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
@@ -213,7 +213,7 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
-                    bridge.emit(bridge.events.onImageAction, imageObj);
+                    bridge.emit(bridge.events.onImageAction, imageObj.uuid);
                     self.openImage(imageObj.uuid);
                 });
                 //handle click on query button

@@ -12,8 +12,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         clipboard = require("sdk/clipboard"),
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
+        Request = require('sdk/request').Request,
         elogioLabel = "Elog.io";
-
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
@@ -23,6 +23,28 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         pluginState = {
             isEnabled: false
         };
+
+    function readTextFromFile(onSuccess) {
+        var request = new Request({
+            url: self.data.url('html/contextMenu.html'),
+            contentType: "html",
+            onComplete: function (response) {
+                if (response) {
+                    if (onSuccess) {
+                        onSuccess(response);
+                    }
+                } else {
+                    console.error("can't read file");
+                }
+            }
+        });
+        request.get();
+    }
+
+    var contextMenuString;
+    readTextFromFile(function (response) {
+        contextMenuString = response.text;
+    });
     /*
      =======================
      PRIVATE MEMBERS
@@ -101,11 +123,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
      * @param bridge - it's a worker.port of sidebar
      */
     function registerSidebarEventListeners(bridge) {
-        bridge.on(bridge.events.onImageAction, function (imageObj) {
+        bridge.on(bridge.events.onImageAction, function (uuid) {
             var tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
             if (contentWorker) {
-                contentWorker.port.emit(bridge.events.onImageAction, imageObj);
+                contentWorker.port.emit(bridge.events.onImageAction, uuid);
             }
         });
         bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
@@ -296,7 +318,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
 
     pageMod.PageMod({
         include: "*",
-        contentStyleFile: [self.data.url("css/highlight.css")],
+        contentStyleFile: [self.data.url("css/highlight.css"), self.data.url("css/contextMenu.css")],
         contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo: 'top',
@@ -306,6 +328,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
             tabState.attachWorker(contentWorker);
+            contentWorker.port.emit(bridge.events.ready, contextMenuString);
             //if page from cache then we need to save it to tabState
             currentTab.on("pageshow", function (tab, isPersisted) {
                 var tabState = appState.getTabState(tab.id);
@@ -395,15 +418,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 }
             });
             // When user click on the elogio icon near the image
-            contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
+            contentWorker.port.on(bridge.events.onImageAction, function (uuid) {
                 if (currentTab === tabs.activeTab) {
                     if (sidebarIsHidden) {
                         // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
-                        scrollToImageCard = imageObject;
+                        scrollToImageCard = uuid;
                         elogioSidebar.show();
                     } else {
                         // if panel already open then just send image to it
-                        bridge.emit(bridge.events.onImageAction, imageObject);
+                        bridge.emit(bridge.events.onImageAction, uuid);
                     }
                 }
             });

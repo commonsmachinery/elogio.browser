@@ -16,17 +16,21 @@
             events = bridge.events;
 
         function loadPreferences() {
-            chrome.storage.sync.get({
-                deepScan: true,
-                highlightRecognizedImages: true,
-                serverUrl: config.global.apiServer.serverUrl
-            }, function (items) {
-                config.ui.highlightRecognizedImages = items.highlightRecognizedImages;
-                config.global.locator.deepScan = items.deepScan;
-                config.global.apiServer.serverUrl = items.serverUrl;
+            chrome.storage.sync.get('deepScan', function (data) {
+                config.global.locator.deepScan = data.deepScan || config.global.locator.deepScan;
+            });
+            chrome.storage.sync.get('highlightRecognizedImages', function (data) {
+                config.ui.highlightRecognizedImages = data.highlightRecognizedImages || config.ui.highlightRecognizedImages;
+            });
+            chrome.storage.sync.get('serverUrl', function (data) {
+                config.global.apiServer.serverUrl = data.serverUrl || config.global.apiServer.serverUrl;
             });
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         }
+
+        chrome.storage.onChanged.addListener(function (changes, namespace) {
+            loadPreferences();
+        });
 
         loadPreferences();
         var appState = new Elogio.ApplicationStateController(), currentTabId,
@@ -69,13 +73,22 @@
             $.ajax({
                 url: chrome.extension.getURL("html/panel.html"),
                 dataType: "html",
-                success: function (response) {
-                    var tabState = appState.getTabState(currentTabId);
-                    tabState.clearImageStorage();
-                    tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {stringTemplate: response, imgUrl: openButton, config: config}});
+                success: function (panelResponse) {
+                    var panelTemplate = panelResponse;
+                    $.ajax({
+                        url: chrome.extension.getURL("html/contextMenu.html"),
+                        dataType: "html",
+                        success: function (menuResponse) {
+                            var contextMenuTemplate = menuResponse;
+                            var tabState = appState.getTabState(currentTabId);
+                            tabState.clearImageStorage();
+                            tabState.clearLookupImageStorage();
+                            tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelTemplate, imgUrl: openButton, config: config, contextMenuTemplate: contextMenuTemplate}});
+                        }
+                    });
                 }
             });
+
         }
 
 

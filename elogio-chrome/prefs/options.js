@@ -27,7 +27,7 @@ function restore_options() {
     var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');
     chrome.storage.sync.get({
         deepScan: true,
-        highlightRecognizedImages: true,
+        highlightRecognizedImages: false,
         serverUrl: serverUrl
     }, function (items) {
         document.getElementById('deepScan').checked = items.deepScan;

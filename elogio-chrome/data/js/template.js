@@ -139,8 +139,8 @@ $(document).ready(function () {
                     getImageCardByUUID(uuid).remove();
                 });
 
-                messaging.on(bridge.events.onImageAction, function (imageObject) {
-                    self.openImage(imageObject.uuid);
+                messaging.on(bridge.events.onImageAction, function (uuid) {
+                    self.openImage(uuid);
                 });
 
                 messaging.on(bridge.events.imageDetailsReceived, function (imageObject) {

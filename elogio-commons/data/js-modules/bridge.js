@@ -115,7 +115,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when all scripts loaded to the DOM
          */
-        ready: 'ready'
+        ready: 'ready',
+        /**
+         * Fires when context menu item click
+         */
+        imageDataRequired: 'imageDataRequired'
     };
 
     this.registerClient = function (transportObj, name) {
