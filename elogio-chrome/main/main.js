@@ -55,11 +55,10 @@
         }
 
         function contextMenuItemClick() {
-            if (selectedImageUUID) {
-                var tabState = appState.getTabState(currentTabId);
-                tabState.getWorker().postMessage({eventName: events.onImageAction, data: selectedImageUUID});
-                selectedImageUUID = null;
-            }
+            //don't need to check uuid because content script checking: if uuid is null then just open sidebar, else open and scroll
+            var tabState = appState.getTabState(currentTabId);
+            tabState.getWorker().postMessage({eventName: events.onImageAction, data: selectedImageUUID});
+            selectedImageUUID = null;
         }
 
         chrome.contextMenus.create({
@@ -315,6 +314,7 @@
             contentWorker.onMessage.addListener(function (request) {
                 //clear if page was reloaded
                 if (request.eventName === 'registration') {
+                    initTab();
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();

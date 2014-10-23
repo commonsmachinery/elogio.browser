@@ -100,13 +100,12 @@ new Elogio(
         }
 
         function onImageActionHandler(uuid) {
-            var element = dom.getElementByUUID(uuid, document);
             var sidebar = $('#elogio-panel');
             //if sidebar hidden then show it
             if (sidebar.is(':hidden')) {
                 $('#elogio-button-panel').trigger('click');
             }
-            if (element) {
+            if (uuid) {
                 portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
             }
         }
