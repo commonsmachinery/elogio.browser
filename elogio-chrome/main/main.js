@@ -25,6 +25,7 @@
             chrome.storage.sync.get('serverUrl', function (data) {
                 config.global.apiServer.serverUrl = data.serverUrl || config.global.apiServer.serverUrl;
             });
+            console.log(config);
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         }
 
