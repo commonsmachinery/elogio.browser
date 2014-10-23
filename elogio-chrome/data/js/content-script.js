@@ -1,5 +1,5 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'messaging', 'contextMenu'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'messaging'],
     function (modules) {
         'use strict';
         var
@@ -9,7 +9,6 @@ new Elogio(
             imageDecorator = modules.getModule('imageDecorator'),
             config = modules.getModule('config'),
             locator = modules.getModule('locator'),
-            contextMenu = modules.getModule('contextMenu'),
             events = bridge.events,
             panelUrl = chrome.extension.getURL('html/template.html'),
             observer,
@@ -35,17 +34,6 @@ new Elogio(
 
         }
 
-        function contextMenuItemClick(uuid) {
-            var element = dom.getElementByUUID(uuid, document);
-            var sidebar = $('#elogio-panel');
-            //if sidebar hidden then show it
-            if (sidebar.is(':hidden')) {
-                $('#elogio-button-panel').trigger('click');
-            }
-            if (element) {
-                portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
-            }
-        }
 
         /**
          * Listener for panel
@@ -73,7 +61,6 @@ new Elogio(
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
-                contextMenu.attachContextMenu(dom.getElementByUUID(imageObj.uuid), contextMenuItemClick);
                 portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
                 portToPlugin.postMessage({eventName: events.newImageFound, data: imageObj});
             }, function () {
@@ -160,7 +147,17 @@ new Elogio(
             if (imageObj.lookup) {
                 var element = dom.getElementByUUID(imageObj.uuid, document);
                 if (element) {
-                    imageDecorator.decorate(element, document, contextMenuItemClick);
+                    imageDecorator.decorate(element, document, function (uuid) {
+                        var element = dom.getElementByUUID(uuid, document);
+                        var sidebar = $('#elogio-panel');
+                        //if sidebar hidden then show it
+                        if (sidebar.is(':hidden')) {
+                            $('#elogio-button-panel').trigger('click');
+                        }
+                        if (element) {
+                            portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
+                        }
+                    });
                 }
             }
             portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
@@ -186,8 +183,6 @@ new Elogio(
                 button = $(document.createElement('button')),
                 body = $('body');
             setPreferences(data.config);
-            //init context menu template
-            contextMenu.init($($.parseHTML(data.contextMenuTemplate, document, true))[0], document);
             if (config.ui.highlightRecognizedImages) {
                 body.addClass('elogio-highlight');
             } else {

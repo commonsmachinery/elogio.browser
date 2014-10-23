@@ -12,39 +12,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         clipboard = require("sdk/clipboard"),
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
-        Request = require('sdk/request').Request,
+        contextMenu = require("sdk/context-menu"),
         elogioLabel = "Elog.io";
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
-    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null,
+    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
         };
 
-    function readTextFromFile(onSuccess) {
-        var request = new Request({
-            url: self.data.url('html/contextMenu.html'),
-            contentType: "html",
-            onComplete: function (response) {
-                if (response) {
-                    if (onSuccess) {
-                        onSuccess(response);
-                    }
-                } else {
-                    console.error("can't read file");
-                }
-            }
-        });
-        request.get();
-    }
-
-    var contextMenuString;
-    readTextFromFile(function (response) {
-        contextMenuString = response.text;
-    });
     /*
      =======================
      PRIVATE MEMBERS
@@ -277,7 +256,33 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         }
     }
 
-    // Create sidebar
+    function contextMenuItemClicked(uuid) {
+        if (currentTab === tabs.activeTab) {
+            if (sidebarIsHidden) {
+                // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
+                scrollToImageCard = uuid;
+                elogioSidebar.show();
+            } else {
+                // if panel already open then just send image to it
+                bridge.emit(bridge.events.onImageAction, uuid);
+            }
+        }
+    }
+
+    /**
+     * CONTEXT MENU
+     */
+    contextMenu.Item({
+        label: "Elog.io",
+        context: [contextMenu.SelectorContext('[elogiofounded]')],
+        contentScriptFile: [ self.data.url("js/context-menu.js")],
+        onMessage: contextMenuItemClicked
+    });
+
+
+    /**
+     * CREATE SIDEBAR
+     */
     elogioSidebar = Sidebar({
         id: 'elogio-firefox-plugin',
         title: 'Elog.io Image Catalog',
@@ -315,7 +320,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             sidebarIsHidden = true;
         }
     });
-
+    /**
+     * PAGE ON ATTACH
+     */
     pageMod.PageMod({
         include: "*",
         contentStyleFile: [self.data.url("css/highlight.css"), self.data.url("css/contextMenu.css")],
@@ -323,12 +330,12 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            var currentTab = contentWorker.tab,
+            currentTab = contentWorker.tab;
+            var
                 tabState = appState.getTabState(currentTab.id);
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
             tabState.attachWorker(contentWorker);
-            contentWorker.port.emit(bridge.events.ready, contextMenuString);
             //if page from cache then we need to save it to tabState
             currentTab.on("pageshow", function (tab, isPersisted) {
                 var tabState = appState.getTabState(tab.id);
@@ -418,18 +425,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 }
             });
             // When user click on the elogio icon near the image
-            contentWorker.port.on(bridge.events.onImageAction, function (uuid) {
-                if (currentTab === tabs.activeTab) {
-                    if (sidebarIsHidden) {
-                        // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
-                        scrollToImageCard = uuid;
-                        elogioSidebar.show();
-                    } else {
-                        // if panel already open then just send image to it
-                        bridge.emit(bridge.events.onImageAction, uuid);
-                    }
-                }
-            });
+            contentWorker.port.on(bridge.events.onImageAction, contextMenuItemClicked);
             //this code we need to do only if plugin is active
             if (pluginState.isEnabled) {
                 contentWorker.port.emit(bridge.events.configUpdated, config);

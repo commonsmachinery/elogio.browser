@@ -75,18 +75,10 @@
                 url: chrome.extension.getURL("html/panel.html"),
                 dataType: "html",
                 success: function (panelResponse) {
-                    var panelTemplate = panelResponse;
-                    $.ajax({
-                        url: chrome.extension.getURL("html/contextMenu.html"),
-                        dataType: "html",
-                        success: function (menuResponse) {
-                            var contextMenuTemplate = menuResponse;
-                            var tabState = appState.getTabState(currentTabId);
-                            tabState.clearImageStorage();
-                            tabState.clearLookupImageStorage();
-                            tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelTemplate, imgUrl: openButton, config: config, contextMenuTemplate: contextMenuTemplate}});
-                        }
-                    });
+                    var tabState = appState.getTabState(currentTabId);
+                    tabState.clearImageStorage();
+                    tabState.clearLookupImageStorage();
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, imgUrl: openButton, config: config}});
                 }
             });
 

@@ -1,13 +1,12 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'contextMenu'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'],
     function (modules) {
         'use strict';
         var locator = modules.getModule('locator'),
             imageDecorator = modules.getModule('imageDecorator'),
             dom = modules.getModule('dom'),
             config = modules.getModule('config'),
-            bridge = modules.getModule('bridge'),
-            contextMenu = modules.getModule('contextMenu');
+            bridge = modules.getModule('bridge');
 
 
         /*
@@ -17,14 +16,10 @@ new Elogio(
          */
         var observer;
 
-        function contextMenuItemClick(uuid) {
-            bridge.emit(bridge.events.onImageAction, uuid);
-        }
 
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
-                contextMenu.attachContextMenu(dom.getElementByUUID(imageObj.uuid), contextMenuItemClick);
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }, function () {
                 //on error
@@ -58,12 +53,7 @@ new Elogio(
         window.addEventListener('pageshow', function () {
             bridge.emit(bridge.events.pageShowEvent);
         }, false);
-        bridge.on(bridge.events.ready, function (contextMenuString) {
-            console.log(contextMenuString);
-            var template = document.createElement('div');
-            template.innerHTML = contextMenuString;
-            contextMenu.init(template.firstElementChild, document);
-        });
+
         //is needed for undecorate page if it from the cache
         bridge.on(bridge.events.pageShowEvent, function () {
             undecorate();
@@ -96,7 +86,9 @@ new Elogio(
         bridge.on(bridge.events.newImageFound, function (imageObj) {
             var element = dom.getElementByUUID(imageObj.uuid, document);
             if (element) {
-                imageDecorator.decorate(element, document, contextMenuItemClick);
+                imageDecorator.decorate(element, document, function (uuid) {
+                    bridge.emit(bridge.events.onImageAction, uuid);
+                });
             }
         });
         bridge.on(bridge.events.onImageAction, function (uuid) {

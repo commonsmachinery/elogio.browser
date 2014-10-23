@@ -60,8 +60,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-commons/less/sidebar.less",
-                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/highlight.css",
-                    "<%= buildDir%>/firefox/data/css/contextMenu.css": "elogio-commons/less/contextMenu.less"
+                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/highlight.css"
                 }
             },
             compileChrome: {
@@ -71,8 +70,7 @@ module.exports = function (grunt) {
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
                     "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/highlight.css",
-                    "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less",
-                    "<%= buildDir%>/chrome/styles/contextMenu.css": "elogio-commons/less/contextMenu.less"
+                    "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
             }
         },
@@ -303,18 +301,6 @@ module.exports = function (grunt) {
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
-            },
-            contextMenuChrome: {
-                src: ["html/**"],
-                cwd: "elogio-commons/",
-                dest: "<%= buildDir%>/chrome/",
-                expand: true
-            },
-            contextMenuFirefox: {
-                src: ["html/**"],
-                cwd: "elogio-commons/",
-                dest: "<%= buildDir%>/firefox/data/",
-                expand: true
             }
         }
 
@@ -362,7 +348,6 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
-                'copy:contextMenuFirefox',
                 'copy:scriptsffx',
                 'concat:firefoxModules',
                 'uglify:beautifyFirefox'
@@ -374,7 +359,6 @@ module.exports = function (grunt) {
                 'lint-chrome',
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
-                'copy:contextMenuChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
@@ -404,7 +388,6 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
-                'copy:contextMenuFirefox',
                 'copy:scriptsffx',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
@@ -419,7 +402,6 @@ module.exports = function (grunt) {
                 'lint-chrome',
                 'less:compileChrome',
                 'copy:resourcesWithoutJSForChrome',
-                'copy:contextMenuChrome',
                 'htmlbuild:chrome',
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
@@ -451,7 +433,6 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForFirefox',
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
-                'copy:contextMenuFirefox',
                 'copy:scriptsffx',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
@@ -470,7 +451,6 @@ module.exports = function (grunt) {
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
-                'copy:contextMenuChrome',
                 'copy:scriptscrx',
                 'concat:chromeModules',
                 'uglify:minifyChrome',
