@@ -13,8 +13,7 @@
         var data = e.detail;
         if (data.eventName === 'feedbackClick') {
             doorbell.show();
-        }
-        if (data.eventName === 'reportClick') {
+        } else {
             doorbell.setProperty('uri', data.uri);
             doorbell.show();
         }

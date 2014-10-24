@@ -41,5 +41,5 @@
         "data/**",
         "**://**"
     ],
-    "content_security_policy": "script-src 'self' https:// ; object-src 'self'"
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https:// ; object-src 'self'"
 }

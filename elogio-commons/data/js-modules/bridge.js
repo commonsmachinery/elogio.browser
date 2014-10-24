@@ -101,14 +101,6 @@ Elogio.modules.bridge = function (modules) {
          */
         hashCalculated: "hashCalculated",
         /**
-         * Fires when content script needs for jquery
-         */
-        jqueryRequired: "jqueryRequired",
-        /**
-         * Fires when content script needs for mustache
-         */
-        mustacheRequired: 'mustacheRequired',
-        /**
          * Fires when all scripts loaded and sidebar required
          */
         sidebarRequired: "sidebarRequired",
@@ -119,7 +111,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when context menu shows up
          */
-        setUUID: 'setUUID'
+        setUUID: 'setUUID',
+        /**
+         * fires when need to send message to content script (doorbell actions)
+         */
+        doorBellInjection: 'doorbellInjection'
     };
 
     this.registerClient = function (transportObj, name) {

@@ -125,6 +125,9 @@ new Elogio(
                 elem.scrollIntoView();
             }
         }, 'panel');
+        messaging.on(events.doorBellInjection, function (data) {
+            document.dispatchEvent(new CustomEvent('doorbell-injection', {detail: data}));
+        }, 'panel');
         messaging.on(events.hashRequired, function (imageObj) {
             blockhash(imageObj.uri, 16, 2, function (error, hash) {
                 imageObj.error = error;

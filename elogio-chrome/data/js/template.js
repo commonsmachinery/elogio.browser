@@ -158,14 +158,10 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
-                    /*global doorbell*/
-                    doorbell.setProperty('uri', imageObj.uri);
-                    doorbell.show();
+                    port.postMessage({eventName: bridge.events.doorBellInjection, from: 'panel', data: {eventName: 'report', uri: imageObj.uri}}, sendTo);
                 });
                 object.feedbackButton.on('click', function () {
-                    console.log(window.doorbellOptions);
-                    /*global doorbell*/
-                    doorbell.show();
+                    port.postMessage({eventName: bridge.events.doorBellInjection, from: 'panel', data: {eventName: 'feedbackClick'}}, sendTo);
                 });
 
                 //handle click on copy button
@@ -193,7 +189,7 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
-                    port.postMessage({eventName: bridge.events.onImageAction, data: imageObj, from: 'panel'}, sendTo);
+                    port.postMessage({eventName: bridge.events.onImageAction, data: imageObj.uuid, from: 'panel'}, sendTo);
                     self.openImage(imageObj.uuid);
                 });
                 //handle click on query button
