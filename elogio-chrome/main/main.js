@@ -288,6 +288,7 @@
                 //if we get error when using blockhash
                 console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
                 imageObjFromStorage.error = config.errors.blockhashError;
+                imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
                 indicateError(imageObjFromStorage);
             }
         });

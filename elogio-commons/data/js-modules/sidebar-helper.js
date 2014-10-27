@@ -81,6 +81,11 @@ Elogio.modules.sidebarHelper = function (modules) {
                 //at here imageObj has errors and need to show it in sidebar
                 errorArea.text(imageObj.error);
                 errorArea.show();
+                if (imageObj.blockhashError) {
+                    var hash = cardElement.find('.elogio-hash');
+                    hash.attr('href', imageObj.uri);
+                    hash.show();
+                }
             }
         }
     };
