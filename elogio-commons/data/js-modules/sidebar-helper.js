@@ -40,7 +40,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             utils.startsWith(license, 'licenses/by-nc') ||
             utils.startsWith(license, 'licenses/by-nc-sa')) {
             licensePlaceHolder.css({
-                backgroundColor: 'green'
+                backgroundColor: 'yellow'
             });
         } else {
             licensePlaceHolder.css({
