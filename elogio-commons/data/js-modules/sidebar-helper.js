@@ -20,11 +20,25 @@ Elogio.modules.sidebarHelper = function (modules) {
      =======================
      */
     function setLicenseColor(licensePlaceHolder, license) {
-        if (utils.startsWith(license, 'CC-ND') || utils.startsWith(license, 'CC-NC')) {
+        if (utils.startsWith(license, 'http://www.europeana.eu/rights/out-of-copyright-non-commercial')) {
             licensePlaceHolder.css({
                 backgroundColor: 'yellow'
             });
-        } else if (utils.startsWith(license, 'public')) {
+            return;
+        }
+        license = license.replace('http://creativecommons.org/', '');
+        if (
+            utils.startsWith(license, 'licenses/by') ||
+            utils.startsWith(license, 'publicdomain/mark') ||
+            utils.startWith(license, 'licenses/by-sa')) {
+            licensePlaceHolder.css({
+                backgroundColor: 'green'
+            });
+        } else if (
+            utils.startsWith(license, 'licenses/by-nd') ||
+            utils.startsWith(license, 'licenses/by-nc-nd') ||
+            utils.startsWith(license, 'licenses/by-nc') ||
+            utils.startsWith(license, 'licenses/by-nc-sa')) {
             licensePlaceHolder.css({
                 backgroundColor: 'green'
             });
@@ -111,7 +125,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             if (annotations.getLicenseLabel()) {
                 var license = annotations.getLicenseLabel().trim(),
                     licensePlaceHolder = cardElement.find('.elogio-license');
-                setLicenseColor(licensePlaceHolder, license);
+                setLicenseColor(licensePlaceHolder, annotations.getLicenseLink());
                 licensePlaceHolder.text(annotations.getLicenseLabel());
             } else {
                 cardElement.find('.elogio-license').hide();
