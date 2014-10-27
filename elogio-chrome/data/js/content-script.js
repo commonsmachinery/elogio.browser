@@ -198,7 +198,7 @@ new Elogio(
                 body.removeClass('elogio-highlight');
             }
             button.addClass('elogio-button');
-            button.text('Open');
+            button.text('Elog.io');
             button.attr('href', "#elogio-panel");
             button.attr('id', 'elogio-button-panel');
             //injecting iFrame

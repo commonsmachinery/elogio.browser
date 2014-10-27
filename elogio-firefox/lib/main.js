@@ -273,7 +273,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
      * CONTEXT MENU
      */
     contextMenu.Item({
-        label: "Elog.io",
+        label: "Find in Elog.io",
         context: [contextMenu.SelectorContext('[elogiofounded]')],
         contentScriptFile: [ self.data.url("js/context-menu.js")],
         onMessage: contextMenuItemClicked

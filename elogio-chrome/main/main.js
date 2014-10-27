@@ -62,7 +62,7 @@
         }
 
         chrome.contextMenus.create({
-            'title': 'elogio',
+            'title': 'Find in Elog.io',
             'contexts': ['all'],
             'onclick': contextMenuItemClick
         });
