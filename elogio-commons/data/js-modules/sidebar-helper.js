@@ -124,8 +124,15 @@ Elogio.modules.sidebarHelper = function (modules) {
             }
             if (annotations.getLicenseLabel()) {
                 var license = annotations.getLicenseLabel().trim(),
+                    licenseLink = annotations.getLicenseLink(),
                     licensePlaceHolder = cardElement.find('.elogio-license');
-                setLicenseColor(licensePlaceHolder, annotations.getLicenseLink());
+                if (licenseLink) {
+                    setLicenseColor(licensePlaceHolder, licenseLink);
+                } else {
+                    licensePlaceHolder.css({
+                        backgroundColor: 'gray'   //if no link was founded
+                    });
+                }
                 licensePlaceHolder.text(annotations.getLicenseLabel());
             } else {
                 cardElement.find('.elogio-license').hide();
