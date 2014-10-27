@@ -8,12 +8,14 @@ new Elogio(
             config = modules.getModule('config'),
             bridge = modules.getModule('bridge');
 
+
         /*
          =======================
          PRIVATE MEMBERS
          =======================
          */
         var observer;
+
 
         function scanForImages(nodes) {
             nodes = nodes || null;
@@ -84,13 +86,13 @@ new Elogio(
         bridge.on(bridge.events.newImageFound, function (imageObj) {
             var element = dom.getElementByUUID(imageObj.uuid, document);
             if (element) {
-                imageDecorator.decorate(element, document, function () {
-                    bridge.emit(bridge.events.onImageAction, imageObj);
+                imageDecorator.decorate(element, document, function (uuid) {
+                    bridge.emit(bridge.events.onImageAction, uuid);
                 });
             }
         });
-        bridge.on(bridge.events.onImageAction, function (imageObj) {
-            var elem = dom.getElementByUUID(imageObj.uuid, document);
+        bridge.on(bridge.events.onImageAction, function (uuid) {
+            var elem = dom.getElementByUUID(uuid, document);
             if (elem) {
                 elem.scrollIntoView();
             }

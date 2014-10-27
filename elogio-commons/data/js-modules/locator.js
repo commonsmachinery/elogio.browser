@@ -102,15 +102,20 @@ Elogio.modules.locator = function (modules) {
     this.nodeFilters = [
         // All IMG tags excluding .gif
         function (node) {
+            if (node.hasAttribute(config.ui.panelAttribute)) {
+                return false;
+            }
+        },
+        function (node) {
             if (node instanceof HTMLImageElement) {
-                return !node.src.startsWith('data:') && isNotGifFile(node.src);
+                return !utils.startsWith(node.src, 'data:') && isNotGifFile(node.src);
             }
             return null;
         },
         // Any tag with background-url excluding .gif
         function (node) {
             var url = getBackgroundUrl(node);
-            return url && isNotGifFile(url) && !url.startsWith('data:') && config.global.locator.deepScan;
+            return url && isNotGifFile(url) && !utils.startsWith(url, 'data:') && config.global.locator.deepScan;
         }
     ];
     this.imageFilters = [
@@ -194,6 +199,9 @@ Elogio.modules.locator = function (modules) {
      */
 
     this.findImages = function (document, nodes, onImageFound, onError, processFinished) {
+        if (!nodes) {
+            urlStorage = []; //if start scan All dom from scratch, then we need to clear storage
+        }
         var countOfProcessedImages = 0, countNodes = 0;
         var i, imageUrl, temporaryImageTags = {}, currentImageTag, uuid,
             onTempImageLoadedHandler = function () {
@@ -202,15 +210,18 @@ Elogio.modules.locator = function (modules) {
                 //
                 countOfProcessedImages++;
                 // Apply filters:
+                var foundedNode = dom.getElementByUUID(imageUuid, document);
                 var result = applyFilters([
-                    {img: this, node: dom.getElementByUUID(imageUuid, document)}
+                    {img: this, node: foundedNode}
                 ], self.imageFilters);
                 delete temporaryImageTags[imageUuid];
                 if (result.length && onImageFound) {
+                    foundedNode.setAttribute(config.ui.elogioFounded, "founded");
                     var imgObj = {
                         uri: src,
                         uuid: imageUuid,
-                        size: { width: this.width, height: this.height }
+                        size: { width: this.width, height: this.height },
+                        domain: document.location.href
                     };
                     onImageFound(imgObj);
                 }
@@ -239,7 +250,7 @@ Elogio.modules.locator = function (modules) {
             };
 
         // Step 1. We need to get all nodes which potentially contains suitable image.
-        nodes = nodes || this.findNodes(document);
+        nodes = nodes || self.findNodes(document);
         for (i = 0; i < nodes.length; i += 1) {
             if (nodes[i].hasAttribute(config.ui.dataAttributeName)) {
                 continue;

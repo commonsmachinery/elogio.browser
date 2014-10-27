@@ -6,7 +6,7 @@ Elogio.modules.config = function (modules) {
     'use strict';
     this.global = {
         apiServer: {
-            serverUrl: 'http://dev.commonsmachinery.se:8004',
+            serverUrl: 'https://catalog.elog.io',
             lookupContext: '/lookup/uri',
             hashLookupContext: '/lookup/blockhash',
             imagesPerRequest: 10,
@@ -29,12 +29,17 @@ Elogio.modules.config = function (modules) {
         },
         highlightRecognizedImages: false,
         dataAttributeName: 'elogio',
-        decoratedItemAttribute: 'elogiodecorated'
+        elogioFounded: 'elogiofounded',
+        decoratedItemAttribute: 'elogiodecorated',
+        panelAttribute: 'elogiopanelimage'
+    };
+    this.sidebar = {
+        imageObject: 'imageObj'
     };
     this.errors = {
         requestError: 'Server responded, but with errors',
         noDataForImage: 'Sorry, we couldn\'t match this against any image in the Elog.io catalog',
-        blockhashError: "The image could not be matched (most likely the web site you\'re viewing has security restrictions that prevent us from reading the image."
+        blockhashError: "The image could not be matched (most likely the web site you\'re viewing has security restrictions that prevent us from reading the image. You can open this image in new tab and try query again."
     };
     this.logging = {
 

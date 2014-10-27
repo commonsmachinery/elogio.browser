@@ -1,22 +1,41 @@
 $(document).ready(function () {
     'use strict';
-    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper'], function (modules) {
-        var bridge = modules.getModule('bridge'), config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
+    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'messaging'], function (modules) {
+        var bridge = modules.getModule('bridge'), messaging = modules.getModule('messaging'),
+            config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
         var panelController = (function () {
             var object = {
-                onButton: $('#on'),
-                offButton: $('#off'),
                 feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#elogio-imageListView"),
                 messageBox: $('#elogio-messageText')
             };
+            var sendTo = "*";
+
+            /**
+             * Handler for content
+             * @param event
+             */
+            function listenerForContent(event) {
+                var request = event.data;
+                if (isPluginEnabled || request.eventName === bridge.events.pluginActivated) {
+                    messaging.emit(request.eventName, request.data);
+                }
+            }
+
+            if (window.addEventListener) {
+                window.addEventListener("message", listenerForContent, false);
+            } else {
+                window.attachEvent("onmessage", listenerForContent);
+            }
+
             var template = {
                 imageItem: $("#elogio-image-template").html(),
                 clipboardItem: $("#elogio-clipboard-template").html()
             };
-            var
+            var // eventHandlers = {},
                 self = {},
-                isPluginEnabled = true;
+                isPluginEnabled = true,
+                port = window.parent;
 
             self.displayMessages = function () {
                 if (!object.imageListView.children().length) {
@@ -29,6 +48,7 @@ $(document).ready(function () {
                     self.hideMessage();
                 }
             };
+
             // method needs to init data in the template
 
 
@@ -47,25 +67,6 @@ $(document).ready(function () {
             };
 
 
-            self.startPlugin = function () {
-                if (!isPluginEnabled) {
-                    // Clear existing list of
-                    if (object.imageListView.length) {
-                        object.imageListView.empty();
-                    }
-                    bridge.emit(bridge.events.pluginActivated);
-                }
-            };
-
-            self.stopPlugin = function () {
-                if (isPluginEnabled) { //if already stopped then we don't need to stop the plugin again
-                    if (object.imageListView.length) {
-                        object.imageListView.empty();
-                    }
-                    bridge.emit(bridge.events.pluginStopped);
-                }
-            };
-
             self.loadImages = function (imageObjects, imageCardToOpen) {
                 var i;
                 // Clear list
@@ -78,7 +79,7 @@ $(document).ready(function () {
                         sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem);
                     }
                     if (imageCardToOpen) {
-                        self.openImage(imageCardToOpen);
+                        self.openImage(imageCardToOpen.uuid);
                     }
                 }
             };
@@ -111,7 +112,7 @@ $(document).ready(function () {
                 }
                 if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
                     imageCard.find('.loading').show();//if we need annotations we wait for response
-                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                    port.postMessage({eventName: bridge.events.imageDetailsRequired, data: imageObj, from: 'panel'}, sendTo);
                 }
                 imageCard.highlight();
             };
@@ -120,72 +121,47 @@ $(document).ready(function () {
                 Mustache.parse(template.imageItem);
 
                 // Subscribe for events
-                bridge.on(bridge.events.newImageFound, function (imageObj) {
+                messaging.on(bridge.events.newImageFound, function (imageObj) {
                     sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
                     self.displayMessages();
                 });
 
-                bridge.on(bridge.events.pluginActivated, function () {
-                    object.onButton.hide();
-                    object.offButton.show();
-                    isPluginEnabled = true;
-                    self.startPlugin();
-                });
 
                 //from main.js we get a message which mean: we need to get details of image, because hash lookup was received
-                bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
+                messaging.on(bridge.events.imageDetailsRequired, function (imageObj) {
                     //and send it back
-                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                    port.postMessage({eventName: bridge.events.imageDetailsRequired, data: imageObj, from: 'panel'}, sendTo);
                 });
 
-                bridge.on(bridge.events.pluginStopped, function () {
-                    object.onButton.show();
-                    object.offButton.hide();
-                    isPluginEnabled = false;
-                    self.stopPlugin();
-                    self.displayMessages();
-                });
-
-                bridge.on(bridge.events.tabSwitched, function (data) {
-                    if (isPluginEnabled) {//if plugin disabled we don't need load any images
-                        self.loadImages(data.images, data.imageCardToOpen);
-                        self.displayMessages();
-                    }
-                });
 
                 //if image disappear from page then we need to remove it at here too
-                bridge.on(bridge.events.onImageRemoved, function (uuid) {
+                messaging.on(bridge.events.onImageRemoved, function (uuid) {
                     getImageCardByUUID(uuid).remove();
                 });
 
-                bridge.on(bridge.events.onImageAction, function (uuid) {
+                messaging.on(bridge.events.onImageAction, function (uuid) {
                     self.openImage(uuid);
                 });
 
-                bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
+                messaging.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
                 });
 
-                bridge.on(bridge.events.startPageProcessing, function () {
+                messaging.on(bridge.events.startPageProcessing, function () {
                     self.hideMessage();
                     if (object.imageListView.length) {
                         object.imageListView.empty();
                     }
-                    bridge.emit(bridge.events.startPageProcessing);
+                    port.postMessage({eventName: bridge.events.startPageProcessing, from: 'panel'}, sendTo);
                 });
 
-                object.onButton.on('click', self.startPlugin);
-                object.offButton.on('click', self.stopPlugin);
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
-                    /* global doorbell */
-                    doorbell.setProperty('uri', imageObj.uri);
-                    doorbell.show();
+                    port.postMessage({eventName: bridge.events.doorBellInjection, from: 'panel', data: {eventName: 'report', uri: imageObj.uri}}, sendTo);
                 });
                 object.feedbackButton.on('click', function () {
-                    /* global doorbell */
-                    doorbell.show();
+                    port.postMessage({eventName: bridge.events.doorBellInjection, from: 'panel', data: {eventName: 'feedbackClick'}}, sendTo);
                 });
 
                 //handle click on copy button
@@ -207,13 +183,13 @@ $(document).ready(function () {
                         annotations.copyrightLabel = annotations.getCopyrightLabel();
                     }
                     copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
-                    bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
+                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: copyToClipBoard, from: 'panel'}, sendTo);
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
-                    bridge.emit(bridge.events.onImageAction, imageObj.uuid);
+                    port.postMessage({eventName: bridge.events.onImageAction, data: imageObj.uuid, from: 'panel'}, sendTo);
                     self.openImage(imageObj.uuid);
                 });
                 //handle click on query button
@@ -222,18 +198,13 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(config.sidebar.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
-                    bridge.emit(bridge.events.hashRequired, imageObj);
+                    port.postMessage({eventName: bridge.events.hashRequired, data: imageObj, from: 'panel'}, sendTo);
                 });
-                // Hide action buttons since state is not determined yet
-                object.onButton.hide();
-                object.offButton.hide();
-            };
 
+            };
+            port.postMessage({eventName: bridge.events.startPageProcessing, from: 'panel'}, sendTo);
             return self;
         })();
-        // Initialize bridge
-        bridge.registerClient(addon.port);               // Default transport: link chrome
-        //bridge.registerClient(panelController, 'panel'); // panel controller itself
         panelController.init();
     });
 });

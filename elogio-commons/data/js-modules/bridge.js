@@ -99,7 +99,23 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when hash calculated and need to send it to main.js
          */
-        hashCalculated: "hashCalculated"
+        hashCalculated: "hashCalculated",
+        /**
+         * Fires when all scripts loaded and sidebar required
+         */
+        sidebarRequired: "sidebarRequired",
+        /**
+         * Fires when all scripts loaded to the DOM
+         */
+        ready: 'ready',
+        /**
+         * Fires when context menu shows up
+         */
+        setUUID: 'setUUID',
+        /**
+         * fires when need to send message to content script (doorbell actions)
+         */
+        doorBellInjection: 'doorbellInjection'
     };
 
     this.registerClient = function (transportObj, name) {

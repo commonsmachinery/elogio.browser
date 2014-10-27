@@ -1,7 +1,7 @@
 'use strict';
 var Elogio = require('./common-chrome-lib.js').Elogio;
 
-new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
+new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], function (modules) {
     // FF modules
     var buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
@@ -12,18 +12,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         clipboard = require("sdk/clipboard"),
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
+        contextMenu = require("sdk/context-menu"),
         elogioLabel = "Elog.io";
-
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
         config = modules.getModule('config');
-
-    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null,
+    var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
             isEnabled: false
         };
+
     /*
      =======================
      PRIVATE MEMBERS
@@ -102,11 +102,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
      * @param bridge - it's a worker.port of sidebar
      */
     function registerSidebarEventListeners(bridge) {
-        bridge.on(bridge.events.onImageAction, function (imageObj) {
+        bridge.on(bridge.events.onImageAction, function (uuid) {
             var tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
             if (contentWorker) {
-                contentWorker.port.emit(bridge.events.onImageAction, imageObj);
+                contentWorker.port.emit(bridge.events.onImageAction, uuid);
             }
         });
         bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
@@ -225,13 +225,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 button.label = elogioLabel;
             } else {
                 button.icon = errorIndicator;
-                button.label = 'Something is wrong... Check Elog.io sidebar for details';
+                button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
             }
         }
         if (imageObj && imageObj.error) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = 'Something is wrong... Check Elog.io sidebar for details';
+            button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
             if (!sidebarIsHidden) {
                 bridge.emit(bridge.events.newImageFound, imageObj);
             }
@@ -243,6 +243,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         var tabsState = appState.getAllTabState(), i, tabContentWorker;
         config.ui.imageDecorator.iconUrl = self.data.url('img/settings-icon.png');
         config.ui.highlightRecognizedImages = simplePrefs.prefs.highlightRecognizedImages;
+        if (simplePrefs.prefs.serverUrl) {
+            config.global.apiServer.serverUrl = simplePrefs.prefs.serverUrl;
+        }
         config.global.locator.deepScan = simplePrefs.prefs.deepScan;
         bridge.emit(bridge.events.configUpdated, config);
         for (i = 0; i < tabsState.length; i += 1) {
@@ -253,7 +256,33 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
         }
     }
 
-    // Create sidebar
+    function contextMenuItemClicked(uuid) {
+        if (currentTab === tabs.activeTab) {
+            if (sidebarIsHidden) {
+                // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
+                scrollToImageCard = uuid;
+                elogioSidebar.show();
+            } else {
+                // if panel already open then just send image to it
+                bridge.emit(bridge.events.onImageAction, uuid);
+            }
+        }
+    }
+
+    /**
+     * CONTEXT MENU
+     */
+    contextMenu.Item({
+        label: "Find in Elog.io",
+        context: [contextMenu.SelectorContext('[elogiofounded]')],
+        contentScriptFile: [ self.data.url("js/context-menu.js")],
+        onMessage: contextMenuItemClicked
+    });
+
+
+    /**
+     * CREATE SIDEBAR
+     */
     elogioSidebar = Sidebar({
         id: 'elogio-firefox-plugin',
         title: 'Elog.io Image Catalog',
@@ -291,15 +320,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
             sidebarIsHidden = true;
         }
     });
-
+    /**
+     * PAGE ON ATTACH
+     */
     pageMod.PageMod({
         include: "*",
-        contentStyleFile: [self.data.url("css/highlight.css")],
+        contentStyleFile: [self.data.url("css/highlight.css"), self.data.url("css/contextMenu.css")],
         contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo: 'top',
         onAttach: function (contentWorker) {
-            var currentTab = contentWorker.tab,
+            currentTab = contentWorker.tab;
+            var
                 tabState = appState.getTabState(currentTab.id);
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
@@ -326,7 +358,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                     .findImageInStorageByUuid(imageObj.uuid);
                 if (!imageObj.error) {
                     imageObjFromStorage.hash = imageObj.hash;
-                    elogioServer.hashLookupQuery(imageObjFromStorage.hash, function (json) {
+                    console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
+                    elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
                             imageObjFromStorage.lookup = json[0];
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
@@ -339,12 +372,15 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                             indicateError(imageObjFromStorage);
                         }
                     }, function (response) {
+                        console.log('text status ' + response.statusText + ' ; status code ' + response.status);
                         imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
                         indicateError(imageObjFromStorage);
                     });
                 } else {
                     //if we get error when using blockhash
+                    console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
                     imageObjFromStorage.error = config.errors.blockhashError;
+                    imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
                     indicateError(imageObjFromStorage);
                 }
             });
@@ -390,18 +426,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioServer'], function (modules) {
                 }
             });
             // When user click on the elogio icon near the image
-            contentWorker.port.on(bridge.events.onImageAction, function (imageObject) {
-                if (currentTab === tabs.activeTab) {
-                    if (sidebarIsHidden) {
-                        // at first we set 'scrollToImageCard', which needs for send to panel when panel will shows up
-                        scrollToImageCard = imageObject;
-                        elogioSidebar.show();
-                    } else {
-                        // if panel already open then just send image to it
-                        bridge.emit(bridge.events.onImageAction, imageObject);
-                    }
-                }
-            });
+            contentWorker.port.on(bridge.events.onImageAction, contextMenuItemClicked);
             //this code we need to do only if plugin is active
             if (pluginState.isEnabled) {
                 contentWorker.port.emit(bridge.events.configUpdated, config);

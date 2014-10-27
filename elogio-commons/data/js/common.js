@@ -76,26 +76,39 @@ Elogio.Observable = function () {
 
     this.events = [];
 
-    this.emit = function (eventName, arg) {
+    this.emit = function (eventName, arg, target) {
         var i, handlers;
         if (!validateEventName(eventName, this)) {
             return;
         }
-        handlers = bus[eventName];
+        target = target || 'default';
+        if (!bus[eventName]) {
+            console.error("seems you doesn't have handlers for event " + eventName);
+            return;
+        }
+        handlers = bus[eventName][target];
+        if (!handlers) {
+            console.error("seems you doesn't have handlers for this target " + target + " and event:" + eventName);
+            return;
+        }
         for (i = 0; i < handlers.length; i += 1) {
-            bus[i].apply(null, arg);
+            handlers[i].apply(null, [arg]);
         }
     };
 
-    this.on = function (eventName, callback) {
+    this.on = function (eventName, callback, target) {
         var handlers;
         if (!validateEventName(eventName, this)) {
             return;
         }
+        target = target || 'default';
         if (!bus[eventName]) {
             bus[eventName] = [];
         }
-        handlers = bus[eventName];
+        if (!bus[eventName][target]) {
+            bus[eventName][target] = [];
+        }
+        handlers = bus[eventName][target];
         handlers[handlers.length] = callback;
     };
 };
