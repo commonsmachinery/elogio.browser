@@ -17,7 +17,7 @@
             "title": "Highlight recognized images",
             "description": "Mark each recognized image on a page with a red border.",
             "type": "bool",
-            "value": true
+            "value": false
         },
         {
             "name": "deepScan",
