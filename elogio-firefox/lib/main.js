@@ -320,6 +320,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             }
         },
         onDetach: function () {
+            button.icon = elogioDisableIcon;
             sidebarIsHidden = true;
         }
     });
