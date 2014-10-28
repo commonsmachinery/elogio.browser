@@ -13,7 +13,6 @@
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
             selectedImageUUID = null,
-            openButton = chrome.extension.getURL("img/icon_48.png"),
             events = bridge.events;
 
         function loadPreferences() {
@@ -92,7 +91,7 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, imgUrl: openButton, config: config}});
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, config: config}});
                 }
             });
 

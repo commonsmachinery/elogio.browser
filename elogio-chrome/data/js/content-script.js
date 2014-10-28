@@ -28,10 +28,24 @@ new Elogio(
          */
         function listenerForPanel(event) {
             var request = event.data;
+            if (!request.eventName) {
+                return; //if received message not for this script
+            }
             if (isPluginEnabled || request.eventName === events.pluginActivated) {
                 messaging.emit(request.eventName, request.data, request.from);
             }
 
+        }
+
+        function initializeButton(body) {
+            var button = $(document.createElement('img'));
+            button.addClass('elogio-button');
+            button.attr('href', "#elogio-panel");
+            button.attr('id', 'elogio-button-panel');
+            button.attr('src', chrome.extension.getURL('img/icon_48.png'));
+            button.addClass('elogio-button-image');
+            body.append(button);
+            return button;
         }
 
         /**
@@ -189,7 +203,6 @@ new Elogio(
         messaging.on(events.ready, function (data) {
             observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             var template = $($.parseHTML(data.panelTemplate, document, true)),
-                button = $(document.createElement('button')),
                 body = $('body');
             setPreferences(data.config);
             if (config.ui.highlightRecognizedImages) {
@@ -197,15 +210,10 @@ new Elogio(
             } else {
                 body.removeClass('elogio-highlight');
             }
-            button.addClass('elogio-button');
-            button.text('Elog.io');
-            button.attr('href', "#elogio-panel");
-            button.attr('id', 'elogio-button-panel');
             //injecting iFrame
             template.attr('src', panelUrl);
             body.append(template);
-            body.append(button);
-            button.elogioSidebar({side: 'right', duration: 300, clickClose: true});
+            initializeButton(body).elogioSidebar({side: 'right', duration: 300, clickClose: true});
             //attach port to panel
             portToPanel = document.getElementById('elogio-panel');
         });
