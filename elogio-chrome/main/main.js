@@ -43,11 +43,13 @@
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
+                chrome.browserAction.setTitle({title: 'Elog.io plug-in is disabled now'});
                 pluginState.isEnabled = false;
                 notifyPluginState();
             } else {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioIcon});
+                chrome.browserAction.setTitle({title: elogioLabel});
                 pluginState.isEnabled = true;
                 notifyPluginState();
             }

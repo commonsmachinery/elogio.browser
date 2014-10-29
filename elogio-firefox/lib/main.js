@@ -200,9 +200,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     function toggleSidebar() {
         if (!sidebarIsHidden) {
             button.icon = elogioDisableIcon;
+            button.label = 'Elog.io plug-in is disabled now';
             elogioSidebar.hide();
         } else {
             button.icon = elogioIcon;
+            button.label = elogioLabel;
             elogioSidebar.show();
         }
     }
