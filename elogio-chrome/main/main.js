@@ -103,6 +103,7 @@
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
             if (!imageObj) { //indicator if has errors then draw indicator on button
+                console.log(tabState.hasErrors());
                 if (!tabState.hasErrors()) {
                     chrome.browserAction.setIcon({path: elogioIcon});
                     chrome.browserAction.setTitle({title: elogioLabel});
@@ -180,7 +181,7 @@
         function initTab() {
             chrome.tabs.query({active: true}, function (tab) {
                 currentTabId = tab[0].id;
-                appState.getTabState(currentTabId);
+                indicateError();
             });
         }
 
