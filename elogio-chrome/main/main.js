@@ -13,7 +13,6 @@
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
             selectedImageUUID = null,
-            openButton = chrome.extension.getURL("img/icon_48.png"),
             events = bridge.events;
 
         function loadPreferences() {
@@ -44,11 +43,13 @@
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
+                chrome.browserAction.setTitle({title: 'Elog.io plug-in is disabled now'});
                 pluginState.isEnabled = false;
                 notifyPluginState();
             } else {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioIcon});
+                chrome.browserAction.setTitle({title: elogioLabel});
                 pluginState.isEnabled = true;
                 notifyPluginState();
             }
@@ -92,7 +93,7 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, imgUrl: openButton, config: config}});
+                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, config: config}});
                 }
             });
 
@@ -102,6 +103,7 @@
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
             if (!imageObj) { //indicator if has errors then draw indicator on button
+                console.log(tabState.hasErrors());
                 if (!tabState.hasErrors()) {
                     chrome.browserAction.setIcon({path: elogioIcon});
                     chrome.browserAction.setTitle({title: elogioLabel});
@@ -179,7 +181,7 @@
         function initTab() {
             chrome.tabs.query({active: true}, function (tab) {
                 currentTabId = tab[0].id;
-                appState.getTabState(currentTabId);
+                indicateError();
             });
         }
 

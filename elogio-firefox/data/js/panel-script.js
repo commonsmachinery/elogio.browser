@@ -4,8 +4,6 @@ $(document).ready(function () {
         var bridge = modules.getModule('bridge'), config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
         var panelController = (function () {
             var object = {
-                onButton: $('#on'),
-                offButton: $('#off'),
                 feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#elogio-imageListView"),
                 messageBox: $('#elogio-messageText')
@@ -126,8 +124,6 @@ $(document).ready(function () {
                 });
 
                 bridge.on(bridge.events.pluginActivated, function () {
-                    object.onButton.hide();
-                    object.offButton.show();
                     isPluginEnabled = true;
                     self.startPlugin();
                 });
@@ -139,8 +135,6 @@ $(document).ready(function () {
                 });
 
                 bridge.on(bridge.events.pluginStopped, function () {
-                    object.onButton.show();
-                    object.offButton.hide();
                     isPluginEnabled = false;
                     self.stopPlugin();
                     self.displayMessages();
@@ -174,8 +168,6 @@ $(document).ready(function () {
                     bridge.emit(bridge.events.startPageProcessing);
                 });
 
-                object.onButton.on('click', self.startPlugin);
-                object.offButton.on('click', self.stopPlugin);
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
@@ -224,9 +216,6 @@ $(document).ready(function () {
                     imageCard.find('.image-not-found').hide();
                     bridge.emit(bridge.events.hashRequired, imageObj);
                 });
-                // Hide action buttons since state is not determined yet
-                object.onButton.hide();
-                object.offButton.hide();
             };
 
             return self;

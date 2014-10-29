@@ -12,6 +12,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         clipboard = require("sdk/clipboard"),
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
+        elogioDisableIcon = self.data.url("img/icon-72-disabled.png"),
         contextMenu = require("sdk/context-menu"),
         elogioLabel = "Elog.io";
     // Elogio Modules
@@ -198,8 +199,12 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
 
     function toggleSidebar() {
         if (!sidebarIsHidden) {
+            button.icon = elogioDisableIcon;
+            button.label = 'Elog.io plug-in is disabled now';
             elogioSidebar.hide();
         } else {
+            button.icon = elogioIcon;
+            button.label = elogioLabel;
             elogioSidebar.show();
         }
     }
@@ -317,6 +322,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             }
         },
         onDetach: function () {
+            button.icon = elogioDisableIcon;
             sidebarIsHidden = true;
         }
     });
@@ -451,7 +457,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     var button = buttons.ActionButton({
         id: "elogio-button",
         label: elogioLabel,
-        icon: elogioIcon,
+        icon: elogioDisableIcon,
         onClick: function () {
             toggleSidebar();
         }
