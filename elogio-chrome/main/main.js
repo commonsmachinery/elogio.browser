@@ -12,7 +12,6 @@
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
-            selectedImageUUID = null,
             events = bridge.events;
 
         function loadPreferences() {
@@ -58,8 +57,7 @@
         function contextMenuItemClick() {
             //don't need to check uuid because content script checking: if uuid is null then just open sidebar, else open and scroll
             var tabState = appState.getTabState(currentTabId);
-            tabState.getWorker().postMessage({eventName: events.onImageAction, data: selectedImageUUID});
-            selectedImageUUID = null;
+            tabState.getWorker().postMessage({eventName: events.onImageAction});
         }
 
         chrome.contextMenus.create({
@@ -212,9 +210,6 @@
             if (pluginState.isEnabled) {
                 loadTemplate();
             }
-        });
-        messaging.on(events.setUUID, function (uuid) {
-            selectedImageUUID = uuid;
         });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
