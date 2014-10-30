@@ -269,7 +269,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 elogioSidebar.show();
             } else {
                 // if panel already open then just send image to it
-                bridge.emit(bridge.events.onImageAction, uuid);
+                if (uuid) {
+                    bridge.emit(bridge.events.onImageAction, uuid);
+                }
             }
         }
     }
@@ -279,7 +281,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
      */
     contextMenu.Item({
         label: "Find in Elog.io",
-        context: [contextMenu.SelectorContext('[elogiofounded]')],
+        context: [contextMenu.SelectorContext('*')],
         contentScriptFile: [ self.data.url("js/context-menu.js")],
         onMessage: contextMenuItemClicked
     });
