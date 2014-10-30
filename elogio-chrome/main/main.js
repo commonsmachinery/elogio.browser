@@ -39,6 +39,7 @@
             };
 
         function togglePluginState() {
+            //set title is needed too when plugin switched on\off
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
