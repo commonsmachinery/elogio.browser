@@ -129,12 +129,14 @@ Elogio.modules.locator = function (modules) {
         },
         // Skip sprites
         function (data) {
-            var img = data.img;
-            //filtering sprites, width and height of sprite will be bigger then real width and height of image
-            var node = data.node, squareOfNode = node.offsetWidth * node.offsetHeight,
-                squareOfImage = img.width * img.height;
-            if (node && (squareOfImage / squareOfNode > coefficientOfSpriteSize) && getBackgroundUrl(node)) {
-                return false;
+            if (data.node) {
+                var img = data.img;
+                //filtering sprites, width and height of sprite will be bigger then real width and height of image
+                var node = data.node, squareOfNode = node.offsetWidth * node.offsetHeight,
+                    squareOfImage = img.width * img.height;
+                if (node && (squareOfImage / squareOfNode > coefficientOfSpriteSize) && getBackgroundUrl(node)) {
+                    return false;
+                }
             }
             return null;
         },

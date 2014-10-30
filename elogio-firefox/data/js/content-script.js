@@ -92,9 +92,14 @@ new Elogio(
             }
         });
         bridge.on(bridge.events.onImageAction, function (uuid) {
-            var elem = dom.getElementByUUID(uuid, document);
-            if (elem) {
-                elem.scrollIntoView();
+            var element = dom.getElementByUUID(uuid, document);
+            if (element) {
+                var position = element.getBoundingClientRect();
+                //it is scroll top position
+                var top = (position.top + window.pageYOffset || document.documentElement.scrollTop - document.documentElement.clientTop || document.body.clientTop);
+                //it is scroll left position
+                var left = (position.left + window.pageXOffset || document.documentElement.scrollLeft - document.documentElement.clientLeft || document.body.clientLeft);
+                window.scrollTo(Math.round(left), Math.round(top));
             }
         });
         bridge.on(bridge.events.pluginActivated, function () {
