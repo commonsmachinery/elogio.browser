@@ -233,13 +233,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
             }
         }
-        if (imageObj && imageObj.error) {
+        if (imageObj && imageObj.error && !imageObj.noData) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
             button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
-            if (!sidebarIsHidden) {
-                bridge.emit(bridge.events.newImageFound, imageObj);
-            }
+        }
+        if (imageObj && imageObj.error && !sidebarIsHidden) {
+            bridge.emit(bridge.events.newImageFound, imageObj);
         }
     }
 
@@ -377,6 +377,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                         } else {
                             //if we get an empty array, that's mean what no data for this image
                             imageObjFromStorage.error = config.errors.noDataForImage;
+                            imageObjFromStorage.noData = true;
                             indicateError(imageObjFromStorage);
                         }
                     }, function (response) {

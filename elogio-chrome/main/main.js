@@ -110,10 +110,12 @@
                     chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
                 }
             }
-            if (imageObj && imageObj.error) {
+            if (imageObj && imageObj.error && !imageObj.noData) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioErrorIcon});
                 chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
+            }
+            if (imageObj && imageObj.error) {
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
         }
@@ -274,6 +276,7 @@
                     } else {
                         //if we get an empty array, that's mean what no data for this image
                         imageObjFromStorage.error = config.errors.noDataForImage;
+                        imageObjFromStorage.noData = true;
                         indicateError(imageObjFromStorage);
                     }
                 }, function (response) {
