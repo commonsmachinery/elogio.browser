@@ -22,7 +22,18 @@ new Elogio(
          =======================
          */
         var portToPlugin = chrome.runtime.connect({name: "content"});
-
+        var locale = {
+            feedbackLabel: chrome.i18n.getMessage('feedbackLabel'),
+            dropDownMenuLabel: chrome.i18n.getMessage('dropDownMenuLabel'),
+            copyButtonLabel: chrome.i18n.getMessage('copyButtonLabel'),
+            sourceButtonLabel: chrome.i18n.getMessage('sourceButtonLabel'),
+            licenseButtonLabel: chrome.i18n.getMessage('licenseButtonLabel'),
+            reportButtonLabel: chrome.i18n.getMessage('reportButtonLabel'),
+            queryButtonLabel: chrome.i18n.getMessage('queryButtonLabel'),
+            openImgInNewTabLabel: chrome.i18n.getMessage('openImageInNewTabLabel'),
+            noLookup: chrome.i18n.getMessage('noLookup')
+        };
+        console.log(locale);
         /**
          * Emit from panel
          * @param event
@@ -182,6 +193,9 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         });
         messaging.on(events.startPageProcessing, function () {
+            portToPanel.contentWindow.postMessage({eventName: bridge.events.l10nSetupLocale, data: locale}, panelUrl);
+        }, 'panel');
+        messaging.on(events.l10nSetupLocale, function () {
             scanForImages();
         }, 'panel');
 
@@ -191,6 +205,7 @@ new Elogio(
          =======================
          */
         messaging.on(events.onImageAction, onImageActionHandler);
+
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             portToPanel.contentWindow.postMessage({eventName: events.imageDetailsReceived, data: imageObj}, panelUrl);
         });

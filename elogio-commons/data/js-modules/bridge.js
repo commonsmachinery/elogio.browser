@@ -115,7 +115,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * fires when need to send message to content script (doorbell actions)
          */
-        doorBellInjection: 'doorbellInjection'
+        doorBellInjection: 'doorbellInjection',
+        /**
+         * Fires when need to setup the locale
+         */
+        l10nSetupLocale: 'l10nSetupLocale'
     };
 
     this.registerClient = function (transportObj, name) {

@@ -8,7 +8,7 @@
             config = modules.getModule('config'),
             elogioServer = modules.getModule('elogioServer'),
             messaging = modules.getModule('messaging'),
-            elogioLabel = 'elog.io plugin',
+            elogioLabel = chrome.i18n.getMessage('pluginStateOn'),
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
@@ -43,7 +43,7 @@
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
-                chrome.browserAction.setTitle({title: 'Elog.io plug-in is disabled now'});
+                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginStateOff')});
                 pluginState.isEnabled = false;
                 notifyPluginState();
             } else {
@@ -62,7 +62,7 @@
         }
 
         chrome.contextMenus.create({
-            'title': 'Find in Elog.io',
+            'title': chrome.i18n.getMessage('contextMenuItem_01'),
             'contexts': ['all'],
             'onclick': contextMenuItemClick
         });
@@ -73,11 +73,11 @@
         function getTextStatusByStatusCode(statusCode) {
             switch (statusCode) {
                 case 200:
-                    return config.errors.requestError;
+                    return chrome.i18n.getMessage('requestError_01');
                 case 0:
-                    return 'Network communication error';
+                    return chrome.i18n.getMessage('requestError_02');
                 default:
-                    return 'Internal server error';
+                    return chrome.i18n.getMessage('requestError_03');
             }
         }
 
@@ -108,13 +108,13 @@
                     chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
                     chrome.browserAction.setIcon({path: elogioErrorIcon});
-                    chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
+                    chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
                 }
             }
             if (imageObj && imageObj.error && !imageObj.noData) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioErrorIcon});
-                chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
+                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
             }
             if (imageObj && imageObj.error) {
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
@@ -271,12 +271,14 @@
                 elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                     if (Array.isArray(json) && json.length > 0) {
                         imageObjFromStorage.lookup = json[0];
+                        delete imageObjFromStorage.error;
+                        delete imageObjFromStorage.noData;
                         contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received
                         //it means, what we need details, because user click on 'query to elog.io'
                         contentWorker.postMessage({eventName: events.imageDetailsRequired, data: imageObjFromStorage});
                     } else {
                         //if we get an empty array, that's mean what no data for this image
-                        imageObjFromStorage.error = config.errors.noDataForImage;
+                        imageObjFromStorage.error = chrome.i18n.getMessage('noDataForImage');
                         imageObjFromStorage.noData = true;
                         indicateError(imageObjFromStorage);
                     }
@@ -288,7 +290,7 @@
             } else {
                 //if we get error when using blockhash
                 console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
-                imageObjFromStorage.error = config.errors.blockhashError;
+                imageObjFromStorage.error = chrome.i18n.getMessage('blockhashError');
                 imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
                 indicateError(imageObjFromStorage);
             }

@@ -7,7 +7,8 @@ $(document).ready(function () {
             var object = {
                 feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#elogio-imageListView"),
-                messageBox: $('#elogio-messageText')
+                messageBox: $('#elogio-messageText'),
+                locale: null
             };
             var sendTo = "*";
 
@@ -76,7 +77,7 @@ $(document).ready(function () {
                 // Add all objects
                 if (imageObjects) {
                     for (i = 0; i < imageObjects.length; i += 1) {
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem, object.locale);
                     }
                     if (imageCardToOpen) {
                         self.openImage(imageCardToOpen.uuid);
@@ -87,7 +88,7 @@ $(document).ready(function () {
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(config.sidebar.imageObject, imageObj);
-                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                 card.find('.loading').hide();
                 card.find('.elogio-image-details').hide();
                 self.openImage(imageObj.uuid, true);
@@ -119,10 +120,14 @@ $(document).ready(function () {
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
-
+                messaging.on(bridge.events.l10nSetupLocale, function (locale) {
+                    object.locale = locale;
+                    $('#elogio-feedback').text(locale.feedbackLabel);
+                    port.postMessage({eventName: bridge.events.l10nSetupLocale, from: 'panel'}, sendTo);
+                });
                 // Subscribe for events
                 messaging.on(bridge.events.newImageFound, function (imageObj) {
-                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                     self.displayMessages();
                 });
 

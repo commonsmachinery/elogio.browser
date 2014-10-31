@@ -60,11 +60,19 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @param imageObj - image object which we get from content {uri, uuid, lookup, details, error}
      * @param imageItemTemplate - jquery object (selector) of template
      */
-    self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate) {
+    self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate, locale) {
         // Try to find existing card and create the new one if it wasn't rendered before
         var cardElement = imageList.find('#' + imageObj.uuid);
         if (!cardElement.length) {
             cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj}));
+            cardElement.find('[dropDownl10n]').text(locale.dropDownMenuLabel);
+            cardElement.find('[copyLabell10n]').text(locale.copyButtonLabel);
+            cardElement.find('[sourceLabell10n]').text(locale.sourceButtonLabel);
+            cardElement.find('[licenseLabell10n]').text(locale.licenseButtonLabel);
+            cardElement.find('[reportLabell10n]').text(locale.reportButtonLabel);
+            cardElement.find('[noLookupl10n]').text(locale.noLookup);
+            cardElement.find('[queryLabell10n]').text(locale.queryButtonLabel);
+            cardElement.find('[openImageInNewTabl10n]').text(locale.openImgInNewTabLabel);
             cardElement.data(config.sidebar.imageObject, imageObj);
             imageList.append(cardElement);
         }

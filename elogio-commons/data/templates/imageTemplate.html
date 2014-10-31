@@ -1,48 +1,47 @@
 <script id="elogio-image-template" type="x-tmpl-mustache">
     <div class="image-card" id="{{imageObj.uuid}}" >
-        <div class="thumbnail-image">
-            <img src="{{imageObj.uri}}" class="picture"/>
-        </div>
-        <div class="elogio-image-details" style="display:none">
-           <div class="image-found" style="display:none">
-              <div class="pull-left">
+    <div class="thumbnail-image">
+        <img src="{{imageObj.uri}}" class="picture"/>
+    </div>
+    <div class="elogio-image-details" style="display:none">
+        <div class="image-found" style="display:none">
+            <div class="pull-left">
                 <div class="btn-group">
-                  <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
-                    Actions <span class="caret"></span>
-                  </button>
-                   <ul class="dropdown-menu" role="menu">
-                    <li><a class="elogio-clipboard">Copy to clipboard</a></li>
-                    <li><a target="_blank" href="" class='elogio-locatorlink'>Visit source</a></li>
-                    <li><a target="_blank" href="" class='elogio-license-link'>View license</a></li>
-                    <li><a class='elogio-report-work'>Report</a></li>
-                  </ul>
+                    <button dropDownl10n class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu">
+                        <li><a copyLabell10n class="elogio-clipboard"></a></li>
+                        <li><a sourceLabell10n target="_blank" href="" class='elogio-locatorlink'></a></li>
+                        <li><a licenseLabell10n target="_blank" href="" class='elogio-license-link'></a></li>
+                        <li><a reportLabell10n class='elogio-report-work'></a></li>
+                    </ul>
                 </div>
-              </div>
-              <div class="pull-right">
+            </div>
+            <div class="pull-right">
                 <img class="elogio-gravatar" src=""/>
-              </div>
-              <div class="clearfix"></div>
+            </div>
+            <div class="clearfix"></div>
             <p>
                 <strong class="elogio-annotations-title"></strong><br />
-		<i><span class="elogio-annotations-by"></span></i>
+                <i><span class="elogio-annotations-by"></span></i>
             </p>
             <p>
                 <span class="label label-info elogio-license"></p>
             </p>
-          </div>
-          <div class="image-not-found" style="display:none">
-            <div class="alert alert-warning">We don't have any information about this image, but you can query Elog.io to match it against images in the catalog.</div>
-            <button class="btn btn-primary query-button">Query</button>
-          </div>
         </div>
-            <div class="message-area" style="display:none"></div>
-        <div id="elogio-not-found" class="alert error-area alert-danger" style="display:none"></div>
-        <div class="loading" style="display:none"></div>
-        <div>
-                <a class="btn btn-primary elogio-hash" style="display:none" target="_blank">Open image in new tab</a>
+        <div class="image-not-found" style="display:none">
+            <div noLookupl10n class="alert alert-warning"></div>
+            <button queryLabell10n class="btn btn-primary query-button"></button>
         </div>
     </div>
-
+    <div class="message-area" style="display:none"></div>
+    <div id="elogio-not-found" class="alert error-area alert-danger" style="display:none"></div>
+    <div class="loading" style="display:none"></div>
+    <div>
+        <a openImageInNewTabl10n class="btn btn-primary elogio-hash" style="display:none" target="_blank"></a>
+    </div>
+</div>
 
 
 </script>
