@@ -59,10 +59,14 @@ Elogio.modules.sidebarHelper = function (modules) {
     self.createCanvas = function (document, imageCard, callback) {
         var canvas = document.createElement('canvas'),
             ctx = canvas.getContext('2d');
+        //load image
         var image = new Image();
+        //remove CORS security
         image.crossOrigin = "Anonymous";
         image.src = imageCard.find('img')[0].src;
+        //when load then ...
         image.onload = function () {
+            //it's a label under an image
             var data =
                 '<svg xmlns="http://www.w3.org/2000/svg" width="' + imageCard.find('.elogio-image-details').width() + '" height="' + imageCard.find('.elogio-image-details').height() + '">' +
                 '<foreignObject width="100%" height="100%">' +
@@ -78,20 +82,25 @@ Elogio.modules.sidebarHelper = function (modules) {
                 '</foreignObject>' +
                 '</svg>';
             var DOMURL = window.URL || window.webkitURL || window;
-
+            //load an image for label
             var img = new Image();
             img.crossOrigin = "Anonymous";
             var svg = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
             var url = DOMURL.createObjectURL(svg);
-
+            //when image ready then ...
             img.onload = function () {
+                //setup the canvas
                 canvas.width = image.width;
                 canvas.height = image.height + img.height;
+                //draw image
                 ctx.drawImage(image, 0, 0, image.width, image.height);
+                //create white rectangle for label
                 ctx.fillStyle = '#ffffff';
                 ctx.fillRect(0, image.height, image.width, img.height);
+                //draw label on the canvas
                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, image.height + 5, img.width, img.height);
                 DOMURL.revokeObjectURL(url);
+                //return base64 url of canvas
                 callback(canvas.toDataURL('image/png'))
             };
             img.src = url;
