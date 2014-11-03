@@ -110,8 +110,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 contentWorker.port.emit(bridge.events.onImageAction, uuid);
             }
         });
-        bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
-            clipboard.set(textHTML, 'html');
+        bridge.on(bridge.events.copyToClipBoard, function (request) {
+            var clipboardData = request.data;
+            clipboard.set(clipboardData, request.type);
         });
         bridge.on(bridge.events.hashRequired, function (imageObj) {
             var tabState = appState.getTabState(tabs.activeTab.id),
@@ -265,7 +266,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         var locale = {
             feedbackLabel: _('feedbackLabel'),
             dropDownMenuLabel: _('dropDownMenuLabel'),
-            copyButtonLabel: _('copyButtonLabel'),
+            copyHtmlButtonLabel: _('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: _('copyJsonButtonLabel'),
+            copyImgButtonLabel: _('copyImgButtonLabel'),
             sourceButtonLabel: _('sourceButtonLabel'),
             licenseButtonLabel: _('licenseButtonLabel'),
             reportButtonLabel: _('reportButtonLabel'),

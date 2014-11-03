@@ -185,26 +185,31 @@ $(document).ready(function () {
                     doorbell.show();
                 });
 
-                //handle click on copy button
-                object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
+                //handle click on copy as html button
+                object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
                     annotations.uri = imageObj.uri;
-
                     if (imageObj.details) {
-                        annotations.locatorLink = annotations.getLocatorLink();
-                        annotations.titleLabel = annotations.getTitle();
-                        annotations.creatorLink = annotations.getCreatorLink();
-                        annotations.creatorLabel = annotations.getCreatorLabel();
-                        annotations.licenseLink = annotations.getLicenseLink();
-                        annotations.licenseLabel = annotations.getLicenseLabel();
-                        annotations.copyrightLink = annotations.getCopyrightLink();
-                        annotations.copyrightLabel = annotations.getCopyrightLabel();
+                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
                     copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
-                    bridge.emit(bridge.events.copyToClipBoard, copyToClipBoard);
+                    bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'});
+                });
+                //handle click on copy as json button
+                object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+                        copyToClipBoard;
+                    annotations = new Elogio.Annotations(imageObj, config);
+                    annotations.uri = imageObj.uri;
+                    if (imageObj.details) {
+                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                    }
+                    copyToClipBoard = sidebarHelper.jsonToString(annotations);
+                    bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {

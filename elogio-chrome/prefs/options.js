@@ -23,7 +23,7 @@ function save_options() {
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
 function restore_options() {
-    // Use default value color = 'red' and likesColor = true.
+
     document.getElementById('deepScanLabel').innerHTML = chrome.i18n.getMessage('deepScan');
     document.getElementById('highlightRecognizedImagesLabel').innerHTML = chrome.i18n.getMessage('highlightRecognizedImages');
     var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');

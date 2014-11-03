@@ -45,8 +45,14 @@
     "dropDownMenuLabel": {
         "message": "Дії"
     },
-    "copyButtonLabel": {
-        "message": "Скопіювати"
+    "copyHtmlButtonLabel": {
+        "message": "Скопіювати як HTML"
+    },
+    "copyJsonButtonLabel": {
+        "message": "Скопіювати як JSON"
+    },
+    "copyImgButtonLabel": {
+        "message": "Скопіювати  як картинку"
     },
     "sourceButtonLabel": {
         "message": "Перейти до джерела"

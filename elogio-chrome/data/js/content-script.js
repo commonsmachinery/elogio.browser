@@ -25,7 +25,9 @@ new Elogio(
         var locale = {
             feedbackLabel: chrome.i18n.getMessage('feedbackLabel'),
             dropDownMenuLabel: chrome.i18n.getMessage('dropDownMenuLabel'),
-            copyButtonLabel: chrome.i18n.getMessage('copyButtonLabel'),
+            copyHtmlButtonLabel: chrome.i18n.getMessage('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: chrome.i18n.getMessage('copyJsonButtonLabel'),
+            copyImgButtonLabel: chrome.i18n.getMessage('copyImgButtonLabel'),
             sourceButtonLabel: chrome.i18n.getMessage('sourceButtonLabel'),
             licenseButtonLabel: chrome.i18n.getMessage('licenseButtonLabel'),
             reportButtonLabel: chrome.i18n.getMessage('reportButtonLabel'),

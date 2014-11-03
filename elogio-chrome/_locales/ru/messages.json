@@ -45,8 +45,14 @@
     "dropDownMenuLabel": {
         "message": "Действия"
     },
-    "copyButtonLabel": {
-        "message": "Копировать"
+    "copyHtmlButtonLabel": {
+        "message": "Копировать как HTML"
+    },
+    "copyJsonButtonLabel": {
+        "message": "Копировать как JSON"
+    },
+    "copyImgButtonLabel": {
+        "message": "Копировать  как картинку"
     },
     "sourceButtonLabel": {
         "message": "Просмотреть источник"

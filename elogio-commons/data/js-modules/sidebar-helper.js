@@ -54,6 +54,40 @@ Elogio.modules.sidebarHelper = function (modules) {
      PUBLIC MEMBERS
      =======================
      */
+
+
+    self.jsonToString = function (annotations) {
+        var stringJson = {
+            locatorLink: annotations.locatorLink,
+            titleLabel: annotations.titleLabel,
+            creatorLink: annotations.creatorLink,
+            creatorLabel: annotations.creatorLabel,
+            licenseLink: annotations.licenseLink,
+            licenseLabel: annotations.licenseLabel,
+            copyrightLink: annotations.copyrightLink,
+            copyrightLabel: annotations.copyrightLabel
+
+        };
+        return JSON.stringify(stringJson);
+    };
+
+    /**
+     * Method which setups annotations for image, and returns it back
+     * @param annotations - is needed for initializing details
+     * @returns {*}
+     */
+    self.initAnnotationsForCopyHandler = function (annotations) {
+        annotations.locatorLink = annotations.getLocatorLink();
+        annotations.titleLabel = annotations.getTitle();
+        annotations.creatorLink = annotations.getCreatorLink();
+        annotations.creatorLabel = annotations.getCreatorLabel();
+        annotations.licenseLink = annotations.getLicenseLink();
+        annotations.licenseLabel = annotations.getLicenseLabel();
+        annotations.copyrightLink = annotations.getCopyrightLink();
+        annotations.copyrightLabel = annotations.getCopyrightLabel();
+        return annotations;
+    };
+
     /**
      *
      * @param imageList - jquery object container of image cards
@@ -66,7 +100,9 @@ Elogio.modules.sidebarHelper = function (modules) {
         if (!cardElement.length) {
             cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj}));
             cardElement.find('[dropDownl10n]').text(locale.dropDownMenuLabel);
-            cardElement.find('[copyLabell10n]').text(locale.copyButtonLabel);
+            cardElement.find('[copyHtmlLabell10n]').text(locale.copyHtmlButtonLabel);
+            cardElement.find('[copyJsonLabell10n]').text(locale.copyJsonButtonLabel);
+            cardElement.find('[copyImgLabell10n]').text(locale.copyImgButtonLabel);
             cardElement.find('[sourceLabell10n]').text(locale.sourceButtonLabel);
             cardElement.find('[licenseLabell10n]').text(locale.licenseButtonLabel);
             cardElement.find('[reportLabell10n]').text(locale.reportButtonLabel);

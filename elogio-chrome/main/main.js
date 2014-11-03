@@ -223,12 +223,23 @@
             }
         });
         messaging.on(events.copyToClipBoard, function (selection) {
-            var copyElement = $.parseHTML(selection), body = $('body');
-            body.append(copyElement);
-            copyElement = $('#clipboard-item');
-            copyElement.contentEditable = true;
-            copyElement.unselectable = "off";
-            copyElement.focus();
+            var clipboardData = selection.clipboardData, type = selection.type, copyElement = $('#clipboard-item'), body = $('body');
+            switch (type) {
+                case 'html':
+                    var data = $.parseHTML(clipboardData);
+                    body.append(data);
+                    copyElement.contentEditable = true;
+                    copyElement.unselectable = "off";
+                    copyElement.focus();
+                    break;
+                case 'text':
+                    copyElement.text(clipboardData);
+                    body.append(copyElement);
+                    copyElement.contentEditable = true;
+                    copyElement.unselectable = "off";
+                    copyElement.focus();
+                    break;
+            }
             document.execCommand('SelectAll');
             document.execCommand("Copy", false, null);
             copyElement.remove();
