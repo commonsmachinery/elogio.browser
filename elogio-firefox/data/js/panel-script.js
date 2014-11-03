@@ -120,6 +120,7 @@ $(document).ready(function () {
                     // Compile mustache templates
                     object.locale = locale;
                     Mustache.parse(template.imageItem);
+                    Mustache.parse(template.canvasTemplate);
                 });
 
                 // Subscribe for events
@@ -210,6 +211,22 @@ $(document).ready(function () {
                     }
                     copyToClipBoard = sidebarHelper.jsonToString(annotations);
                     bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
+                });
+                //handle click on copy as image button
+                object.imageListView.on('click', '.image-card .elogio-clipboard-img', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        imageObj = imageCard.data(config.sidebar.imageObject), annotations;
+                    //copyToClipBoard;
+                    annotations = new Elogio.Annotations(imageObj, config);
+                    annotations.uri = imageObj.uri;
+                    if (imageObj.details) {
+                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                    }
+                    sidebarHelper.createCanvas(document, imageCard, function (url) {
+                        bridge.emit(bridge.events.copyToClipBoard, {data: url, type: 'image'});
+                    });
+
+
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card img', function () {
