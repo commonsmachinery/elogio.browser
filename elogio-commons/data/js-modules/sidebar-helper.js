@@ -63,11 +63,11 @@ Elogio.modules.sidebarHelper = function (modules) {
         var image = new Image();
         //remove CORS security
         image.crossOrigin = "Anonymous";
-        image.src = imageCard.find('img')[0].src;
+        image.src = imageCard.data(config.sidebar.imageObject).uri;
         //when load then ...
         image.onload = function () {
             //it's a label under an image
-            var data =
+            var data = "data:image/svg+xml," +
                 '<svg xmlns="http://www.w3.org/2000/svg" width="' + imageCard.find('.elogio-image-details').width() + '" height="' + imageCard.find('.elogio-image-details').height() + '">' +
                 '<foreignObject width="100%" height="100%">' +
                 '<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:16px">' +
@@ -81,12 +81,8 @@ Elogio.modules.sidebarHelper = function (modules) {
                 '</div>' +
                 '</foreignObject>' +
                 '</svg>';
-            var DOMURL = window.URL || window.webkitURL || window;
             //load an image for label
             var img = new Image();
-            img.crossOrigin = "Anonymous";
-            var svg = new Blob([data], {type: 'image/svg+xml;charset=utf-8'});
-            var url = DOMURL.createObjectURL(svg);
             //when image ready then ...
             img.onload = function () {
                 //setup the canvas
@@ -99,11 +95,10 @@ Elogio.modules.sidebarHelper = function (modules) {
                 ctx.fillRect(0, image.height, image.width, img.height);
                 //draw label on the canvas
                 ctx.drawImage(img, 0, 0, img.width, img.height, 0, image.height + 5, img.width, img.height);
-                DOMURL.revokeObjectURL(url);
                 //return base64 url of canvas
-                callback(canvas.toDataURL('image/png'))
+                callback(canvas.toDataURL('image/png'));
             };
-            img.src = url;
+            img.src = data;
         };
     };
 

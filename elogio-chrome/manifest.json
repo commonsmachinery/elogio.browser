@@ -5,7 +5,7 @@
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "minimum_chrome_version": "23",
-    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage", "contextMenus"],
+    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage", "contextMenus", "<all_urls>"],
     "content_scripts": [
         {
             "js": [ "data/deps/jquery/jquery.js",
@@ -41,6 +41,7 @@
         "data/**",
         "styles/**",
         "data/**",
+        "blob:**",
         "**://**"
     ],
     "content_security_policy": "script-src 'self' 'unsafe-eval' https:// ; object-src 'self'"

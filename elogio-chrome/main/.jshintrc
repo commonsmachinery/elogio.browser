@@ -18,7 +18,8 @@
         "Elogio",
         "CustomEvent",
         "$",
-        "document"
+        "document",
+        "window"
     ],
     "devel": true,
     "moz": true,

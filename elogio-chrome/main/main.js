@@ -24,7 +24,6 @@
             chrome.storage.sync.get('serverUrl', function (data) {
                 config.global.apiServer.serverUrl = data.serverUrl || config.global.apiServer.serverUrl;
             });
-            console.log(config);
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         }
 
@@ -102,7 +101,6 @@
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
             if (!imageObj) { //indicator if has errors then draw indicator on button
-                console.log(tabState.hasErrors());
                 if (!tabState.hasErrors()) {
                     chrome.browserAction.setIcon({path: elogioIcon});
                     chrome.browserAction.setTitle({title: elogioLabel});
@@ -223,14 +221,19 @@
             }
         });
         messaging.on(events.copyToClipBoard, function (selection) {
-            var clipboardData = selection.clipboardData, type = selection.type, copyElement = $('#clipboard-item'), body = $('body');
+            var clipboardData = selection.clipboardData, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
+
+            function exec() {
+                document.execCommand('SelectAll');
+                document.execCommand("Copy", false, null);
+                //copyElement.remove();
+            }
+
             switch (type) {
                 case 'html':
-                    var data = $.parseHTML(clipboardData);
+                    data = $.parseHTML(clipboardData);
                     body.append(data);
-                    copyElement.contentEditable = true;
-                    copyElement.unselectable = "off";
-                    copyElement.focus();
+                    exec();
                     break;
                 case 'text':
                     copyElement.text(clipboardData);
@@ -238,11 +241,12 @@
                     copyElement.contentEditable = true;
                     copyElement.unselectable = "off";
                     copyElement.focus();
+                    exec();
+                    break;
+                case 'image':
+                    //at here we get base64 url in clipboardData
                     break;
             }
-            document.execCommand('SelectAll');
-            document.execCommand("Copy", false, null);
-            copyElement.remove();
         });
         messaging.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
