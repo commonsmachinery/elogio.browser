@@ -226,7 +226,7 @@
             function exec() {
                 document.execCommand('SelectAll');
                 document.execCommand("Copy", false, null);
-                //copyElement.remove();
+                copyElement.remove();
             }
 
             switch (type) {

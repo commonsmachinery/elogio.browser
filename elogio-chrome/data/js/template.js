@@ -193,7 +193,7 @@ $(document).ready(function () {
                         sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
                     copyToClipBoard = sidebarHelper.jsonToString(annotations);
-                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'html'}, from: 'panel'}, sendTo);
+                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'text'}, from: 'panel'}, sendTo);
                 });
                 //handle click on copy as image button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-img', function () {
