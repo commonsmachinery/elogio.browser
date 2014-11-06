@@ -302,8 +302,22 @@ module.exports = function (grunt) {
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
             }
-        }
+        },
 
+        auto_install: {
+            subdir: {
+              options: {
+                cwd: 'elogio-commons/data/deps/blockhash-js',
+                stdout: true,
+                stderr: true,
+                failOnError: true
+              }
+            }
+        },
+
+        browserify: {
+          '<%= buildDir%>/blockhash.js': ['elogio-commons/data/deps/blockhash-js/index.js']
+        }
     });
 
     // Load the plugin that provides the "uglify" task.
@@ -317,6 +331,8 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-bower-task');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-crx');
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-auto-install');
 
     /**
      * Helper tasks.
@@ -324,12 +340,13 @@ module.exports = function (grunt) {
     grunt.registerTask('lint-firefox', ['jshint:firefoxChrome', 'jshint:firefoxContentScript']);
     grunt.registerTask('lint-chrome', ['jshint:chromeMain', 'jshint:chromeContentScript']);
     grunt.registerTask('lint', ['jshint:firefoxChrome', 'jshint:firefoxContentScript', 'jshint:chromeMain', 'jshint:chromeContentScript']);
+
     /**
      * End-user tasks.
      *
      * These are used to build, run and test the product.
      */
-    grunt.registerTask('default', 'help');
+    grunt.registerTask('default', ['help']);
     grunt.registerTask('help', function () {
         grunt.log.write('\n\nElog.io extension build system. Please use any of following: \n');
         grunt.log.write('\n   grunt build\t\tBuilds extensions in build directory');
