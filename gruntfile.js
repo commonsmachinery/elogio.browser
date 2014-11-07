@@ -87,10 +87,7 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'elogio-commons/data/deps/png.js/zlib.js',
-                        'elogio-commons/data/deps/png.js/png.js',
-                        'elogio-commons/data/deps/jpgjs/jpg.js',
-                        'elogio-commons/data/deps/blockhash-js/blockhash.js'
+                        'elogio-commons/data/deps/blockhash.js'
                     ],
                     '<%= buildDir%>/firefox/lib/common-chrome-lib.js': [
                         'elogio-commons/data/js/common.js',
@@ -108,10 +105,7 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'elogio-commons/data/deps/png.js/zlib.js',
-                        'elogio-commons/data/deps/png.js/png.js',
-                        'elogio-commons/data/deps/jpgjs/jpg.js',
-                        'elogio-commons/data/deps/blockhash-js/blockhash.js',
+                        'elogio-commons/data/deps/blockhash.js',
                         'elogio-chrome/data/modules/messaging.js'
                     ],
                     '<%= buildDir%>/chrome/main/common-chrome-lib.js': [
@@ -302,12 +296,37 @@ module.exports = function (grunt) {
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
             }
+        },
+        auto_install: {
+            subdir: {
+                options: {
+                    cwd: 'node_modules/blockhash.js',
+                    stdout: true,
+                    stderr: true,
+                    failOnError: true
+                }
+            }
+        },
+
+
+        browserify: {
+            options: {
+                browserifyOptions: {
+                    standalone: 'blockhashjs'
+                }
+            },
+            main: {
+                src: 'node_modules/blockhash.js/index.js',
+                dest: 'elogio-commons/data/deps/blockhash.js'
+            }
         }
 
     });
 
     // Load the plugin that provides the "uglify" task.
     grunt.loadNpmTasks('grunt-html-build');
+    grunt.loadNpmTasks('grunt-browserify');
+    grunt.loadNpmTasks('grunt-auto-install');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-mozilla-addon-sdk');
@@ -329,19 +348,23 @@ module.exports = function (grunt) {
      *
      * These are used to build, run and test the product.
      */
+    grunt.registerTask('default', 'help');
     grunt.registerTask('help', function () {
-        grunt.log.write('\n\nElog.io Mozilla plugin build system. Please use any of following: ');
-        grunt.log.write('\n   grunt build -- builds both of extensions into build dir (folders chrome and firefox).');
-        grunt.log.write('\n   grunt build:firefox -- builds firefox extensions to build dir (folder firefox)');
-        grunt.log.write('\n   grunt build:chrome -- builds chrome extensions to build dir (folder chrome)');
-        grunt.log.write('\n   grunt grunt run:firefox -- runs the firefox plugin in the browser');
-        grunt.log.write('\n   grunt dist -- in the `dist` folder, creates two packaged extensions (XPI for firefox into `dist/firefox` folder and CRX for google chrome into `dist/chrome` folder) ready to be passed over. The sources ');
-        grunt.log.write('\n   grunt dist:firefox - same as `dist` but only for firefox addon. (minimal)');
-        grunt.log.write('\n   dist:chrome` - same as `dist` but only for google chrome addon. (minimal)');
+        grunt.log.write('\n\nElog.io extension build system. Please use any of following: \n');
+        grunt.log.write('\n   grunt build\t\tBuilds extensions in build directory');
+        grunt.log.write('\n   grunt build:firefox\tBuilds only Firefox add-on');
+        grunt.log.write('\n   grunt build:chrome\tBuilds only Chrome extension');
+        grunt.log.write('\n\n   grunt run:firefox\tRuns the Firefox add-on in browser');
+        grunt.log.write('\n\n   grunt dist\t\tBuilds distribution version (minimal)');
+        grunt.log.write('\n   grunt dist:firefox\tBuild only Firefox add-on (minimal)');
+        grunt.log.write('\n   grunt dist:chrome\tBuild only Chrome extension (minimal)');
     });
 
     grunt.registerTask('build', 'Task with parameters ', function (parameter) {
         function buildFirefox() {
+            grunt.task.run([
+                'auto_install',
+                'browserify']);
             grunt.task.run([
                 'lint-firefox',
                 'less:compileFirefox',
@@ -355,6 +378,9 @@ module.exports = function (grunt) {
         }
 
         function buildChrome() {
+            grunt.task.run([
+                'auto_install',
+                'browserify']);
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
@@ -383,6 +409,9 @@ module.exports = function (grunt) {
     grunt.registerTask('run', 'Task with parameters ', function (parameter) {
         function runFirefox() {
             grunt.task.run([
+                'auto_install',
+                'browserify']);
+            grunt.task.run([
                 'lint-firefox',
                 'less:compileFirefox',
                 'copy:resourcesWithoutJSForFirefox',
@@ -398,6 +427,9 @@ module.exports = function (grunt) {
 
         //how to run chrome?
         function runChrome() {
+            grunt.task.run([
+                'auto_install',
+                'browserify']);
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
@@ -426,6 +458,9 @@ module.exports = function (grunt) {
     grunt.registerTask('dist', 'Task with parameters ', function (parameter) {
         function distFirefox() {
             grunt.task.run([
+                'auto_install',
+                'browserify']);
+            grunt.task.run([
                 'clean:firefox',
                 'bower',
                 'lint-firefox',
@@ -443,6 +478,9 @@ module.exports = function (grunt) {
 
         //how to package chrome?
         function distChrome() {
+            grunt.task.run([
+                'auto_install',
+                'browserify']);
             grunt.task.run([
                 'clean:chrome',
                 'bower',

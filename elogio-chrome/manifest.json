@@ -41,7 +41,6 @@
         "data/**",
         "styles/**",
         "data/**",
-        "blob:**",
         "**://**"
     ],
     "content_security_policy": "script-src 'self' 'unsafe-eval' https:// ; object-src 'self'"

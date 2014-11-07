@@ -6,7 +6,8 @@ new Elogio(
             imageDecorator = modules.getModule('imageDecorator'),
             dom = modules.getModule('dom'),
             config = modules.getModule('config'),
-            bridge = modules.getModule('bridge');
+            bridge = modules.getModule('bridge'),
+            blockhash = blockhashjs.blockhash;
 
 
         /*

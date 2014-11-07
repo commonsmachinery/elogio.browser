@@ -13,6 +13,7 @@ new Elogio(
             panelUrl = chrome.extension.getURL('html/template.html'),
             observer,
             portToPanel,
+            blockhash = blockhashjs.blockhash,
             activeElement = null,
             isPluginEnabled = true;
         config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
