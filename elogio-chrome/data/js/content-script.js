@@ -36,7 +36,6 @@ new Elogio(
             openImgInNewTabLabel: chrome.i18n.getMessage('openImageInNewTabLabel'),
             noLookup: chrome.i18n.getMessage('noLookup')
         };
-        console.log(locale);
         /**
          * Emit from panel
          * @param event
@@ -178,13 +177,12 @@ new Elogio(
         messaging.on(events.doorBellInjection, function (data) {
             document.dispatchEvent(new CustomEvent('doorbell-injection', {detail: data}));
         }, 'panel');
-        messaging.on(events.hashRequired, function (imageObj) {
-            blockhash(imageObj.uri, 16, 2, function (error, hash) {
-                imageObj.error = error;
-                imageObj.hash = hash;
-                portToPlugin.postMessage({eventName: events.hashCalculated, data: imageObj});
-            });
+
+
+        messaging.on(events.oembedRequestRequired, function (imageObj) {
+            portToPlugin.postMessage({eventName: events.oembedRequestRequired, data: imageObj});
         }, 'panel');
+
         messaging.on(events.copyToClipBoard, function (copyElement) {
             portToPlugin.postMessage({eventName: events.copyToClipBoard, data: copyElement});
         }, 'panel');
@@ -208,7 +206,13 @@ new Elogio(
          =======================
          */
         messaging.on(events.onImageAction, onImageActionHandler);
-
+        messaging.on(events.hashRequired, function (imageObj) {
+            blockhash(imageObj.uri, 16, 2, function (error, hash) {
+                imageObj.error = error || null;
+                imageObj.hash = hash || null;
+                portToPlugin.postMessage({eventName: events.hashCalculated, data: imageObj});
+            });
+        });
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             portToPanel.contentWindow.postMessage({eventName: events.imageDetailsReceived, data: imageObj}, panelUrl);
         });

@@ -119,7 +119,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when need to setup the locale
          */
-        l10nSetupLocale: 'l10nSetupLocale'
+        l10nSetupLocale: 'l10nSetupLocale',
+        /**
+         * Fires when user click on query button at first time, and at first we need to check oembed data if exist
+         */
+        oembedRequestRequired: 'oembedRequestRequired'
     };
 
     this.registerClient = function (transportObj, name) {

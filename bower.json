@@ -6,7 +6,7 @@
         "bootstrap": "3.2.0",
         "mustache": "0.8.2",
         "jquery-color": "2.1.2",
-        "blockhash-js": "commonsmachinery/blockhash-js",
+        "blockhash-js": "denisnazarov/blockhash-js",
         "png.js": "devongovett/png.js",
         "jpgjs": "notmasteryet/jpgjs"
     }

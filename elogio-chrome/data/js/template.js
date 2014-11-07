@@ -215,7 +215,7 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(config.sidebar.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
-                    port.postMessage({eventName: bridge.events.hashRequired, data: imageObj, from: 'panel'}, sendTo);
+                    port.postMessage({eventName: bridge.events.oembedRequestRequired, data: imageObj, from: 'panel'}, sendTo);
                 });
 
             };

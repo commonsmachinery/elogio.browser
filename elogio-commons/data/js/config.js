@@ -17,6 +17,11 @@ Elogio.modules.config = function (modules) {
             limitImageHeight: 100,
             limitImageWidth: 100,
             deepScan: true
+        },
+        oembed: {
+            endpoint: {
+                flickr: 'https://www.flickr.com/services/oembed.json/'
+            }
         }
     };
 

@@ -4,12 +4,14 @@
 
 Elogio.modules.utils = function (modules) {
     'use strict';
+    var self = this;
     /*
      =======================
      REQUIREMENTS
      =======================
      */
 
+    var config = modules.getModule('config');
     /*
      =======================
      PRIVATE MEMBERS
@@ -28,7 +30,7 @@ Elogio.modules.utils = function (modules) {
      * @param prefix - prefix to be searched
      * @return {boolean}
      */
-    this.startsWith = function (st, prefix) {
+    self.startsWith = function (st, prefix) {
         return st.toLowerCase().indexOf(prefix.toLowerCase()) === 0;
     };
 
@@ -37,7 +39,7 @@ Elogio.modules.utils = function (modules) {
      * @param url - url to be canonized
      * @param currentLocation - url which targets current location. It will be used for resolving relative links
      */
-    this.canonizeUrl = function (url, currentLocation) {
+    self.canonizeUrl = function (url, currentLocation) {
         if (url) {
             if (this.startsWith(url, 'http') || this.startsWith(url, 'www')) {
                 return url;
@@ -59,11 +61,31 @@ Elogio.modules.utils = function (modules) {
         return currentLocation + url; //if already canonized
     };
 
+
+    self.getOembedEndpointForImageUri = function (url) {
+        var endpoints = config.global.oembed.endpoint,
+            regex = /\bhttps?:\/\/w?w?w?\.?/,
+            domainEndpoint, domainImage;
+        for (var key in endpoints) {
+            if (endpoints.hasOwnProperty(key)) {
+                domainEndpoint = endpoints[key].replace(regex, '');
+                domainImage = url.replace(regex, '');
+                domainEndpoint = domainEndpoint.substring(0, domainEndpoint.indexOf('/'));
+                domainImage = domainImage.substring(0, domainImage.indexOf('/'));
+                if (domainImage.indexOf(domainEndpoint) !== -1) {
+                    return endpoints[key];
+                }
+            }
+        }
+        return null;
+    };
+
+
     /**
      * Generates random UUID
      * @return{String} Generated UUID
      */
-    this.generateUUID = (function () {
+    self.generateUUID = (function () {
         function s4() {
             return Math.floor((1 + Math.random()) * 0x10000)
                 .toString(16)

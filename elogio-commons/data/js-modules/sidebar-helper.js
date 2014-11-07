@@ -164,7 +164,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             imageList.append(cardElement);
         }
         // If we didn't send lookup query before - show loading
-        if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
+        if (!imageObj.hasOwnProperty('lookup')) {
             cardElement.find('.loading').show();
             return; // Waiting for lookup....
         } else {
@@ -173,7 +173,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         }
         // If there is lookup data available check if there is image details
         var errorArea = cardElement.find('.error-area');
-        if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
+        if (imageObj.lookup && !imageObj.error) {
             cardElement.data(config.sidebar.imageObject, imageObj);// save lookup data to card
             if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                 self.initializeDetails(imageObj, cardElement);

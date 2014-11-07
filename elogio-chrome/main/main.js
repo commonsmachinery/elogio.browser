@@ -9,6 +9,7 @@
             elogioServer = modules.getModule('elogioServer'),
             messaging = modules.getModule('messaging'),
             elogioLabel = chrome.i18n.getMessage('pluginStateOn'),
+            utils = modules.getModule('utils'),
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
@@ -117,6 +118,74 @@
             if (imageObj && imageObj.error) {
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
+        }
+
+        /**
+         * Translate json from oembed response to json from elog.io
+         */
+        function oembedJsonToElogioJson(oembedJson) {
+            return  {
+                added_by: {
+                    href: oembedJson.author_url,
+                    id: oembedJson.author_name
+                },
+                annotations: {
+                    copyright: [
+                        {
+                            id: oembedJson.author_name,
+                            property: {
+                                holderLabel: oembedJson.author_name,
+                                holderLink: oembedJson.author_url,
+                                value: oembedJson.author_name,
+                                propertyName: 'copyright'
+                            }
+                        }
+                    ],
+                    creator: [
+                        {
+                            id: oembedJson.author_name,
+                            property: {
+                                creatorLabel: oembedJson.author_name,
+                                creatorLink: oembedJson.author_url,
+                                value: oembedJson.author_name,
+                                propertyName: 'creator'
+                            }
+                        }
+                    ],
+                    locator: [
+                        {
+                            id: oembedJson.author_name,
+                            property: {
+                                locatorLink: oembedJson.url,
+                                value: oembedJson.url,
+                                propertyName: 'locator'
+                            }
+                        }
+                    ],
+                    policy: [
+                        {
+                            id: oembedJson.author_name,
+                            property: {
+                                statementLink: oembedJson.license_url,
+                                statementLabel: oembedJson.license,
+                                value: oembedJson.license,
+                                typeLabel: 'license',
+                                propertyName: 'policy'
+                            }
+                        }
+                    ],
+                    title: [
+                        {
+                            id: oembedJson.author_name,
+                            property: {
+                                titleLabel: oembedJson.title,
+                                value: oembedJson.title,
+                                propertyName: 'title'
+                            }
+                        }
+                    ]
+                }
+            };
         }
 
         /**
@@ -275,6 +344,35 @@
         messaging.on(events.onImageRemoved, function (uuid) {
             var tabState = appState.getTabState(currentTabId);
             tabState.removeImageFromStorageByUuid(uuid);
+        });
+        messaging.on(events.oembedRequestRequired, function (imageObj) {
+            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
+                tabState = appState.getTabState(currentTabId),
+                contentWorker = tabState.getWorker();
+            if (oembedEndpoint) {
+                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    imageObjFromStorage.lookup = true;
+                    delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                    //sending lookup
+                    contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.details = oembedJsonToElogioJson(oembedJSON);
+                        indicateError();
+                        //sending details
+                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                }, function () {
+                    //on error we need calculate hash
+                    contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
+                });
+            } else {
+                //if this image doesn't match for oembed then calculate hash
+                contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
+            }
         });
         messaging.on(events.hashCalculated, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),

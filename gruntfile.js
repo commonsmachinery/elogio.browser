@@ -87,6 +87,7 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
+                        'node_modules/blockhash.js/node_modules/png-js/zlib.js',
                         'elogio-commons/data/deps/blockhash.js'
                     ],
                     '<%= buildDir%>/firefox/lib/common-chrome-lib.js': [
@@ -105,6 +106,7 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
+                        'node_modules/blockhash.js/node_modules/png-js/zlib.js',
                         'elogio-commons/data/deps/blockhash.js',
                         'elogio-chrome/data/modules/messaging.js'
                     ],
