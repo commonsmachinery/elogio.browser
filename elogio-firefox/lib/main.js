@@ -18,7 +18,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
-        config = modules.getModule('config');
+        config = modules.getModule('config'),
+        utils = modules.getModule('utils');
     var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
@@ -114,10 +115,33 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             var clipboardData = request.data;
             clipboard.set(clipboardData, request.type);
         });
-        bridge.on(bridge.events.hashRequired, function (imageObj) {
-            var tabState = appState.getTabState(tabs.activeTab.id),
+        bridge.on(bridge.events.oembedRequestRequired, function (imageObj) {
+            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
+                tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
-            if (contentWorker) {
+            if (oembedEndpoint) {
+                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.lookup = true;
+                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                        //sending lookup
+                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+
+                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
+                        indicateError();
+                        //sending details
+                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                }, function () {
+                    //on error we need calculate hash
+                    contentWorker.port.emit(bridge.events.hashRequired, imageObj);
+                });
+            } else {
+                //if this image doesn't match for oembed then calculate hash
                 contentWorker.port.emit(bridge.events.hashRequired, imageObj);
             }
         });

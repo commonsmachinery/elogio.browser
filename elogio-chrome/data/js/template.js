@@ -203,7 +203,7 @@ $(document).ready(function () {
                     });
                 });
                 //handle click on image card
-                object.imageListView.on('click', '.image-card img', function () {
+                object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
                     port.postMessage({eventName: bridge.events.onImageAction, data: imageObj.uuid, from: 'panel'}, sendTo);

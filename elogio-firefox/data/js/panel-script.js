@@ -120,7 +120,6 @@ $(document).ready(function () {
                     // Compile mustache templates
                     object.locale = locale;
                     Mustache.parse(template.imageItem);
-                    Mustache.parse(template.canvasTemplate);
                 });
 
                 // Subscribe for events
@@ -220,7 +219,7 @@ $(document).ready(function () {
                     });
                 });
                 //handle click on image card
-                object.imageListView.on('click', '.image-card img', function () {
+                object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj.uuid);
@@ -232,7 +231,7 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(config.sidebar.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
-                    bridge.emit(bridge.events.hashRequired, imageObj);
+                    bridge.emit(bridge.events.oembedRequestRequired, imageObj);
                 });
             };
 

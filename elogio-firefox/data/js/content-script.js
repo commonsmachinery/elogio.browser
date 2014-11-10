@@ -140,7 +140,7 @@ new Elogio(
                         var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
                             elements;
                         if (uuid) {
-                            bridge.emit(bridge.events.onImageRemoved, uuid);
+                            //bridge.emit(bridge.events.onImageRemoved, uuid);
                         }
                         // check if node has another removed elements
                         elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
@@ -148,7 +148,7 @@ new Elogio(
                             for (j = 0; j < elements.length; j++) {
                                 uuid = elements[j].getAttribute(config.ui.dataAttributeName);
                                 if (uuid) {
-                                    bridge.emit(bridge.events.onImageRemoved, uuid);
+                                    //bridge.emit(bridge.events.onImageRemoved, uuid);
                                 }
                             }
                         }

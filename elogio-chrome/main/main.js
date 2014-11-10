@@ -120,73 +120,6 @@
             }
         }
 
-        /**
-         * Translate json from oembed response to json from elog.io
-         */
-        function oembedJsonToElogioJson(oembedJson) {
-            return  {
-                added_by: {
-                    href: oembedJson.author_url,
-                    id: oembedJson.author_name
-                },
-                annotations: {
-                    copyright: [
-                        {
-                            id: oembedJson.author_name,
-                            property: {
-                                holderLabel: oembedJson.author_name,
-                                holderLink: oembedJson.author_url,
-                                value: oembedJson.author_name,
-                                propertyName: 'copyright'
-                            }
-                        }
-                    ],
-                    creator: [
-                        {
-                            id: oembedJson.author_name,
-                            property: {
-                                creatorLabel: oembedJson.author_name,
-                                creatorLink: oembedJson.author_url,
-                                value: oembedJson.author_name,
-                                propertyName: 'creator'
-                            }
-                        }
-                    ],
-                    locator: [
-                        {
-                            id: oembedJson.author_name,
-                            property: {
-                                locatorLink: oembedJson.url,
-                                value: oembedJson.url,
-                                propertyName: 'locator'
-                            }
-                        }
-                    ],
-                    policy: [
-                        {
-                            id: oembedJson.author_name,
-                            property: {
-                                statementLink: oembedJson.license_url,
-                                statementLabel: oembedJson.license,
-                                value: oembedJson.license,
-                                typeLabel: 'license',
-                                propertyName: 'policy'
-                            }
-                        }
-                    ],
-                    title: [
-                        {
-                            id: oembedJson.author_name,
-                            property: {
-                                titleLabel: oembedJson.title,
-                                value: oembedJson.title,
-                                propertyName: 'title'
-                            }
-                        }
-                    ]
-                }
-            };
-        }
 
         /**
          * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
@@ -358,7 +291,7 @@
                     //sending lookup
                     contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
                     if (imageObjFromStorage) {
-                        imageObjFromStorage.details = oembedJsonToElogioJson(oembedJSON);
+                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
                         indicateError();
                         //sending details
                         contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});

@@ -421,7 +421,7 @@ module.exports = function (grunt) {
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
                 'concat:firefoxModules',
-                'uglify:minifyFirefox',
+                'uglify:beautifyFirefox',
                 'mozilla-addon-sdk',
                 'mozilla-cfx'
             ]);
