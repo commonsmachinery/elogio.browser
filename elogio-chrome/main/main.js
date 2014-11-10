@@ -288,8 +288,6 @@
                         .findImageInStorageByUuid(imageObj.uuid);
                     imageObjFromStorage.lookup = true;
                     delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                    //sending lookup
-                    contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
                     if (imageObjFromStorage) {
                         imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
                         indicateError();

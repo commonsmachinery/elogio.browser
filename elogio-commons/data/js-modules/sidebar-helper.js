@@ -30,7 +30,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         if (
             utils.startsWith(license, 'licenses/by') ||
             utils.startsWith(license, 'publicdomain/mark') ||
-            utils.startWith(license, 'licenses/by-sa')) {
+                utils.startsWith(license, 'licenses/by-sa')) {
             licensePlaceHolder.css({
                 backgroundColor: 'green'
             });

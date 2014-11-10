@@ -126,9 +126,6 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                     if (imageObjFromStorage) {
                         imageObjFromStorage.lookup = true;
                         delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        //sending lookup
-                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
-
                         imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
                         indicateError();
                         //sending details
