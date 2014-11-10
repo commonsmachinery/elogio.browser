@@ -293,7 +293,8 @@ new Elogio(
                 }
 
                 // remove images from storage and panel once they disappear from DOM
-                for (i = 0; i < mutation.removedNodes.length; i += 1) {
+                /*
+                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
                         // if node is removed element
                         var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
@@ -315,7 +316,9 @@ new Elogio(
                         }
                     }
                 }
+                 */
             });
+
             //we scan only added to DOM nodes, don't need to rescan all DOM
             scanForImages(nodesToBeProcessed);
         });
