@@ -93,7 +93,6 @@ $(document).ready(function () {
 
 
             self.openImage = function (imageUUID, preventAnnotationsLoading) {
-                console.log('open image:  ' + imageUUID);
                 var imageCard = getImageCardByUUID(imageUUID);
                 $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
                 var imageObj = imageCard.data(config.sidebar.imageObject);
