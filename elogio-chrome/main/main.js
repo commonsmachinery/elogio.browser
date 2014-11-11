@@ -314,7 +314,7 @@
                 console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
                 elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                     if (Array.isArray(json) && json.length > 0) {
-                        imageObjFromStorage.lookup = json[0];
+                        imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
                         delete imageObjFromStorage.error;
                         delete imageObjFromStorage.noData;
                         contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received

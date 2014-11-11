@@ -64,7 +64,7 @@ Elogio.modules.utils = function (modules) {
      * Translate json from oembed response to json from elog.io
      */
     self.oembedJsonToElogioJson = function (oembedJson) {
-        return  {
+        return {
             added_by: {
                 href: oembedJson.author_url,
                 id: oembedJson.author_name
@@ -145,6 +145,21 @@ Elogio.modules.utils = function (modules) {
             }
         }
         return null;
+    };
+
+
+    self.getJSONByLowestDistance = function (arrayJSON) {
+        var minDistance = 0, index = 0;
+        for (var i = 0; i < arrayJSON.length; i++) {
+            if (!arrayJSON[i].hasOwnProperty('distance')) {
+                console.error('Received blockhash json without distance')
+            }
+            if (arrayJSON[i].distance <= minDistance) {
+                minDistance = arrayJSON[i].distance;
+                index = i;
+            }
+        }
+        return arrayJSON[index];
     };
 
 
