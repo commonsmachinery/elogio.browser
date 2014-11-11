@@ -21,7 +21,8 @@ module.exports = function (grunt) {
                     sections: {
                         imageCard: 'elogio-commons/data/templates/imageTemplate.html',
                         clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
-                        common: 'elogio-commons/data/templates/commonTemplate.html'
+                        common: 'elogio-commons/data/templates/commonTemplate.html',
+                        canvas: 'elogio-commons/data/templates/canvas.html'
                     }
                 }
             },
@@ -32,7 +33,8 @@ module.exports = function (grunt) {
                     sections: {
                         imageCard: 'elogio-commons/data/templates/imageTemplate.html',
                         clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
-                        common: 'elogio-commons/data/templates/commonTemplate.html'
+                        common: 'elogio-commons/data/templates/commonTemplate.html',
+                        canvas: 'elogio-commons/data/templates/canvas.html'
                     }
                 }
             }
@@ -94,9 +96,15 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'elogio-firefox/data/private-modules/*.js',
+                        'elogio-firefox/data/private-modules/elogio-request.js',
                         'elogio-commons/data/js-modules/chrome/*.js'
 
+                    ],
+                    '<%= buildDir%>/firefox/data/js/context-menu.js': [
+                        'elogio-commons/data/js/common.js',
+                        'elogio-commons/data/js/config.js',
+                        'elogio-commons/data/js-modules/dom.js',
+                        'elogio-firefox/data/private-modules/context-menu.js'
                     ]
                 }
             },
@@ -268,7 +276,7 @@ module.exports = function (grunt) {
                 expand: true
             },
             scriptsffx: {
-                src: ["**lib/*.js", "**/data/js/*.js"],
+                src: ["**lib/*.js", "**/data/js/*.js", "!**/context-menu.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true

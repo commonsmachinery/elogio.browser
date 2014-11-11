@@ -141,19 +141,6 @@ new Elogio(
                         if (uuid) {
                             bridge.emit(bridge.events.onImageRemoved, uuid);
                         }
-                        // check if node has another removed elements
-                        /*
-                         elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
-                        if (elements) {
-                            for (j = 0; j < elements.length; j++) {
-                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
-                                if (uuid) {
-                         //console.log('removed node with uuid: ' + uuid);
-                         //bridge.emit(bridge.events.onImageRemoved, uuid);
-                         }
-                         }
-                        }
-                         */
                     }
                 }
             });

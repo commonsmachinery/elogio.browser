@@ -31,7 +31,8 @@ $(document).ready(function () {
 
             var template = {
                 imageItem: $("#elogio-image-template").html(),
-                clipboardItem: $("#elogio-clipboard-template").html()
+                clipboardItem: $("#elogio-clipboard-template").html(),
+                canvasTemplate: $('#elogio-canvas-template')
             };
             var // eventHandlers = {},
                 self = {},
@@ -172,27 +173,29 @@ $(document).ready(function () {
                 //handle click on copy as html button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
                     var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
-                    annotations.uri = imageObj.uri;
                     if (imageObj.details) {
-                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
-                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
                     port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'html'}, from: 'panel'}, sendTo);
                 });
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
                     var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
-                    annotations.uri = imageObj.uri;
                     if (imageObj.details) {
-                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
-                    copyToClipBoard = sidebarHelper.jsonToString(annotations);
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
                     port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'text'}, from: 'panel'}, sendTo);
                 });
                 //handle click on image card

@@ -85,11 +85,11 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.pageProcessingFinished});
         };
 
-        function contextMenuHandler(event) {
-            activeElement = event.target;
+        function contextMenuHandler() {
+            activeElement = this;
         }
 
-        document.body.addEventListener('contextmenu', contextMenuHandler);
+        $('body').on('contextmenu', contextMenuHandler);
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
@@ -302,19 +302,6 @@ new Elogio(
                             portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
                             portToPanel.contentWindow.postMessage({eventName: bridge.events.onImageRemoved, data: uuid}, panelUrl);
                         }
-                        // check if node has another removed elements
-                        /*
-                         elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
-                        if (elements) {
-                            for (j = 0; j < elements.length; j++) {
-                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
-                                if (uuid) {
-                                    portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
-                                    portToPanel.contentWindow.postMessage({eventName: bridge.events.onImageRemoved, data: uuid}, panelUrl);
-                                }
-                            }
-                        }
-                         */
                     }
                 }
             });

@@ -7,15 +7,16 @@
         <div class="image-found" style="display:none">
             <div class="pull-left">
                 <div class="btn-group">
-                    <button dropDownl10n class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                    <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
+                    {{locale.dropDownMenuLabel}}
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a sourceLabell10n target="_blank" href="" class='elogio-locatorlink'></a></li>
-                        <li><a licenseLabell10n target="_blank" href="" class='elogio-license-link'></a></li>
-                        <li><a reportLabell10n class='elogio-report-work'></a></li>
-                        <li><a copyHtmlLabell10n class="elogio-clipboard-html"></a></li>
-                        <li><a copyJsonLabell10n class="elogio-clipboard-json"></a></li>
+                        <li><a target="_blank" href="" class='elogio-locatorlink'>{{locale.sourceButtonLabel}}</a></li>
+                        <li><a target="_blank" href="" class='elogio-license-link'>{{locale.licenseButtonLabel}}</a></li>
+                        <li><a class='elogio-report-work'>{{locale.reportButtonLabel}}</a></li>
+                        <li><a class="elogio-clipboard-html">{{locale.copyHtmlButtonLabel}}</a></li>
+                        <li><a class="elogio-clipboard-json">{{locale.copyJsonButtonLabel}}</a></li>
                     </ul>
                 </div>
             </div>
@@ -32,15 +33,15 @@
             </p>
         </div>
         <div class="image-not-found" style="display:none">
-            <div noLookupl10n class="alert alert-warning"></div>
-            <button queryLabell10n class="btn btn-primary query-button"></button>
+            <div class="alert alert-warning">{{locale.noLookup}}</div>
+            <button class="btn btn-primary query-button">{{locale.queryButtonLabel}}</button>
         </div>
     </div>
     <div class="message-area" style="display:none"></div>
     <div id="elogio-not-found" class="alert error-area alert-danger" style="display:none"></div>
     <div class="loading" style="display:none"></div>
     <div>
-        <a openImageInNewTabl10n class="btn btn-primary elogio-hash" style="display:none" target="_blank"></a>
+        <a class="btn btn-primary elogio-hash" style="display:none" target="_blank">{{locale.openImgInNewTabLabel}}</a>
     </div>
 </div>
 

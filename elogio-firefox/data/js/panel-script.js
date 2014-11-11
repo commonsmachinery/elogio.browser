@@ -188,27 +188,29 @@ $(document).ready(function () {
                 //handle click on copy as html button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
                     var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
-                    annotations.uri = imageObj.uri;
                     if (imageObj.details) {
-                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
-                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
                     bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'});
                 });
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
                     var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
-                    annotations.uri = imageObj.uri;
                     if (imageObj.details) {
-                        sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
-                    copyToClipBoard = sidebarHelper.jsonToString(annotations);
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
                     bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
                 });
                 //handle click on image card

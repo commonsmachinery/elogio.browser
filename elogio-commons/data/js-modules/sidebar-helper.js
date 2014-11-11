@@ -30,7 +30,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         if (
             utils.startsWith(license, 'licenses/by') ||
             utils.startsWith(license, 'publicdomain/mark') ||
-                utils.startsWith(license, 'licenses/by-sa')) {
+            utils.startsWith(license, 'licenses/by-sa')) {
             licensePlaceHolder.css({
                 backgroundColor: 'green'
             });
@@ -56,8 +56,8 @@ Elogio.modules.sidebarHelper = function (modules) {
      */
 
 
-    self.createCanvas = function (document, imageCard, callback) {
-        var canvas = document.createElement('canvas'),
+    self.createCanvas = function (document, imageCard, canvasTemplate, callback) {
+        var canvas = document.createElement('canvas'), dataCanvas,
             ctx = canvas.getContext('2d');
         //load image
         var image = new Image();
@@ -65,22 +65,17 @@ Elogio.modules.sidebarHelper = function (modules) {
         image.crossOrigin = "Anonymous";
         image.src = imageCard.data(config.sidebar.imageObject).uri;
         //when load then ...
+        var renderData = {
+            width: imageCard.find('.elogio-image-details').width(),
+            height: imageCard.find('.elogio-image-details').height(),
+            title: imageCard.find('.elogio-annotations-title').html(),
+            by: imageCard.find('.elogio-annotations-by').html(),
+            license: imageCard.find('.elogio-license').html()
+        };
+        dataCanvas = $(Mustache.render(canvasTemplate, {'renderData': renderData}));
         image.onload = function () {
             //it's a label under an image
-            var data = "data:image/svg+xml," +
-                '<svg xmlns="http://www.w3.org/2000/svg" width="' + imageCard.find('.elogio-image-details').width() + '" height="' + imageCard.find('.elogio-image-details').height() + '">' +
-                '<foreignObject width="100%" height="100%">' +
-                '<div xmlns="http://www.w3.org/1999/xhtml" style="font-size:16px">' +
-                imageCard.find('.elogio-annotations-title').html() +
-                '<p>' +
-                imageCard.find('.elogio-annotations-by').html() +
-                '</p>' +
-                '<p>' +
-                imageCard.find('.elogio-license').html() +
-                '</p>' +
-                '</div>' +
-                '</foreignObject>' +
-                '</svg>';
+            var data = "data:image/svg+xml," + $(dataCanvas).html();
             //load an image for label
             var img = new Image();
             //when image ready then ...
@@ -108,6 +103,12 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @returns {*}
      */
     self.jsonToString = function (annotations) {
+        function replacer(key, value) {
+            if (!value) {
+                return undefined;
+            }
+            return value;
+        }
         var stringJson = {
             locatorLink: annotations.locatorLink,
             titleLabel: annotations.titleLabel,
@@ -119,7 +120,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             copyrightLabel: annotations.copyrightLabel
 
         };
-        return JSON.stringify(stringJson);
+        return JSON.stringify(stringJson, replacer);
     };
 
     /**
@@ -128,15 +129,16 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @returns {*}
      */
     self.initAnnotationsForCopyHandler = function (annotations) {
-        annotations.locatorLink = annotations.getLocatorLink();
-        annotations.titleLabel = annotations.getTitle();
-        annotations.creatorLink = annotations.getCreatorLink();
-        annotations.creatorLabel = annotations.getCreatorLabel();
-        annotations.licenseLink = annotations.getLicenseLink();
-        annotations.licenseLabel = annotations.getLicenseLabel();
-        annotations.copyrightLink = annotations.getCopyrightLink();
-        annotations.copyrightLabel = annotations.getCopyrightLabel();
-        return annotations;
+        return {
+            locatorLink: annotations.getLocatorLink(),
+            titleLabel: annotations.getTitle(),
+            creatorLink: annotations.getCreatorLink(),
+            creatorLabel: annotations.getCreatorLabel(),
+            licenseLink: annotations.getLicenseLink(),
+            licenseLabel: annotations.getLicenseLabel(),
+            copyrightLink: annotations.getCopyrightLink(),
+            copyrightLabel: annotations.getCopyrightLabel()
+        };
     };
 
     /**
@@ -144,22 +146,13 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @param imageList - jquery object container of image cards
      * @param imageObj - image object which we get from content {uri, uuid, lookup, details, error}
      * @param imageItemTemplate - jquery object (selector) of template
+     * @param locale - locale
      */
     self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate, locale) {
         // Try to find existing card and create the new one if it wasn't rendered before
         var cardElement = imageList.find('#' + imageObj.uuid);
         if (!cardElement.length) {
-            cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj}));
-            cardElement.find('[dropDownl10n]').text(locale.dropDownMenuLabel);
-            cardElement.find('[copyHtmlLabell10n]').text(locale.copyHtmlButtonLabel);
-            cardElement.find('[copyJsonLabell10n]').text(locale.copyJsonButtonLabel);
-            cardElement.find('[copyImgLabell10n]').text(locale.copyImgButtonLabel);
-            cardElement.find('[sourceLabell10n]').text(locale.sourceButtonLabel);
-            cardElement.find('[licenseLabell10n]').text(locale.licenseButtonLabel);
-            cardElement.find('[reportLabell10n]').text(locale.reportButtonLabel);
-            cardElement.find('[noLookupl10n]').text(locale.noLookup);
-            cardElement.find('[queryLabell10n]').text(locale.queryButtonLabel);
-            cardElement.find('[openImageInNewTabl10n]').text(locale.openImgInNewTabLabel);
+            cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj, 'locale': locale}));
             cardElement.data(config.sidebar.imageObject, imageObj);
             imageList.append(cardElement);
         }
