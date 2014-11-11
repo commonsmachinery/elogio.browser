@@ -78,4 +78,16 @@ Elogio.modules.elogioServer = function (modules) {
         url += urlHelperBuilder(options);
         elogioRequest.sendRequest(url, onLoad, onError);
     };
+
+    /**
+     *
+     * @param oembedEndpoint - endpoint for oembed request
+     * @param imageUrl - url of image which needs for oembed data
+     * @param onError
+     * @param onLoad
+     */
+    self.oembedLookup = function (oembedEndpoint, imageUrl, onLoad, onError) {
+        var url = oembedEndpoint + urlHelperBuilder({url: imageUrl});
+        elogioRequest.sendRequest(url, onLoad, onError);
+    };
 };

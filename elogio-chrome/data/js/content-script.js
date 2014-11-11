@@ -13,6 +13,8 @@ new Elogio(
             panelUrl = chrome.extension.getURL('html/template.html'),
             observer,
             portToPanel,
+            blockhash = blockhashjs.blockhash,
+            activeElement = null,
             isPluginEnabled = true;
         config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         /*
@@ -21,7 +23,19 @@ new Elogio(
          =======================
          */
         var portToPlugin = chrome.runtime.connect({name: "content"});
-
+        var locale = {
+            feedbackLabel: chrome.i18n.getMessage('feedbackLabel'),
+            dropDownMenuLabel: chrome.i18n.getMessage('dropDownMenuLabel'),
+            copyHtmlButtonLabel: chrome.i18n.getMessage('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: chrome.i18n.getMessage('copyJsonButtonLabel'),
+            copyImgButtonLabel: chrome.i18n.getMessage('copyImgButtonLabel'),
+            sourceButtonLabel: chrome.i18n.getMessage('sourceButtonLabel'),
+            licenseButtonLabel: chrome.i18n.getMessage('licenseButtonLabel'),
+            reportButtonLabel: chrome.i18n.getMessage('reportButtonLabel'),
+            queryButtonLabel: chrome.i18n.getMessage('queryButtonLabel'),
+            openImgInNewTabLabel: chrome.i18n.getMessage('openImageInNewTabLabel'),
+            noLookup: chrome.i18n.getMessage('noLookup')
+        };
         /**
          * Emit from panel
          * @param event
@@ -71,15 +85,14 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.pageProcessingFinished});
         };
 
-        function contextMenuHandler(event) {
-            var uuid = event.target.getAttribute(config.ui.dataAttributeName);
-            portToPlugin.postMessage({eventName: events.setUUID, data: uuid});
-        }
+        var contextMenuHandler = function (event) {
+            activeElement = event.target;
+        };
 
+        $('body').on('contextmenu', contextMenuHandler);
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
-                dom.getElementByUUID(imageObj.uuid).addEventListener('contextmenu', contextMenuHandler);
                 portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
                 portToPlugin.postMessage({eventName: events.newImageFound, data: imageObj});
             }, function () {
@@ -119,8 +132,30 @@ new Elogio(
             if (sidebar.is(':hidden')) {
                 $('#elogio-button-panel').trigger('click');
             }
-            if (uuid) {
-                portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: uuid}, panelUrl);
+            //if uuid exists then it's event from the pane, else it's event from content (context menu)
+            var targetUUID = uuid || null;
+            if (!targetUUID) {
+                if (activeElement) {
+                    //if click on image element then we don't need to check all children
+                    var element = activeElement.getAttribute(config.ui.elogioFounded);
+                    var uuidActiveElement = null;
+                    if (!element) {//it may mean what image has overlaps another element
+                        var children = dom.getElementsByAttribute(config.ui.elogioFounded, activeElement);
+                        //need to check if user click on element which contains many images, then we don't need to scroll
+                        if (children.length === 1) {
+                            targetUUID = children[0].getAttribute(config.ui.dataAttributeName);
+                        } else {
+                            targetUUID = null;
+                        }
+                    } else {
+                        uuidActiveElement = activeElement.getAttribute(config.ui.dataAttributeName);
+                    }
+                    targetUUID = uuidActiveElement || targetUUID;
+                    activeElement = null;
+                }
+            }
+            if (targetUUID) {
+                portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: targetUUID}, panelUrl);
             }
         }
 
@@ -142,13 +177,12 @@ new Elogio(
         messaging.on(events.doorBellInjection, function (data) {
             document.dispatchEvent(new CustomEvent('doorbell-injection', {detail: data}));
         }, 'panel');
-        messaging.on(events.hashRequired, function (imageObj) {
-            blockhash(imageObj.uri, 16, 2, function (error, hash) {
-                imageObj.error = error;
-                imageObj.hash = hash;
-                portToPlugin.postMessage({eventName: events.hashCalculated, data: imageObj});
-            });
+
+
+        messaging.on(events.oembedRequestRequired, function (imageObj) {
+            portToPlugin.postMessage({eventName: events.oembedRequestRequired, data: imageObj});
         }, 'panel');
+
         messaging.on(events.copyToClipBoard, function (copyElement) {
             portToPlugin.postMessage({eventName: events.copyToClipBoard, data: copyElement});
         }, 'panel');
@@ -160,6 +194,9 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
         });
         messaging.on(events.startPageProcessing, function () {
+            portToPanel.contentWindow.postMessage({eventName: bridge.events.l10nSetupLocale, data: locale}, panelUrl);
+        }, 'panel');
+        messaging.on(events.l10nSetupLocale, function () {
             scanForImages();
         }, 'panel');
 
@@ -169,6 +206,13 @@ new Elogio(
          =======================
          */
         messaging.on(events.onImageAction, onImageActionHandler);
+        messaging.on(events.hashRequired, function (imageObj) {
+            blockhash(imageObj.uri, 16, 2, function (error, hash) {
+                imageObj.error = error || null;
+                imageObj.hash = hash || null;
+                portToPlugin.postMessage({eventName: events.hashCalculated, data: imageObj});
+            });
+        });
         messaging.on(events.imageDetailsReceived, function (imageObj) {
             portToPanel.contentWindow.postMessage({eventName: events.imageDetailsReceived, data: imageObj}, panelUrl);
         });
@@ -249,29 +293,19 @@ new Elogio(
                 }
 
                 // remove images from storage and panel once they disappear from DOM
+
                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
                         // if node is removed element
-                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
-                            elements;
+                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
                         if (uuid) {
                             portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
                             portToPanel.contentWindow.postMessage({eventName: bridge.events.onImageRemoved, data: uuid}, panelUrl);
                         }
-                        // check if node has another removed elements
-                        elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
-                        if (elements) {
-                            for (j = 0; j < elements.length; j++) {
-                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
-                                if (uuid) {
-                                    portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
-                                    portToPanel.contentWindow.postMessage({eventName: bridge.events.onImageRemoved, data: uuid}, panelUrl);
-                                }
-                            }
-                        }
                     }
                 }
             });
+
             //we scan only added to DOM nodes, don't need to rescan all DOM
             scanForImages(nodesToBeProcessed);
         });

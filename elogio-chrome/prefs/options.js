@@ -2,17 +2,17 @@
  * Created by TEMA on 17.10.2014.
  */
 // Saves options to chrome.storage
-function save_options() {
-    var deepScan = document.getElementById('deepScan').checked;
-    var highlightRecognizedImages = document.getElementById('highlightRecognizedImages').checked;
-    var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');
+function saveOptions() {
+    var deepScan = $('#deepScan')[0].checked;
+    var highlightRecognizedImages = $('#highlightRecognizedImages')[0].checked;
+    var serverUrl = $('#serverUrl').attr('serverUrl');
     chrome.storage.sync.set({
         deepScan: deepScan,
         highlightRecognizedImages: highlightRecognizedImages,
         serverUrl: serverUrl
     }, function () {
         // Update status to let user know options were saved.
-        var status = document.getElementById('status');
+        var status = $('#status')[0];
         status.textContent = 'Options saved.';
         setTimeout(function () {
             status.textContent = '';
@@ -22,19 +22,20 @@ function save_options() {
 
 // Restores select box and checkbox state using the preferences
 // stored in chrome.storage.
-function restore_options() {
-    // Use default value color = 'red' and likesColor = true.
-    var serverUrl = document.getElementById('serverUrl').getAttribute('serverUrl');
+function restoreOptions() {
+
+    $('#deepScanLabel')[0].innerHTML = chrome.i18n.getMessage('deepScan');
+    $('#highlightRecognizedImagesLabel')[0].innerHTML = chrome.i18n.getMessage('highlightRecognizedImages');
+    var serverUrl = $('#serverUrl').attr('serverUrl');
     chrome.storage.sync.get({
         deepScan: true,
         highlightRecognizedImages: false,
         serverUrl: serverUrl
     }, function (items) {
-        document.getElementById('deepScan').checked = items.deepScan;
-        document.getElementById('highlightRecognizedImages').checked = items.highlightRecognizedImages;
-        document.getElementById('serverUrl').setAttribute('serverUrl', items.serverUrl);
+        $('#deepScan')[0].checked = items.deepScan;
+        $('#highlightRecognizedImages')[0].checked = items.highlightRecognizedImages;
+        $('#serverUrl').attr('serverUrl', items.serverUrl);
     });
 }
-document.addEventListener('DOMContentLoaded', restore_options);
-document.getElementById('save').addEventListener('click',
-    save_options);
+$(document).ready(restoreOptions);
+$('#save').on('click', saveOptions);

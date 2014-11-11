@@ -115,7 +115,15 @@ Elogio.modules.bridge = function (modules) {
         /**
          * fires when need to send message to content script (doorbell actions)
          */
-        doorBellInjection: 'doorbellInjection'
+        doorBellInjection: 'doorbellInjection',
+        /**
+         * Fires when need to setup the locale
+         */
+        l10nSetupLocale: 'l10nSetupLocale',
+        /**
+         * Fires when user click on query button at first time, and at first we need to check oembed data if exist
+         */
+        oembedRequestRequired: 'oembedRequestRequired'
     };
 
     this.registerClient = function (transportObj, name) {

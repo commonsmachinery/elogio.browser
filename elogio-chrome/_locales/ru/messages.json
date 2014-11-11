@@ -1,0 +1,78 @@
+{
+    "appName": {
+        "message": "Elog.io плагин"
+    },
+    "appDesc": {
+        "message": "Ищет информацию о картинках на страничке на сервере Elog.io"
+    },
+    "requestError_01": {
+        "message": "Сервер ответил, но с ошибками"
+    },
+    "requestError_02": {
+        "message": "Ошибка сети"
+    },
+    "requestError_03": {
+        "message": "Ошибка на сервере"
+    },
+
+    "pluginGlobalError": {
+        "message": "Elog.io не смог загрузить данные с сервера для одной или более картинок. Для детальной информации проверьте панель Elog.io"
+    },
+    "noDataForImage": {
+        "message": "Извините, этого изображения еще нет в каталоге Elog.io"
+    },
+    "blockhashError": {
+        "message": "Изображение не удалось распознать (скорее всего изза политики безопасности). Но вы можете открыть изображение на новой вкладке и попробовать снова."
+    },
+    "pluginStateOff": {
+        "message": "Elog.io плагин сейчас выключен"
+    },
+    "pluginStateOn": {
+        "message": "Elog.io"
+    },
+    "sidebarTitle": {
+        "message": "Каталог изображений Elog.io"
+    },
+    "contextMenuItem_01": {
+        "message": "Найти в панели Elog.io"
+    },
+    "noLookup": {
+        "message": "У нас нет информации об этом изображении, но вы можете сделать запрос к Elog.io с более детальным поиском."
+    },
+    "feedbackLabel": {
+        "message": "Обратная связь"
+    },
+    "dropDownMenuLabel": {
+        "message": "Действия"
+    },
+    "copyHtmlButtonLabel": {
+        "message": "Копировать как HTML"
+    },
+    "copyJsonButtonLabel": {
+        "message": "Копировать как JSON"
+    },
+    "copyImgButtonLabel": {
+        "message": "Копировать  как картинку"
+    },
+    "sourceButtonLabel": {
+        "message": "Просмотреть источник"
+    },
+    "licenseButtonLabel": {
+        "message": "Просмотреть лицензию"
+    },
+    "reportButtonLabel": {
+        "message": "Доложить"
+    },
+    "queryButtonLabel": {
+        "message": "Запрос"
+    },
+    "openImageInNewTabLabel": {
+        "message": "Открыть в новой вкладке"
+    },
+    "highlightRecognizedImages": {
+        "message": "Подсвечивает каждое найденное изображение в каталоге красной рамкой"
+    },
+    "deepScan": {
+        "message": "Если опция включена, то плагин будет искать все картинки на странице, даже те которые являются фоном."
+    }
+}

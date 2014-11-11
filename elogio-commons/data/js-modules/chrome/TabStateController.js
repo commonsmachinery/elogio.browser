@@ -71,7 +71,7 @@ Elogio.TabStateController = function () {
         var store = getImageStorage(), key;
         for (key in store) {
             if (store.hasOwnProperty(key)) {
-                if (store[key].error) {
+                if (store[key].error && !store[key].noData) {
                     return true;
                 }
             }

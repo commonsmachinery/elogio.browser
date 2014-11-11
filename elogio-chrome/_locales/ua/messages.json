@@ -1,0 +1,78 @@
+{
+    "appName": {
+        "message": "Elog.io плагін"
+    },
+    "appDesc": {
+        "message": "Знаходить інформацію про зображення на веб сторінці на сервері Elog.io"
+    },
+    "requestError_01": {
+        "message": "Сервер відповів, але з помилками"
+    },
+    "requestError_02": {
+        "message": "Помилка мережі"
+    },
+    "requestError_03": {
+        "message": "Помилка роботи сервера"
+    },
+
+    "pluginGlobalError": {
+        "message": "Elog.io не зміг завантажити дані з сервера. Для більш детальної інформації перевірте панель Elog.io"
+    },
+    "noDataForImage": {
+        "message": "Вибачте, але цього зображення не має в каталозі Elog.io"
+    },
+    "blockhashError": {
+        "message": "Зображення не вдалось розпізнати (більш за все із-за політики безпеки браузера). Але ви можете відкрити зображення на новій вкладці та спробувати знову."
+    },
+    "pluginStateOff": {
+        "message": "Elog.io плагін відключеній зараз"
+    },
+    "pluginStateOn": {
+        "message": "Elog.io"
+    },
+    "sidebarTitle": {
+        "message": "Elog.io каталог зображень"
+    },
+    "contextMenuItem_01": {
+        "message": "Знайти в панелі Elog.io"
+    },
+    "noLookup": {
+        "message": "У нас відсутня інформація для цього зображення, але ви можете зробити запит до Elog.io з більш детальним пошуком."
+    },
+    "feedbackLabel": {
+        "message": "Зворотній зв'язок"
+    },
+    "dropDownMenuLabel": {
+        "message": "Дії"
+    },
+    "copyHtmlButtonLabel": {
+        "message": "Скопіювати як HTML"
+    },
+    "copyJsonButtonLabel": {
+        "message": "Скопіювати як JSON"
+    },
+    "copyImgButtonLabel": {
+        "message": "Скопіювати  як зображення"
+    },
+    "sourceButtonLabel": {
+        "message": "Перейти до джерела"
+    },
+    "licenseButtonLabel": {
+        "message": "Ознайомитись з ліцензією"
+    },
+    "reportButtonLabel": {
+        "message": "Звітувати"
+    },
+    "queryButtonLabel": {
+        "message": "Запит"
+    },
+    "openImageInNewTabLabel": {
+        "message": "Відкрити в новій вкладці"
+    },
+    "highlightRecognizedImages": {
+        "message": "Позначає кожне знайдене зображення в каталозі червоною рамкою"
+    },
+    "deepScan": {
+        "message": "Якщо ця опція увімкнена, то плагін буде шукати навіть фонові зображення"
+    }
+}

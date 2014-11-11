@@ -1,0 +1,78 @@
+{
+    "appName": {
+        "message": "Elog.io Browser Extension"
+    },
+    "appDesc": {
+        "message": "Browser extension to easily query a catalog of photographs to answer: is this photograph I'm looking at openly licensed?"
+    },
+    "requestError_01": {
+        "message": "Server responded, but with errors"
+    },
+    "requestError_02": {
+        "message": "Network communication error"
+    },
+    "requestError_03": {
+        "message": "Internal server error"
+    },
+
+    "pluginGlobalError": {
+        "message": "Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details."
+    },
+    "noDataForImage": {
+        "message": "Sorry, we couldn't match this against any image in the Elog.io catalog"
+    },
+    "blockhashError": {
+        "message": "The image could not be matched (most likely the web site you're viewing has security restrictions) that prevent us from reading the image. You can open this image in new tab and try query again."
+    },
+    "pluginStateOff": {
+        "message": "Elog.io plug-in is disabled now"
+    },
+    "pluginStateOn": {
+        "message": "Elog.io"
+    },
+    "sidebarTitle": {
+        "message": "Elog.io Image Catalog"
+    },
+    "contextMenuItem_01": {
+        "message": "Find in Elog.io"
+    },
+    "noLookup": {
+        "message": "We don't have any information about this image, but you can query Elog.io to match it against images in the catalog."
+    },
+    "feedbackLabel": {
+        "message": "feedback"
+    },
+    "dropDownMenuLabel": {
+        "message": "Actions"
+    },
+    "copyHtmlButtonLabel": {
+        "message": "Copy as HTML"
+    },
+    "copyJsonButtonLabel": {
+        "message": "Copy as JSON"
+    },
+    "copyImgButtonLabel": {
+        "message": "Copy as an image"
+    },
+    "sourceButtonLabel": {
+        "message": "View source"
+    },
+    "licenseButtonLabel": {
+        "message": "View license"
+    },
+    "reportButtonLabel": {
+        "message": "Report"
+    },
+    "queryButtonLabel": {
+        "message": "Query"
+    },
+    "openImageInNewTabLabel": {
+        "message": "Open Image in new tab"
+    },
+    "highlightRecognizedImages": {
+        "message": "Mark each recognized image on a page with a red border."
+    },
+    "deepScan": {
+        "message": "Enables a more thorough but also more time-consuming search that includes element background images.  Websites often use background images even for the main content to achieve more dynamic effects or to make it difficult to copy images."
+    }
+}

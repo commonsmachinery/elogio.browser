@@ -43,7 +43,7 @@ Elogio.Annotations = function (imageObj, config) {
     }
 
     this.getOwner = function () {
-        if (!details && !details.owner) {
+        if (!details || !details.owner) {
             return null;
         }
         var some = details.owner.user || details.owner.org;
@@ -85,7 +85,7 @@ Elogio.Annotations = function (imageObj, config) {
     };
 
     this.getGravatarLink = function () {
-        if (!details && !details.owner) {
+        if (!details || !details.owner) {
             return null;
         }
         var owner = details.owner.user || details.owner.org;
