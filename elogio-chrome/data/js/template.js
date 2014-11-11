@@ -195,13 +195,6 @@ $(document).ready(function () {
                     copyToClipBoard = sidebarHelper.jsonToString(annotations);
                     port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'text'}, from: 'panel'}, sendTo);
                 });
-                //handle click on copy as image button
-                object.imageListView.on('click', '.image-card .elogio-clipboard-img', function () {
-                    var imageCard = $(this).closest('.image-card');
-                    sidebarHelper.createCanvas(document, imageCard, function (url) {
-                        port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: url, type: 'image'}, from: 'panel'}, sendTo);
-                    });
-                });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');
