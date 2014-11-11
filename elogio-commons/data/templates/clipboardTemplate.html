@@ -7,29 +7,33 @@
         </div>
         <p>
         {{#imageObj.locatorLink}}
-                <a href="{{imageObj.locatorLink}}"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
+                <a href="{{imageObj.locatorLink}}" property="http://purl.org/dc/elements/1.1/title"> {{#imageObj.titleLabel}} {{imageObj.titleLabel}} {{/imageObj.titleLabel}} {{^imageObj.titleLabel}} {{imageObj.locatorLink}} {{/imageObj.titleLabel}} </a>
         {{/imageObj.locatorLink}}
          {{#imageObj.copyrightLink}}
             by
-             <a href="{{imageObj.copyrightLink}}"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
+             <a href="{{imageObj.copyrightLink}}" property="http://creativecommons.org/ns#attributionName" rel="http://creativecommons.org/ns#attributionURL"> {{#imageObj.copyrightLabel}} {{imageObj.copyrightLabel}} {{/imageObj.copyrightLabel}} {{^imageObj.copyrightLabel}} {{imageObj.copyrightLink}} {{/imageObj.copyrightLabel}} </a>
         {{/imageObj.copyrightLink}}
 
 
         {{^imageObj.copyrightLink}}
              {{#imageObj.creatorLink}}
                 by
-                    <a href="{{imageObj.creatorLink}}"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
+                    <a href="{{imageObj.creatorLink}}" property="http://creativecommons.org/ns#attributionName" rel="http://creativecommons.org/ns#attributionURL"> {{#imageObj.creatorLabel}}  {{imageObj.creatorLabel}} {{/imageObj.creatorLabel}}  {{^imageObj.creatorLabel}} {{imageObj.creatorLink}} {{/imageObj.creatorLabel}} </a>
             {{/imageObj.creatorLink}}
 
             {{^imageObj.creatorLink}}
-                 {{#imageObj.creatorLabel}}by {{imageObj.creatorLabel}}{{/imageObj.creatorLabel}}
+                 {{#imageObj.creatorLabel}}
+                     by <span property="http://creativecommons.org/ns#attributionName">{{imageObj.creatorLabel}}</span>
+                 {{/imageObj.creatorLabel}}
             {{/imageObj.creatorLink}}
         {{/imageObj.copyrightLink}}
         {{#imageObj.licenseLink}}
-             <a href="{{imageObj.licenseLink}}"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
+             <a href="{{imageObj.licenseLink}}" rel="http://www.w3.org/1999/xhtml/vocab#license"> {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}} {{^imageObj.licenseLabel}} {{imageObj.licenseLink}} {{/imageObj.licenseLabel}} </a>
         {{/imageObj.licenseLink}}
         {{^imageObj.licenseLink}}
-             {{#imageObj.licenseLabel}} {{imageObj.licenseLabel}} {{/imageObj.licenseLabel}}
+             {{#imageObj.licenseLabel}}
+                 <span property="http://www.w3.org/1999/xhtml/vocab#license">{{imageObj.licenseLabel}}</span>
+             {{/imageObj.licenseLabel}}
         {{/imageObj.licenseLink}}
         </p>
     </div>
