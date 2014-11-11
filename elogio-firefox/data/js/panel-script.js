@@ -11,8 +11,10 @@ $(document).ready(function () {
             };
             var template = {
                 imageItem: $("#elogio-image-template").html(),
-                clipboardItem: $("#elogio-clipboard-template").html()
+                clipboardItem: $("#elogio-clipboard-template").html(),
+                canvasTemplate: $('#elogio-canvas-template').html()
             };
+            Mustache.parse(template.canvasTemplate);
             var
                 self = {},
                 isPluginEnabled = true;

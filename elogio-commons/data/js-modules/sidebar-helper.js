@@ -72,10 +72,10 @@ Elogio.modules.sidebarHelper = function (modules) {
             by: imageCard.find('.elogio-annotations-by').html(),
             license: imageCard.find('.elogio-license').html()
         };
-        dataCanvas = $(Mustache.render(canvasTemplate, {'renderData': renderData}));
+        dataCanvas = Mustache.render(canvasTemplate, {'renderData': renderData});
         image.onload = function () {
             //it's a label under an image
-            var data = "data:image/svg+xml," + $(dataCanvas).html();
+            var data = "data:image/svg+xml," + dataCanvas;
             //load an image for label
             var img = new Image();
             //when image ready then ...

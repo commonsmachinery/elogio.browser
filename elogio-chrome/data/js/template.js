@@ -32,7 +32,7 @@ $(document).ready(function () {
             var template = {
                 imageItem: $("#elogio-image-template").html(),
                 clipboardItem: $("#elogio-clipboard-template").html(),
-                canvasTemplate: $('#elogio-canvas-template')
+                canvasTemplate: $('#elogio-canvas-template').html()
             };
             var // eventHandlers = {},
                 self = {},
