@@ -152,7 +152,8 @@ Elogio.modules.utils = function (modules) {
         var minDistance = 0, index = 0;
         for (var i = 0; i < arrayJSON.length; i++) {
             if (!arrayJSON[i].hasOwnProperty('distance')) {
-                console.error('Received blockhash json without distance')
+                console.error('Received blockhash json without distance');
+                return;
             }
             if (arrayJSON[i].distance <= minDistance) {
                 minDistance = arrayJSON[i].distance;
