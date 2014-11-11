@@ -85,9 +85,9 @@ new Elogio(
             portToPlugin.postMessage({eventName: events.pageProcessingFinished});
         };
 
-        function contextMenuHandler() {
-            activeElement = this;
-        }
+        var contextMenuHandler = function (event) {
+            activeElement = event.target;
+        };
 
         $('body').on('contextmenu', contextMenuHandler);
         function scanForImages(nodes) {
