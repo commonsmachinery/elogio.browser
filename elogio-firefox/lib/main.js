@@ -3,7 +3,8 @@ var Elogio = require('./common-chrome-lib.js').Elogio;
 
 new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], function (modules) {
     // FF modules
-    var buttons = require('sdk/ui/button/action'),
+    var _ = require('sdk/l10n').get,
+        buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
@@ -13,12 +14,12 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         errorIndicator = self.data.url("img/error.png"),
         elogioIcon = self.data.url("img/icon-72.png"),
         elogioDisableIcon = self.data.url("img/icon-72-disabled.png"),
-        contextMenu = require("sdk/context-menu"),
-        elogioLabel = "Elog.io";
+        contextMenu = require("sdk/context-menu");
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
         elogioServer = modules.getModule('elogioServer'),
-        config = modules.getModule('config');
+        config = modules.getModule('config'),
+        utils = modules.getModule('utils');
     var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
@@ -90,11 +91,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     function getTextStatusByStatusCode(statusCode) {
         switch (statusCode) {
             case 200:
-                return config.errors.requestError;
+                return _('requestError_01');
             case 0:
-                return 'Network communication error';
+                return _('requestError_02');
             default:
-                return 'Internal server error';
+                return _('requestError_03');
         }
     }
 
@@ -110,13 +111,34 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 contentWorker.port.emit(bridge.events.onImageAction, uuid);
             }
         });
-        bridge.on(bridge.events.copyToClipBoard, function (textHTML) {
-            clipboard.set(textHTML, 'html');
+        bridge.on(bridge.events.copyToClipBoard, function (request) {
+            var clipboardData = request.data;
+            clipboard.set(clipboardData, request.type);
         });
-        bridge.on(bridge.events.hashRequired, function (imageObj) {
-            var tabState = appState.getTabState(tabs.activeTab.id),
+        bridge.on(bridge.events.oembedRequestRequired, function (imageObj) {
+            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
+                tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
-            if (contentWorker) {
+            if (oembedEndpoint) {
+                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.lookup = true;
+                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
+                        indicateError();
+                        //sending details
+                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                }, function () {
+                    //on error we need calculate hash
+                    contentWorker.port.emit(bridge.events.hashRequired, imageObj);
+                });
+            } else {
+                //if this image doesn't match for oembed then calculate hash
                 contentWorker.port.emit(bridge.events.hashRequired, imageObj);
             }
         });
@@ -200,11 +222,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     function toggleSidebar() {
         if (!sidebarIsHidden) {
             button.icon = elogioDisableIcon;
-            button.label = 'Elog.io plug-in is disabled now';
+            button.label = _('pluginStateOff');
             elogioSidebar.hide();
         } else {
             button.icon = elogioIcon;
-            button.label = elogioLabel;
+            button.label = _('pluginStateOn');
             elogioSidebar.show();
         }
     }
@@ -227,19 +249,19 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         if (!imageObj) { //indicator if has errors then draw indicator on button
             if (!tabState.hasErrors()) {
                 button.icon = elogioIcon;
-                button.label = elogioLabel;
+                button.label = _('pluginStateOn');
             } else {
                 button.icon = errorIndicator;
-                button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
+                button.label = _('pluginGlobalError');
             }
         }
-        if (imageObj && imageObj.error) {
+        if (imageObj && imageObj.error && !imageObj.noData) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.';
-            if (!sidebarIsHidden) {
-                bridge.emit(bridge.events.newImageFound, imageObj);
-            }
+            button.label = _('pluginGlobalError');
+        }
+        if (imageObj && imageObj.error && !sidebarIsHidden) {
+            bridge.emit(bridge.events.newImageFound, imageObj);
         }
     }
 
@@ -261,6 +283,23 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         }
     }
 
+    function setupLocale(bridge) {
+        var locale = {
+            feedbackLabel: _('feedbackLabel'),
+            dropDownMenuLabel: _('dropDownMenuLabel'),
+            copyHtmlButtonLabel: _('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: _('copyJsonButtonLabel'),
+            copyImgButtonLabel: _('copyImgButtonLabel'),
+            sourceButtonLabel: _('sourceButtonLabel'),
+            licenseButtonLabel: _('licenseButtonLabel'),
+            reportButtonLabel: _('reportButtonLabel'),
+            queryButtonLabel: _('queryButtonLabel'),
+            openImgInNewTabLabel: _('openImageInNewTabLabel'),
+            noLookup: _('noLookup')
+        };
+        bridge.emit(bridge.events.l10nSetupLocale, locale);
+    }
+
     function contextMenuItemClicked(uuid) {
         if (currentTab === tabs.activeTab) {
             if (sidebarIsHidden) {
@@ -269,7 +308,9 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 elogioSidebar.show();
             } else {
                 // if panel already open then just send image to it
-                bridge.emit(bridge.events.onImageAction, uuid);
+                if (uuid) {
+                    bridge.emit(bridge.events.onImageAction, uuid);
+                }
             }
         }
     }
@@ -278,8 +319,8 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
      * CONTEXT MENU
      */
     contextMenu.Item({
-        label: "Find in Elog.io",
-        context: [contextMenu.SelectorContext('[elogiofounded]')],
+        label: _('contextMenuItem_01'),
+        context: [contextMenu.SelectorContext('*')],
         contentScriptFile: [ self.data.url("js/context-menu.js")],
         onMessage: contextMenuItemClicked
     });
@@ -290,7 +331,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
      */
     elogioSidebar = Sidebar({
         id: 'elogio-firefox-plugin',
-        title: 'Elog.io Image Catalog',
+        title: _('sidebarTitle'),
         url: self.data.url("html/panel.html"),
         onReady: function (worker) {
             pluginState.isEnabled = true;
@@ -305,6 +346,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
             notifyPluginState(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
+                setupLocale(bridge);
                 var tabState = appState.getTabState(tabs.activeTab.id),
                     images = tabState.getImagesFromStorage();
                 if (images.length) {
@@ -367,14 +409,17 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                     console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
                     elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
-                            imageObjFromStorage.lookup = json[0];
+                            imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
+                            delete imageObjFromStorage.error;
+                            delete imageObjFromStorage.noData;
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
                             contentWorker.port.emit(bridge.events.newImageFound, imageObjFromStorage);//and content script too (for decorate)
                             //it means, what we need details, because user click on 'query to elog.io'
                             bridge.emit(bridge.events.imageDetailsRequired, imageObjFromStorage);
                         } else {
                             //if we get an empty array, that's mean what no data for this image
-                            imageObjFromStorage.error = config.errors.noDataForImage;
+                            imageObjFromStorage.error = _('noDataForImage');
+                            imageObjFromStorage.noData = true;
                             indicateError(imageObjFromStorage);
                         }
                     }, function (response) {
@@ -385,7 +430,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 } else {
                     //if we get error when using blockhash
                     console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
-                    imageObjFromStorage.error = config.errors.blockhashError;
+                    imageObjFromStorage.error = _('blockhashError');
                     imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
                     indicateError(imageObjFromStorage);
                 }
@@ -456,7 +501,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     // Create UI Button
     var button = buttons.ActionButton({
         id: "elogio-button",
-        label: elogioLabel,
+        label: _('pluginStateOn'),
         icon: elogioDisableIcon,
         onClick: function () {
             toggleSidebar();

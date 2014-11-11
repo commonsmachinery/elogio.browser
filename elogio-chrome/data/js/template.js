@@ -7,7 +7,8 @@ $(document).ready(function () {
             var object = {
                 feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#elogio-imageListView"),
-                messageBox: $('#elogio-messageText')
+                messageBox: $('#elogio-messageText'),
+                locale: null
             };
             var sendTo = "*";
 
@@ -30,7 +31,8 @@ $(document).ready(function () {
 
             var template = {
                 imageItem: $("#elogio-image-template").html(),
-                clipboardItem: $("#elogio-clipboard-template").html()
+                clipboardItem: $("#elogio-clipboard-template").html(),
+                canvasTemplate: $('#elogio-canvas-template').html()
             };
             var // eventHandlers = {},
                 self = {},
@@ -76,7 +78,7 @@ $(document).ready(function () {
                 // Add all objects
                 if (imageObjects) {
                     for (i = 0; i < imageObjects.length; i += 1) {
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem, object.locale);
                     }
                     if (imageCardToOpen) {
                         self.openImage(imageCardToOpen.uuid);
@@ -87,7 +89,7 @@ $(document).ready(function () {
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(config.sidebar.imageObject, imageObj);
-                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                 card.find('.loading').hide();
                 card.find('.elogio-image-details').hide();
                 self.openImage(imageObj.uuid, true);
@@ -119,10 +121,16 @@ $(document).ready(function () {
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
-
+                Mustache.parse(template.canvasTemplate);
+                Mustache.parse(template.clipboardItem);
+                messaging.on(bridge.events.l10nSetupLocale, function (locale) {
+                    object.locale = locale;
+                    $('#elogio-feedback').text(locale.feedbackLabel);
+                    port.postMessage({eventName: bridge.events.l10nSetupLocale, from: 'panel'}, sendTo);
+                });
                 // Subscribe for events
                 messaging.on(bridge.events.newImageFound, function (imageObj) {
-                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem);
+                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                     self.displayMessages();
                 });
 
@@ -164,29 +172,36 @@ $(document).ready(function () {
                     port.postMessage({eventName: bridge.events.doorBellInjection, from: 'panel', data: {eventName: 'feedbackClick'}}, sendTo);
                 });
 
-                //handle click on copy button
-                object.imageListView.on('click', '.image-card .elogio-clipboard', function () {
+                //handle click on copy as html button
+                object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
                     var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
                     annotations = new Elogio.Annotations(imageObj, config);
-                    annotations.uri = imageObj.uri;
-
                     if (imageObj.details) {
-                        annotations.locatorLink = annotations.getLocatorLink();
-                        annotations.titleLabel = annotations.getTitle();
-                        annotations.creatorLink = annotations.getCreatorLink();
-                        annotations.creatorLabel = annotations.getCreatorLabel();
-                        annotations.licenseLink = annotations.getLicenseLink();
-                        annotations.licenseLabel = annotations.getLicenseLabel();
-                        annotations.copyrightLink = annotations.getCopyrightLink();
-                        annotations.copyrightLabel = annotations.getCopyrightLabel();
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
                     }
-                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': annotations});
-                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: copyToClipBoard, from: 'panel'}, sendTo);
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
+                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'html'}, from: 'panel'}, sendTo);
+                });
+                //handle click on copy as json button
+                object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
+                    var imageCard = $(this).closest('.image-card'),
+                        copyJSON = {},
+                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+                        copyToClipBoard;
+                    annotations = new Elogio.Annotations(imageObj, config);
+                    if (imageObj.details) {
+                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                    }
+                    copyJSON.uri = imageObj.uri;
+                    copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
+                    port.postMessage({eventName: bridge.events.copyToClipBoard, data: {clipboardData: copyToClipBoard, type: 'text'}, from: 'panel'}, sendTo);
                 });
                 //handle click on image card
-                object.imageListView.on('click', '.image-card img', function () {
+                object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
                     port.postMessage({eventName: bridge.events.onImageAction, data: imageObj.uuid, from: 'panel'}, sendTo);
@@ -198,7 +213,7 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(config.sidebar.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
-                    port.postMessage({eventName: bridge.events.hashRequired, data: imageObj, from: 'panel'}, sendTo);
+                    port.postMessage({eventName: bridge.events.oembedRequestRequired, data: imageObj, from: 'panel'}, sendTo);
                 });
 
             };

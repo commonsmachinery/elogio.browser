@@ -6,7 +6,8 @@ new Elogio(
             imageDecorator = modules.getModule('imageDecorator'),
             dom = modules.getModule('dom'),
             config = modules.getModule('config'),
-            bridge = modules.getModule('bridge');
+            bridge = modules.getModule('bridge'),
+            blockhash = blockhashjs.blockhash;
 
 
         /*
@@ -92,9 +93,14 @@ new Elogio(
             }
         });
         bridge.on(bridge.events.onImageAction, function (uuid) {
-            var elem = dom.getElementByUUID(uuid, document);
-            if (elem) {
-                elem.scrollIntoView();
+            var element = dom.getElementByUUID(uuid, document);
+            if (element) {
+                var position = element.getBoundingClientRect();
+                //it is scroll top position
+                var top = (position.top + window.pageYOffset || document.documentElement.scrollTop - document.documentElement.clientTop || document.body.clientTop);
+                //it is scroll left position
+                var left = (position.left + window.pageXOffset || document.documentElement.scrollLeft - document.documentElement.clientLeft || document.body.clientLeft);
+                window.scrollTo(Math.round(left), Math.round(top));
             }
         });
         bridge.on(bridge.events.pluginActivated, function () {
@@ -131,20 +137,9 @@ new Elogio(
                 for (i = 0; i < mutation.removedNodes.length; i += 1) {
                     if (mutation.removedNodes[i].nodeType === Node.ELEMENT_NODE) {
                         // if node is removed element
-                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName),
-                            elements;
+                        var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
                         if (uuid) {
                             bridge.emit(bridge.events.onImageRemoved, uuid);
-                        }
-                        // check if node has another removed elements
-                        elements = dom.getElementsByAttribute(config.ui.dataAttributeName, mutation.removedNodes[i]);
-                        if (elements) {
-                            for (j = 0; j < elements.length; j++) {
-                                uuid = elements[j].getAttribute(config.ui.dataAttributeName);
-                                if (uuid) {
-                                    bridge.emit(bridge.events.onImageRemoved, uuid);
-                                }
-                            }
                         }
                     }
                 }

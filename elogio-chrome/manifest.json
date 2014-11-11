@@ -1,11 +1,11 @@
 {
     "manifest_version": 2,
-    "name": "Elog.io Browser Extension",
+    "name": "__MSG_appName__",
     "version": "0.7.0",
-    "description": "Browser extension to easily query a catalog of photographs to answer: is this photograph I'm looking at openly licensed?",
-    "author": "Commons Machinery in Sweden AB",
+    "description": "__MSG_appDesc__",
+    "default_locale": "en",
     "minimum_chrome_version": "23",
-    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage", "contextMenus"],
+    "permissions": ["tabs", "*://*/*", "webRequest", "clipboardWrite", "clipboardRead", "activeTab", "storage", "contextMenus", "<all_urls>"],
     "content_scripts": [
         {
             "js": [ "data/deps/jquery/jquery.js",

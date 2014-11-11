@@ -30,7 +30,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         if (
             utils.startsWith(license, 'licenses/by') ||
             utils.startsWith(license, 'publicdomain/mark') ||
-            utils.startWith(license, 'licenses/by-sa')) {
+            utils.startsWith(license, 'licenses/by-sa')) {
             licensePlaceHolder.css({
                 backgroundColor: 'green'
             });
@@ -54,22 +54,110 @@ Elogio.modules.sidebarHelper = function (modules) {
      PUBLIC MEMBERS
      =======================
      */
+
+
+    self.createCanvas = function (document, imageCard, canvasTemplate, callback) {
+        var canvas = document.createElement('canvas'), dataCanvas,
+            ctx = canvas.getContext('2d');
+        //load image
+        var image = new Image();
+        //remove CORS security
+        image.crossOrigin = "Anonymous";
+        image.src = imageCard.data(config.sidebar.imageObject).uri;
+        //when load then ...
+        var renderData = {
+            width: imageCard.find('.elogio-image-details').width(),
+            height: imageCard.find('.elogio-image-details').height(),
+            title: imageCard.find('.elogio-annotations-title').html(),
+            by: imageCard.find('.elogio-annotations-by').html(),
+            license: imageCard.find('.elogio-license').html()
+        };
+        dataCanvas = Mustache.render(canvasTemplate, {'renderData': renderData});
+        image.onload = function () {
+            //it's a label under an image
+            var data = "data:image/svg+xml," + dataCanvas;
+            //load an image for label
+            var img = new Image();
+            //when image ready then ...
+            img.onload = function () {
+                //setup the canvas
+                canvas.width = image.width;
+                canvas.height = image.height + img.height;
+                //draw image
+                ctx.drawImage(image, 0, 0, image.width, image.height);
+                //create white rectangle for label
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, image.height, image.width, img.height);
+                //draw label on the canvas
+                ctx.drawImage(img, 0, 0, img.width, img.height, 0, image.height + 5, img.width, img.height);
+                //return base64 url of canvas
+                callback(canvas.toDataURL('image/png'));
+            };
+            img.src = data;
+        };
+    };
+
+    /**
+     *
+     * @param annotations - is needed for create properties of JSON
+     * @returns {*}
+     */
+    self.jsonToString = function (annotations) {
+        function replacer(key, value) {
+            if (!value) {
+                return undefined;
+            }
+            return value;
+        }
+        var stringJson = {
+            locatorLink: annotations.locatorLink,
+            titleLabel: annotations.titleLabel,
+            creatorLink: annotations.creatorLink,
+            creatorLabel: annotations.creatorLabel,
+            licenseLink: annotations.licenseLink,
+            licenseLabel: annotations.licenseLabel,
+            copyrightLink: annotations.copyrightLink,
+            copyrightLabel: annotations.copyrightLabel
+
+        };
+        return JSON.stringify(stringJson, replacer);
+    };
+
+    /**
+     * Method which setups annotations for image, and returns it back
+     * @param annotations - is needed for initializing details
+     * @returns {*}
+     */
+    self.initAnnotationsForCopyHandler = function (annotations) {
+        return {
+            locatorLink: annotations.getLocatorLink(),
+            titleLabel: annotations.getTitle(),
+            creatorLink: annotations.getCreatorLink(),
+            creatorLabel: annotations.getCreatorLabel(),
+            licenseLink: annotations.getLicenseLink(),
+            licenseLabel: annotations.getLicenseLabel(),
+            copyrightLink: annotations.getCopyrightLink(),
+            copyrightLabel: annotations.getCopyrightLabel()
+        };
+    };
+
     /**
      *
      * @param imageList - jquery object container of image cards
      * @param imageObj - image object which we get from content {uri, uuid, lookup, details, error}
      * @param imageItemTemplate - jquery object (selector) of template
+     * @param locale - locale
      */
-    self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate) {
+    self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate, locale) {
         // Try to find existing card and create the new one if it wasn't rendered before
         var cardElement = imageList.find('#' + imageObj.uuid);
         if (!cardElement.length) {
-            cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj}));
+            cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj, 'locale': locale}));
             cardElement.data(config.sidebar.imageObject, imageObj);
             imageList.append(cardElement);
         }
         // If we didn't send lookup query before - show loading
-        if (!imageObj.hasOwnProperty('lookup') && !imageObj.hasOwnProperty('error')) {
+        if (!imageObj.hasOwnProperty('lookup')) {
             cardElement.find('.loading').show();
             return; // Waiting for lookup....
         } else {
@@ -78,7 +166,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         }
         // If there is lookup data available check if there is image details
         var errorArea = cardElement.find('.error-area');
-        if (imageObj.lookup && imageObj.lookup.href && !imageObj.error) {
+        if (imageObj.lookup && !imageObj.error) {
             cardElement.data(config.sidebar.imageObject, imageObj);// save lookup data to card
             if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
                 self.initializeDetails(imageObj, cardElement);

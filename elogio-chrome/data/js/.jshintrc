@@ -32,7 +32,7 @@
         "Elogio",
         "exports",
         "require",
-        "blockhash",
+        "blockhashjs",
         "chrome"
     ]
 }

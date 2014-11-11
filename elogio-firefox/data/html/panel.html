@@ -19,9 +19,11 @@
 <!-- /build -->
 <!-- build:section clipboard -->
 <!-- /build -->
+<!-- build:section canvas -->
+<!-- /build -->
 <div class="elogio-header">
     <div class="pull-left">
-        <button id="elogio-feedback" class="btn-success btn btn-sm">Leave feedback</button>
+        <button data-l10n-id="feedbackLabel" id="elogio-feedback" class="btn-success btn btn-sm">Leave feedback</button>
     </div>
     <div class="clearfix"></div>
 </div>
@@ -33,14 +35,14 @@
         hideButton: true,
         appKey: 'yuKV0gmIM91d4crYqSTyTVwXi79UH564JAOJ575IkgywVFFCnPbScIGhsp1yipeM'
     };
-    (function (d, t) {
-        var g = d.createElement(t);
+    (function (d) {
+        var g = d.createElement('script');
         g.id = 'doorbellScript';
         g.type = 'text/javascript';
         g.async = true;
         g.src = 'https://doorbell.io/button/423';
         (d.getElementsByTagName('head')[0] || d.getElementsByTagName('body')[0]).appendChild(g);
-    }(document, 'script'));
+    }(document));
 </script>
 
 </body>

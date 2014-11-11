@@ -8,11 +8,11 @@
             config = modules.getModule('config'),
             elogioServer = modules.getModule('elogioServer'),
             messaging = modules.getModule('messaging'),
-            elogioLabel = 'elog.io plugin',
+            elogioLabel = chrome.i18n.getMessage('pluginStateOn'),
+            utils = modules.getModule('utils'),
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
             elogioIcon = 'img/icon_19.png',
-            selectedImageUUID = null,
             events = bridge.events;
 
         function loadPreferences() {
@@ -25,7 +25,6 @@
             chrome.storage.sync.get('serverUrl', function (data) {
                 config.global.apiServer.serverUrl = data.serverUrl || config.global.apiServer.serverUrl;
             });
-            console.log(config);
             config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
         }
 
@@ -40,10 +39,11 @@
             };
 
         function togglePluginState() {
+            //set title is needed too when plugin switched on\off
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
-                chrome.browserAction.setTitle({title: 'Elog.io plug-in is disabled now'});
+                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginStateOff')});
                 pluginState.isEnabled = false;
                 notifyPluginState();
             } else {
@@ -58,12 +58,11 @@
         function contextMenuItemClick() {
             //don't need to check uuid because content script checking: if uuid is null then just open sidebar, else open and scroll
             var tabState = appState.getTabState(currentTabId);
-            tabState.getWorker().postMessage({eventName: events.onImageAction, data: selectedImageUUID});
-            selectedImageUUID = null;
+            tabState.getWorker().postMessage({eventName: events.onImageAction});
         }
 
         chrome.contextMenus.create({
-            'title': 'Find in Elog.io',
+            'title': chrome.i18n.getMessage('contextMenuItem_01'),
             'contexts': ['all'],
             'onclick': contextMenuItemClick
         });
@@ -74,11 +73,11 @@
         function getTextStatusByStatusCode(statusCode) {
             switch (statusCode) {
                 case 200:
-                    return config.errors.requestError;
+                    return chrome.i18n.getMessage('requestError_01');
                 case 0:
-                    return 'Network communication error';
+                    return chrome.i18n.getMessage('requestError_02');
                 default:
-                    return 'Internal server error';
+                    return chrome.i18n.getMessage('requestError_03');
             }
         }
 
@@ -103,22 +102,24 @@
         function indicateError(imageObj) {
             var tabState = appState.getTabState(currentTabId);
             if (!imageObj) { //indicator if has errors then draw indicator on button
-                console.log(tabState.hasErrors());
                 if (!tabState.hasErrors()) {
                     chrome.browserAction.setIcon({path: elogioIcon});
                     chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
                     chrome.browserAction.setIcon({path: elogioErrorIcon});
-                    chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
+                    chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
                 }
             }
-            if (imageObj && imageObj.error) {
+            if (imageObj && imageObj.error && !imageObj.noData) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioErrorIcon});
-                chrome.browserAction.setTitle({title: 'Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details.'});
+                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
+            }
+            if (imageObj && imageObj.error) {
                 tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
             }
         }
+
 
         /**
          * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
@@ -213,9 +214,6 @@
                 loadTemplate();
             }
         });
-        messaging.on(events.setUUID, function (uuid) {
-            selectedImageUUID = uuid;
-        });
         messaging.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId),
                 contentWorker = tabState.getWorker();
@@ -225,15 +223,32 @@
             }
         });
         messaging.on(events.copyToClipBoard, function (selection) {
-            var copyElement = $.parseHTML(selection), body = $('body');
-            body.append(copyElement);
-            copyElement = $('#clipboard-item');
-            copyElement.contentEditable = true;
-            copyElement.unselectable = "off";
-            copyElement.focus();
-            document.execCommand('SelectAll');
-            document.execCommand("Copy", false, null);
-            copyElement.remove();
+            var clipboardData = selection.clipboardData, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
+
+            function exec() {
+                document.execCommand('SelectAll');
+                document.execCommand("Copy", false, null);
+                copyElement.remove();
+            }
+
+            switch (type) {
+                case 'html':
+                    data = $.parseHTML(clipboardData);
+                    body.append(data);
+                    exec();
+                    break;
+                case 'text':
+                    copyElement.text(clipboardData);
+                    body.append(copyElement);
+                    copyElement.contentEditable = true;
+                    copyElement.unselectable = "off";
+                    copyElement.focus();
+                    exec();
+                    break;
+                case 'image':
+                    //at here we get base64 url in clipboardData
+                    break;
+            }
         });
         messaging.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
@@ -263,6 +278,33 @@
             var tabState = appState.getTabState(currentTabId);
             tabState.removeImageFromStorageByUuid(uuid);
         });
+        messaging.on(events.oembedRequestRequired, function (imageObj) {
+            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
+                tabState = appState.getTabState(currentTabId),
+                contentWorker = tabState.getWorker();
+            if (oembedEndpoint) {
+                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
+                    var imageObjFromStorage = tabState
+                        .findImageInStorageByUuid(imageObj.uuid);
+                    imageObjFromStorage.lookup = true;
+                    delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                    if (imageObjFromStorage) {
+                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
+                        indicateError();
+                        //sending details
+                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
+                    } else {
+                        console.log("Can't find image in storage: " + imageObj.uuid);
+                    }
+                }, function () {
+                    //on error we need calculate hash
+                    contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
+                });
+            } else {
+                //if this image doesn't match for oembed then calculate hash
+                contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
+            }
+        });
         messaging.on(events.hashCalculated, function (imageObj) {
             var tabState = appState.getTabState(currentTabId),
                 imageObjFromStorage = tabState.findImageInStorageByUuid(imageObj.uuid),
@@ -272,13 +314,16 @@
                 console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
                 elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
                     if (Array.isArray(json) && json.length > 0) {
-                        imageObjFromStorage.lookup = json[0];
+                        imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
+                        delete imageObjFromStorage.error;
+                        delete imageObjFromStorage.noData;
                         contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received
                         //it means, what we need details, because user click on 'query to elog.io'
                         contentWorker.postMessage({eventName: events.imageDetailsRequired, data: imageObjFromStorage});
                     } else {
                         //if we get an empty array, that's mean what no data for this image
-                        imageObjFromStorage.error = config.errors.noDataForImage;
+                        imageObjFromStorage.error = chrome.i18n.getMessage('noDataForImage');
+                        imageObjFromStorage.noData = true;
                         indicateError(imageObjFromStorage);
                     }
                 }, function (response) {
@@ -289,7 +334,7 @@
             } else {
                 //if we get error when using blockhash
                 console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
-                imageObjFromStorage.error = config.errors.blockhashError;
+                imageObjFromStorage.error = chrome.i18n.getMessage('blockhashError');
                 imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
                 indicateError(imageObjFromStorage);
             }
