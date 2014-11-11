@@ -34,6 +34,7 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html()
             };
+            Mustache.parse(template.canvasTemplate);
             var // eventHandlers = {},
                 self = {},
                 isPluginEnabled = true,
