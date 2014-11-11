@@ -34,7 +34,6 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html()
             };
-            Mustache.parse(template.canvasTemplate);
             var // eventHandlers = {},
                 self = {},
                 isPluginEnabled = true,
@@ -122,6 +121,8 @@ $(document).ready(function () {
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
+                Mustache.parse(template.canvasTemplate);
+                Mustache.parse(template.clipboardItem);
                 messaging.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
                     $('#elogio-feedback').text(locale.feedbackLabel);

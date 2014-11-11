@@ -14,7 +14,6 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html()
             };
-            Mustache.parse(template.canvasTemplate);
             var
                 self = {},
                 isPluginEnabled = true;
@@ -117,11 +116,14 @@ $(document).ready(function () {
                 imageCard.highlight();
             };
             self.init = function () {
+
+                // Compile mustache templates
+                Mustache.parse(template.imageItem);
+                Mustache.parse(template.canvasTemplate);
+                Mustache.parse(template.clipboardItem);
                 //at first we need to setup locale
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
-                    // Compile mustache templates
                     object.locale = locale;
-                    Mustache.parse(template.imageItem);
                 });
 
                 // Subscribe for events
