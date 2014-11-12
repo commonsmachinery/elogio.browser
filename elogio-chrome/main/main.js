@@ -92,7 +92,10 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, config: config}});
+                    tabState.getWorker().postMessage({
+                        eventName: events.ready,
+                        data: {panelTemplate: panelResponse, config: config}
+                    });
                 }
             });
 
@@ -153,6 +156,7 @@
                                 existsInResponse = true;
                                 // Extend data ImageObject with lookup data and save it
                                 imageFromStorage.lookup = lookupJson[j];
+                                imageFromStorage.currentMatchIndex = 0;
                                 contentWorker.postMessage({eventName: events.newImageFound, data: imageFromStorage});
                             }
                         }
@@ -258,7 +262,11 @@
                     var imageObjFromStorage = tabState
                         .findImageInStorageByUuid(imageObj.uuid);
                     if (imageObjFromStorage) {
-                        imageObjFromStorage.details = annotationsJson;
+                        if (!imageObjFromStorage.details) {
+                            imageObjFromStorage.details = [];
+                        }
+                        imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                        imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
                         delete imageObjFromStorage.error;//if error already exist in this image then delete it
                         indicateError();
                         contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
@@ -286,10 +294,14 @@
                 elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
                     var imageObjFromStorage = tabState
                         .findImageInStorageByUuid(imageObj.uuid);
-                    imageObjFromStorage.lookup = true;
+                    imageObjFromStorage.lookup = {};
+                    imageObjFromStorage.currentMatchIndex = 0;
                     delete imageObjFromStorage.error;//if error already exist in this image then delete it
                     if (imageObjFromStorage) {
-                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
+                        if (imageObjFromStorage.details) {
+                            imageObjFromStorage.details = [];
+                        }
+                        imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex] = utils.oembedJsonToElogioJson(oembedJSON);
                         indicateError();
                         //sending details
                         contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
@@ -312,9 +324,18 @@
             if (!imageObj.error) {
                 imageObjFromStorage.hash = imageObj.hash;
                 console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
-                elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
+                elogioServer.hashLookupQuery({
+                    hash: imageObjFromStorage.hash,
+                    src: imageObjFromStorage.uri,
+                    context: imageObj.domain
+                }, function (json) {
                     if (Array.isArray(json) && json.length > 0) {
-                        imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
+                        var bestMatch = utils.findJSONByLowestDistance(json);
+                        imageObjFromStorage.lookup = bestMatch.json;
+                        imageObjFromStorage.currentMatchIndex = bestMatch.index;
+                        if (json.length > 1) {
+                            imageObjFromStorage.allMatches = json;
+                        }
                         delete imageObjFromStorage.error;
                         delete imageObjFromStorage.noData;
                         contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received

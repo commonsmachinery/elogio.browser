@@ -74,5 +74,15 @@
     },
     "deepScan": {
         "message": "Якщо ця опція увімкнена, то плагін буде шукати навіть фонові зображення"
+    },
+    ,
+    "matchNextButtonLabel": {
+        "message": "=>"
+    },
+    "matchPreviousButtonLabel": {
+        "message": "<="
+    },
+    "multiMatchInfo": {
+        "message": "Запит до elog.io дав більше ніж одне співпадіння. Ви можете обрати будь-яке"
     }
 }

@@ -9,6 +9,7 @@ new Elogio(
             imageDecorator = modules.getModule('imageDecorator'),
             config = modules.getModule('config'),
             locator = modules.getModule('locator'),
+            utils = modules.getModule('utils'),
             events = bridge.events,
             panelUrl = chrome.extension.getURL('html/template.html'),
             observer,
@@ -23,19 +24,8 @@ new Elogio(
          =======================
          */
         var portToPlugin = chrome.runtime.connect({name: "content"});
-        var locale = {
-            feedbackLabel: chrome.i18n.getMessage('feedbackLabel'),
-            dropDownMenuLabel: chrome.i18n.getMessage('dropDownMenuLabel'),
-            copyHtmlButtonLabel: chrome.i18n.getMessage('copyHtmlButtonLabel'),
-            copyJsonButtonLabel: chrome.i18n.getMessage('copyJsonButtonLabel'),
-            copyImgButtonLabel: chrome.i18n.getMessage('copyImgButtonLabel'),
-            sourceButtonLabel: chrome.i18n.getMessage('sourceButtonLabel'),
-            licenseButtonLabel: chrome.i18n.getMessage('licenseButtonLabel'),
-            reportButtonLabel: chrome.i18n.getMessage('reportButtonLabel'),
-            queryButtonLabel: chrome.i18n.getMessage('queryButtonLabel'),
-            openImgInNewTabLabel: chrome.i18n.getMessage('openImageInNewTabLabel'),
-            noLookup: chrome.i18n.getMessage('noLookup')
-        };
+        var locale = utils.initLocale(chrome.i18n.getMessage);
+
         /**
          * Emit from panel
          * @param event
@@ -80,7 +70,7 @@ new Elogio(
         /**
          * end of doorbell injection
          */
-        //callback when scan page is finished
+//callback when scan page is finished
         var finish = function () {
             portToPlugin.postMessage({eventName: events.pageProcessingFinished});
         };
@@ -245,7 +235,7 @@ new Elogio(
         });
 
         messaging.on(events.ready, function (data) {
-            observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+            observer.observe(document.body, {attributes: true, childList: true, subtree: true});
             var template = $($.parseHTML(data.panelTemplate, document, true)),
                 body = $('body');
             setPreferences(data.config);
@@ -300,7 +290,10 @@ new Elogio(
                         var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
                         if (uuid) {
                             portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
-                            portToPanel.contentWindow.postMessage({eventName: bridge.events.onImageRemoved, data: uuid}, panelUrl);
+                            portToPanel.contentWindow.postMessage({
+                                eventName: bridge.events.onImageRemoved,
+                                data: uuid
+                            }, panelUrl);
                         }
                     }
                 }
@@ -310,4 +303,5 @@ new Elogio(
             scanForImages(nodesToBeProcessed);
         });
     }
-);
+)
+;

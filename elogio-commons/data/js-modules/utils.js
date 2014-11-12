@@ -148,7 +148,7 @@ Elogio.modules.utils = function (modules) {
     };
 
 
-    self.getJSONByLowestDistance = function (arrayJSON) {
+    self.findJSONByLowestDistance = function (arrayJSON) {
         var minDistance = 0, index = 0;
         for (var i = 0; i < arrayJSON.length; i++) {
             if (!arrayJSON[i].hasOwnProperty('distance')) {
@@ -160,9 +160,36 @@ Elogio.modules.utils = function (modules) {
                 index = i;
             }
         }
-        return arrayJSON[index];
+        return {json: arrayJSON[index], index: index};
     };
 
+    /**
+     *
+     * @param _ - it's a link to method "getMessage" of locale
+     * @returns {{feedbackLabel: *, dropDownMenuLabel: *, copyHtmlButtonLabel: *, copyJsonButtonLabel: *, copyImgButtonLabel: *, sourceButtonLabel: *, licenseButtonLabel: *, reportButtonLabel: *, queryButtonLabel: *, openImgInNewTabLabel: *, noLookup: *, blockhash: {moreMatchesInfo: *}, button: {previous: *, next: *}}}
+     */
+    self.initLocale = function (_) {
+        return {
+            feedbackLabel: _('feedbackLabel'),
+            dropDownMenuLabel: _('dropDownMenuLabel'),
+            copyHtmlButtonLabel: _('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: _('copyJsonButtonLabel'),
+            copyImgButtonLabel: _('copyImgButtonLabel'),
+            sourceButtonLabel: _('sourceButtonLabel'),
+            licenseButtonLabel: _('licenseButtonLabel'),
+            reportButtonLabel: _('reportButtonLabel'),
+            queryButtonLabel: _('queryButtonLabel'),
+            openImgInNewTabLabel: _('openImageInNewTabLabel'),
+            noLookup: _('noLookup'),
+            blockhash: {
+                moreMatchesInfo: _('multiMatchInfo')
+            },
+            button: {
+                previous: _('matchPreviousButtonLabel'),
+                next: _('matchNextButtonLabel')
+            }
+        };
+    };
 
     /**
      * Generates random UUID

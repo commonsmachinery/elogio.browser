@@ -124,9 +124,13 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                     var imageObjFromStorage = tabState
                         .findImageInStorageByUuid(imageObj.uuid);
                     if (imageObjFromStorage) {
-                        imageObjFromStorage.lookup = true;
+                        imageObjFromStorage.lookup = {};
+                        imageObjFromStorage.currentMatchIndex = 0;
                         delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
+                        if (imageObjFromStorage.details) {
+                            imageObjFromStorage.details = [];
+                        }
+                        imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex] = utils.oembedJsonToElogioJson(oembedJSON);
                         indicateError();
                         //sending details
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
@@ -201,7 +205,11 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                     var imageObjFromStorage = tabState
                         .findImageInStorageByUuid(imageObj.uuid);
                     if (imageObjFromStorage) {
-                        imageObjFromStorage.details = annotationsJson;
+                        if (!imageObjFromStorage.details) {
+                            imageObjFromStorage.details = [];
+                        }
+                        imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                        imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
                         delete imageObjFromStorage.error;//if error already exist in this image then delete it
                         indicateError();
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
@@ -284,19 +292,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     }
 
     function setupLocale(bridge) {
-        var locale = {
-            feedbackLabel: _('feedbackLabel'),
-            dropDownMenuLabel: _('dropDownMenuLabel'),
-            copyHtmlButtonLabel: _('copyHtmlButtonLabel'),
-            copyJsonButtonLabel: _('copyJsonButtonLabel'),
-            copyImgButtonLabel: _('copyImgButtonLabel'),
-            sourceButtonLabel: _('sourceButtonLabel'),
-            licenseButtonLabel: _('licenseButtonLabel'),
-            reportButtonLabel: _('reportButtonLabel'),
-            queryButtonLabel: _('queryButtonLabel'),
-            openImgInNewTabLabel: _('openImageInNewTabLabel'),
-            noLookup: _('noLookup')
-        };
+        var locale = utils.initLocale(_);
         bridge.emit(bridge.events.l10nSetupLocale, locale);
     }
 
@@ -321,7 +317,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
     contextMenu.Item({
         label: _('contextMenuItem_01'),
         context: [contextMenu.SelectorContext('*')],
-        contentScriptFile: [ self.data.url("js/context-menu.js")],
+        contentScriptFile: [self.data.url("js/context-menu.js")],
         onMessage: contextMenuItemClicked
     });
 
@@ -407,9 +403,18 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                 if (!imageObj.error) {
                     imageObjFromStorage.hash = imageObj.hash;
                     console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
-                    elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
+                    elogioServer.hashLookupQuery({
+                        hash: imageObjFromStorage.hash,
+                        src: imageObjFromStorage.uri,
+                        context: imageObj.domain
+                    }, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
-                            imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
+                            var bestMatch = utils.findJSONByLowestDistance(json);
+                            imageObjFromStorage.lookup = bestMatch.json;
+                            imageObjFromStorage.currentMatchIndex = bestMatch.index;
+                            if (json.length > 1) {
+                                imageObjFromStorage.allMatches = json;
+                            }
                             delete imageObjFromStorage.error;
                             delete imageObjFromStorage.noData;
                             bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received

@@ -194,6 +194,12 @@ Elogio.modules.sidebarHelper = function (modules) {
     self.initializeDetails = function (imageObj, cardElement) {
         var annotations = new Elogio.Annotations(imageObj, config);
         if (imageObj.details) { // If we were abe to get annotations - populate details
+            if (imageObj.allMatches) {
+                cardElement.find('.current-match-index').text(imageObj.currentMatchIndex + 1);
+                cardElement.find('.count-matches').text(imageObj.allMatches.length);
+            } else {
+                cardElement.find('.several-matches').hide();
+            }
             if (annotations.getCopyrightLabel()) {
                 cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCopyrightLabel());
             } else if (annotations.getCreatorLabel()) {

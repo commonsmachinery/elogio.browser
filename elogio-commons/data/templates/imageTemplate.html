@@ -1,7 +1,15 @@
 <script id="elogio-image-template" type="x-tmpl-mustache">
     <div class="image-card" id="{{imageObj.uuid}}" >
-    <div class="thumbnail-image">
-        <img src="{{imageObj.uri}}" class="picture elogio-img"/>
+        <div class="thumbnail-image">
+            <img src="{{imageObj.uri}}" class="picture elogio-img"/>
+        </div>
+    <div class="several-matches" style="display:none">
+                <i><div class="more-matches">{{locale.blockhash.moreMatchesInfo}}</div></i>
+            <div class="btn-group btn-group-xs">
+                    <button type="button" class="btn btn-info previous">{{locale.button.previous}}</button>
+                    <span class="btn"><i class="current-match-index"></i> / <i class="count-matches"></i></span>
+                    <button type="button" class="btn btn-info next">{{locale.button.next}}</button>
+            </div>
     </div>
     <div class="elogio-image-details" style="display:none">
         <div class="image-found" style="display:none">
@@ -29,12 +37,12 @@
                 <i><span class="elogio-annotations-by"></span></i>
             </p>
             <p>
-                <span class="label label-info elogio-license"></p>
+                <span class="label label-info elogio-license"></span>
             </p>
         </div>
         <div class="image-not-found" style="display:none">
-            <div class="alert alert-warning">{{locale.noLookup}}</div>
-            <button class="btn btn-primary query-button">{{locale.queryButtonLabel}}</button>
+                <div class="alert alert-warning">{{locale.noLookup}}</div>
+                <button class="btn btn-primary query-button">{{locale.queryButtonLabel}}</button>
         </div>
     </div>
     <div class="message-area" style="display:none"></div>

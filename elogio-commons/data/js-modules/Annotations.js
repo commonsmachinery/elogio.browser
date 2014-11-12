@@ -3,7 +3,7 @@
  */
 Elogio.Annotations = function (imageObj, config) {
     "use strict";
-    var details = imageObj.details;
+    var details = imageObj.details[imageObj.currentMatchIndex];
 
     function getAnnotationField() {
         return details.annotations || null;

@@ -87,9 +87,11 @@ $(document).ready(function () {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(config.sidebar.imageObject, imageObj);
                 sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
-                card.find('.loading').hide();
-                card.find('.elogio-image-details').hide();
-                self.openImage(imageObj.uuid, true);
+                if (!imageObj.allMatches || imageObj.currentMatchIndex === 0) {
+                    card.find('.loading').hide();
+                    card.find('.elogio-image-details').hide();
+                    self.openImage(imageObj.uuid, true);
+                }
             };
 
 
@@ -99,6 +101,7 @@ $(document).ready(function () {
                 var imageObj = imageCard.data(config.sidebar.imageObject);
                 if (imageObj.details) {
                     imageCard.find('.elogio-image-details').toggle();
+                    imageCard.find('.several-matches').show();
                     imageCard.find('.image-found').show();
                     imageCard.find('.image-not-found').hide();
                 } else if (!imageObj.lookup) {
@@ -195,13 +198,13 @@ $(document).ready(function () {
                         copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
-                    annotations = new Elogio.Annotations(imageObj, config);
-                    if (imageObj.details) {
+                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
+                        annotations = new Elogio.Annotations(imageObj, config);
                         copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON.uri = imageObj.uri;
+                        copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
+                        bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'});
                     }
-                    copyJSON.uri = imageObj.uri;
-                    copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
-                    bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'});
                 });
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
@@ -209,13 +212,13 @@ $(document).ready(function () {
                         copyJSON = {},
                         imageObj = imageCard.data(config.sidebar.imageObject), annotations,
                         copyToClipBoard;
-                    annotations = new Elogio.Annotations(imageObj, config);
-                    if (imageObj.details) {
+                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
+                        annotations = new Elogio.Annotations(imageObj, config);
                         copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
+                        copyJSON.uri = imageObj.uri;
+                        copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
+                        bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
                     }
-                    copyJSON.uri = imageObj.uri;
-                    copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
-                    bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card .elogio-img', function () {
@@ -231,6 +234,36 @@ $(document).ready(function () {
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
                     bridge.emit(bridge.events.oembedRequestRequired, imageObj);
+                });
+                object.imageListView.on('click', '.image-card .several-matches .previous', function () {
+                    var imageCard = $(this).closest('.image-card');
+                    var imageObj = imageCard.data(config.sidebar.imageObject);
+                    if (imageObj.currentMatchIndex > 0) {
+                        imageCard.find('.loading').show();
+                        imageCard.find('.image-not-found').hide();
+                        imageObj.currentMatchIndex--;
+                        imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                    } else {
+                        //do nothing, because it is first matched element
+                    }
+                });
+                object.imageListView.on('click', '.image-card .several-matches .next', function () {
+                    var imageCard = $(this).closest('.image-card');
+                    var imageObj = imageCard.data(config.sidebar.imageObject);
+                    if (imageObj.allMatches && imageObj.allMatches.length - 1 > imageObj.currentMatchIndex) {
+                        imageObj.currentMatchIndex++;
+                        imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
+                        //if next element already exist then we don't need to do query
+                        if (imageObj.details.length > imageObj.currentMatchIndex) {
+                            sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                        } else {
+                            //if next element doesn't exist then query
+                            bridge.emit(bridge.events.imageDetailsRequired, imageObj);
+                        }
+                    } else {
+                        //do nothing, because it is last matched element
+                    }
                 });
             };
 
