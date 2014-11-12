@@ -101,7 +101,9 @@ $(document).ready(function () {
                 var imageObj = imageCard.data(config.sidebar.imageObject);
                 if (imageObj.details) {
                     imageCard.find('.elogio-image-details').toggle();
-                    imageCard.find('.several-matches').show();
+                    if (imageObj.allMatches) {
+                        imageCard.find('.several-matches').show();
+                    }
                     imageCard.find('.image-found').show();
                     imageCard.find('.image-not-found').hide();
                 } else if (!imageObj.lookup) {
