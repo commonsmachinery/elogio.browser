@@ -148,19 +148,23 @@ Elogio.modules.utils = function (modules) {
     };
 
 
+    /**
+     * Sort array of matches by distance
+     * @param arrayJSON
+     * @returns {{json: *, index: number}}
+     */
     self.findJSONByLowestDistance = function (arrayJSON) {
-        var minDistance = 0, index = 0;
-        for (var i = 0; i < arrayJSON.length; i++) {
-            if (!arrayJSON[i].hasOwnProperty('distance')) {
-                console.error('Received blockhash json without distance');
-                return;
-            }
-            if (arrayJSON[i].distance <= minDistance) {
-                minDistance = arrayJSON[i].distance;
-                index = i;
+        var distanceBuffer = 0;
+        for (var i = 0; i < arrayJSON.length - 1; i++) {
+            for (var j = i + 1; j < arrayJSON.length; j++) {
+                if (arrayJSON[i].distance > arrayJSON[i].distance) {
+                    distanceBuffer = arrayJSON[i].distance;
+                    arrayJSON[i].distance = arrayJSON[j].distance;
+                    arrayJSON[j].distance = distanceBuffer;
+                }
             }
         }
-        return {json: arrayJSON[index], index: index};
+        return {json: arrayJSON[0], index: 0};
     };
 
     /**
