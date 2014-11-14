@@ -195,9 +195,6 @@ Elogio.modules.utils = function (modules) {
     };
 
     self.findThumbnailOfImage = function (imageObjFromStorage, elogioServer, callback) {
-        if (!Q) {
-            var Q = Elogio.Q;
-        }
         if (!imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].media) {
             console.error('no one thumbnail for image');
             return;
@@ -215,10 +212,10 @@ Elogio.modules.utils = function (modules) {
         //prepare promises
         for (i = 0; i < media.length; i++) {
             hrefs.push(media[i].href);
-            defers.push(Q.defer());
+            defers.push((Elogio.Q || Q).defer());
             promises.push(defers[i].promise);
         }
-        var all = Q.all(promises);
+        var all = (Elogio.Q || Q).all(promises);
         all.then(function (imageObjects) {
             //looking for the best url
             var imageObj = {};

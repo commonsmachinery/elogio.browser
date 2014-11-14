@@ -1,11 +1,12 @@
 'use strict';
 
-var Elogio = require('./common-chrome-lib.js').Elogio;
+
 const { defer }  = require('sdk/core/promise');
 const { all }  = require('sdk/core/promise');
+var Elogio = require('./common-chrome-lib.js').Elogio;
+Elogio.Q = {all: all, defer: defer};
 new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], function (modules) {
     // FF modules
-    Elogio.Q = {all: all, defer: defer};
     var _ = require('sdk/l10n').get,
         buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
