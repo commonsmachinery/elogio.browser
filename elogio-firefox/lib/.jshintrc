@@ -9,8 +9,11 @@
     "undef": true,
     "unused": "vars",
     "strict": true,
-
-    "predef": [ "require", "exports" ],
+    "predef": [
+        "require",
+        "exports",
+        "Q"
+    ],
     "devel": true,
     "moz": true,
     "newcap": false,

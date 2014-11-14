@@ -200,6 +200,12 @@ Elogio.modules.sidebarHelper = function (modules) {
             } else {
                 cardElement.find('.several-matches').hide();
             }
+            if (imageObj.details[imageObj.currentMatchIndex].thumbnailUrl) {
+                cardElement.find('.elogio-thumbnail-image').attr('src', imageObj.details[imageObj.currentMatchIndex].thumbnailUrl);
+                cardElement.find('.elogio-thumbnail').show();
+            } else {
+
+            }
             if (annotations.getCopyrightLabel()) {
                 cardElement.find('.elogio-annotations-by').text('By ' + annotations.getCopyrightLabel());
             } else if (annotations.getCreatorLabel()) {

@@ -19,7 +19,8 @@
         "CustomEvent",
         "$",
         "document",
-        "window"
+        "window",
+        "Q"
     ],
     "devel": true,
     "moz": true,

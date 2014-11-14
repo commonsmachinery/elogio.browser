@@ -4,16 +4,16 @@
             <img src="{{imageObj.uri}}" class="picture elogio-img"/>
         </div>
     <div class="elogio-image-details" style="display:none">
-    <div class="several-matches" style="display:none">
-                <i><div class="more-matches">{{locale.blockhash.moreMatchesInfo}}</div></i>
-            <div class="btn-group btn-group-xs">
-                    <button type="button" class="btn btn-info previous">{{locale.button.previous}}</button>
-                    <span class="btn"><i class="current-match-index"></i> / <i class="count-matches"></i></span>
-                    <button type="button" class="btn btn-info next">{{locale.button.next}}</button>
-            </div>
-    </div>
         <div class="image-found" style="display:none">
             <div class="pull-left">
+                <div class="several-matches pull-right" style="display:none">
+                    <i><div class="more-matches">{{locale.blockhash.moreMatchesInfo}}</div></i>
+                    <div class="btn-group btn-group-xs">
+                        <button type="button" class="btn btn-info previous">{{locale.button.previous}}</button>
+                        <span class="btn"><i class="current-match-index"></i> / <i class="count-matches"></i></span>
+                        <button type="button" class="btn btn-info next">{{locale.button.next}}</button>
+                    </div>
+                </div>
                 <div class="btn-group">
                     <button class="btn btn-default btn-xs dropdown-toggle" type="button" data-toggle="dropdown">
                     {{locale.dropDownMenuLabel}}
@@ -30,6 +30,9 @@
             </div>
             <div class="pull-right">
                 <img class="elogio-gravatar"/>
+            </div>
+            <div class="elogio-thumbnail pull-right" style="display:none">
+                        <img class="elogio-thumbnail-image picture"/>
             </div>
             <div class="clearfix"></div>
             <p>

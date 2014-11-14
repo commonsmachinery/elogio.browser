@@ -90,4 +90,19 @@ Elogio.modules.elogioServer = function (modules) {
         var url = oembedEndpoint + urlHelperBuilder({url: imageUrl});
         elogioRequest.sendRequest(url, onLoad, onError);
     };
+
+
+    /**
+     * Just send request just by built url
+     * @param url - built url for request
+     * @param onLoad -
+     * @param onError
+     */
+    self.sendRequestJustByUrl = function (url, onLoad, onError) {
+        if (!url) {
+            console.error('Url is undefined');
+            return;
+        }
+        elogioRequest.sendRequest(url, onLoad, onError);
+    };
 };

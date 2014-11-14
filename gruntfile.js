@@ -223,7 +223,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/**.js"],
+                src: ["**/**.js", "!**/main.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -235,7 +235,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/main.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -269,6 +269,12 @@ module.exports = function (grunt) {
         },
 
         copy: {
+            qjs: {
+                src: ["q.js"],
+                cwd: "node_modules/q/",
+                dest: "elogio-commons/data/deps/q",
+                expand: true
+            },
             resourcesWithoutJSForFirefox: {
                 src: ["**", "!**/*.js", "!**/panel.html", "!**/test", "!**/tests"],
                 cwd: "elogio-firefox/",
@@ -295,13 +301,13 @@ module.exports = function (grunt) {
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "!**/test/**"],
+                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "!**/test/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
             },
             firefoxLibs: {
-                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/mustache.js", "!**/test/**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/mustache.js", "!**/test/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
@@ -394,6 +400,7 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
@@ -443,6 +450,7 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'uglify:beautifyChrome',
@@ -496,6 +504,7 @@ module.exports = function (grunt) {
                 'bower',
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',

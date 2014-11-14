@@ -265,11 +265,29 @@
                         if (!imageObjFromStorage.details) {
                             imageObjFromStorage.details = [];
                         }
-                        imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
-                        imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
-                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        indicateError();
-                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
+                        if (imageObjFromStorage.lookup.distance && imageObjFromStorage.lookup.distance !== 0) {
+                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
+                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                            //lookup thumbnail url of image
+                            utils.findThumbnailOfImage(imageObjFromStorage, elogioServer, function (image) {
+                                indicateError();
+                                contentWorker.postMessage({
+                                    eventName: events.imageDetailsReceived,
+                                    data: image
+                                });
+                            });
+                        } else {
+                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
+                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                            indicateError();
+                            contentWorker.postMessage({
+                                eventName: events.imageDetailsReceived,
+                                data: imageObjFromStorage
+                            });
+                        }
+
                     } else {
                         console.log("Can't find image in storage: " + imageObj.uuid);
                     }
@@ -330,7 +348,7 @@
                     context: imageObj.domain
                 }, function (json) {
                     if (Array.isArray(json) && json.length > 0) {
-                        var bestMatch = utils.findJSONByLowestDistance(json);
+                        var bestMatch = utils.sortJSONByLowestDistance(json);
                         imageObjFromStorage.lookup = bestMatch.json;
                         imageObjFromStorage.currentMatchIndex = bestMatch.index;
                         if (json.length > 1) {

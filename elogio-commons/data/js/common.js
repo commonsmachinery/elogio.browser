@@ -167,6 +167,12 @@ Elogio.StateController.events = {
     onInitialized: 'onInitialized'
 };
 
+if (typeof Q !== 'undefined') {
+    if (Elogio.Q === 'undefined') {
+        Elogio.Q = Q;
+    }
+}
+
 // If module is used in Chrome context
 if (typeof exports !== 'undefined') {
     exports.Elogio = Elogio;

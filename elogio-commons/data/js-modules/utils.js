@@ -10,7 +10,6 @@ Elogio.modules.utils = function (modules) {
      REQUIREMENTS
      =======================
      */
-
     var config = modules.getModule('config');
     /*
      =======================
@@ -153,7 +152,7 @@ Elogio.modules.utils = function (modules) {
      * @param arrayJSON
      * @returns {{json: *, index: number}}
      */
-    self.findJSONByLowestDistance = function (arrayJSON) {
+    self.sortJSONByLowestDistance = function (arrayJSON) {
         var distanceBuffer = 0;
         for (var i = 0; i < arrayJSON.length - 1; i++) {
             for (var j = i + 1; j < arrayJSON.length; j++) {
@@ -195,6 +194,54 @@ Elogio.modules.utils = function (modules) {
         };
     };
 
+    self.findThumbnailOfImage = function (imageObjFromStorage, elogioServer, callback) {
+        if (!Q) {
+            var Q = Elogio.Q;
+        }
+        if (!imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].media) {
+            console.error('no one thumbnail for image');
+            return;
+        }
+        var requestHandler = function (href, promise) {
+            elogioServer.sendRequestJustByUrl(href, function (response) {
+                promise.resolve(response);
+            }, function () {
+                promise.reject();
+            });
+        };
+
+
+        var media = imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].media, hrefs = [], defers = [], i, promises = [];
+        //prepare promises
+        for (i = 0; i < media.length; i++) {
+            hrefs.push(media[i].href);
+            defers.push(Q.defer());
+            promises.push(defers[i].promise);
+        }
+        var all = Q.all(promises);
+        all.then(function (imageObjects) {
+            //looking for the best url
+            var imageObj = {};
+            imageObj.details = [imageObjects[0]];
+            imageObj.currentMatchIndex = 0;
+            var bestLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink(), currentLocatorLink;
+            console.log(imageObjects);
+            for (var i = 1; i < imageObjects.length; i++) {
+                imageObj.details = [imageObjects[i]];
+                currentLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink();
+                if (bestLocatorLink.length < currentLocatorLink.length) {
+                    bestLocatorLink = currentLocatorLink;
+                }
+            }
+            imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].thumbnailUrl = bestLocatorLink;
+            if (callback) {
+                callback(imageObjFromStorage);
+            }
+        });
+        for (i = 0; i < media.length; i++) {
+            requestHandler(hrefs[i], defers[i]);
+        }
+    };
     /**
      * Generates random UUID
      * @return{String} Generated UUID

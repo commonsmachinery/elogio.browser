@@ -32,7 +32,12 @@
     },
     "options_page": "prefs/preferences.html",
     "background": {
-        "scripts": ["data/deps/jquery/jquery.js", "main/common-chrome-lib.js", "main/main.js"],
+        "scripts": [
+            "data/deps/jquery/jquery.js",
+            "data/deps/q/q.js",
+            "main/common-chrome-lib.js",
+            "main/main.js"
+        ],
         "run_at": "document_end"
     },
     "web_accessible_resources": [

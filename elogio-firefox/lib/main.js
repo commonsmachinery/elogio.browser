@@ -1,8 +1,11 @@
 'use strict';
-var Elogio = require('./common-chrome-lib.js').Elogio;
 
-new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], function (modules) {
+var Elogio = require('./common-chrome-lib.js').Elogio;
+const { defer }  = require('sdk/core/promise');
+const { all }  = require('sdk/core/promise');
+new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], function (modules) {
     // FF modules
+    Elogio.Q = {all: all, defer: defer};
     var _ = require('sdk/l10n').get,
         buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
@@ -25,6 +28,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
         pluginState = {
             isEnabled: false
         };
+
 
     /*
      =======================
@@ -63,6 +67,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                             existsInResponse = true;
                             // Extend data ImageObject with lookup data and save it
                             imageFromStorage.lookup = lookupJson[j];
+                            imageFromStorage.currentMatchIndex = 0;
                             bridge.emit(bridge.events.newImageFound, imageFromStorage);
                             contentWorker.port.emit(bridge.events.newImageFound, imageFromStorage);
                         }
@@ -208,11 +213,22 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                         if (!imageObjFromStorage.details) {
                             imageObjFromStorage.details = [];
                         }
-                        imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
-                        imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
-                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        indicateError();
-                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                        if (imageObjFromStorage.lookup.distance && imageObjFromStorage.lookup.distance !== 0) {
+                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
+                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                            //lookup thumbnail url of image
+                            utils.findThumbnailOfImage(imageObjFromStorage, elogioServer, function (image) {
+                                indicateError();
+                                bridge.emit(bridge.events.imageDetailsReceived, image);
+                            });
+                        } else {
+                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
+                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
+                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
+                            indicateError();
+                            bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
+                        }
                     } else {
                         console.log("Can't find image in storage: " + imageObj.uuid);
                     }
@@ -409,7 +425,7 @@ new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer'], funct
                         context: imageObj.domain
                     }, function (json) {
                         if (Array.isArray(json) && json.length > 0) {
-                            var bestMatch = utils.findJSONByLowestDistance(json);
+                            var bestMatch = utils.sortJSONByLowestDistance(json);
                             imageObjFromStorage.lookup = bestMatch.json;
                             imageObjFromStorage.currentMatchIndex = bestMatch.index;
                             if (json.length > 1) {
