@@ -186,7 +186,11 @@
         function initTab() {
             chrome.tabs.query({active: true}, function (tab) {
                 currentTabId = tab[0].id;
-                indicateError();
+                if (pluginState.isEnabled) {
+                    indicateError();
+                } else {
+                    notifyPluginState();
+                }
             });
         }
 
