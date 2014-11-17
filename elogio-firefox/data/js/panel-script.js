@@ -1,6 +1,6 @@
 $(document).ready(function () {
     'use strict';
-    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper'], function (modules) {
+    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge', 'sidebarHelper'], function (modules) {
         var bridge = modules.getModule('bridge'), config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
         var panelController = (function () {
             var object = {
@@ -78,7 +78,7 @@ $(document).ready(function () {
                         sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem, object.locale);
                     }
                     if (imageCardToOpen) {
-                        self.openImage(imageCardToOpen);
+                        sidebarHelper.openImage(imageCardToOpen);
                     }
                 }
             };
@@ -90,36 +90,10 @@ $(document).ready(function () {
                 if (!imageObj.allMatches || imageObj.currentMatchIndex === 0) {
                     card.find('.loading').hide();
                     card.find('.elogio-image-details').hide();
-                    self.openImage(imageObj.uuid, true);
+                    sidebarHelper.openImage(imageObj.uuid, true);
                 }
             };
 
-
-            self.openImage = function (imageUUID, preventAnnotationsLoading) {
-                var imageCard = getImageCardByUUID(imageUUID);
-                $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
-                var imageObj = imageCard.data(config.sidebar.imageObject);
-                if (imageObj.details) {
-                    imageCard.find('.elogio-image-details').toggle();
-                    if (imageObj.allMatches) {
-                        imageCard.find('.several-matches').show();
-                    }
-                    imageCard.find('.image-found').show();
-                    imageCard.find('.image-not-found').hide();
-                } else if (!imageObj.lookup) {
-                    var notFound = imageCard.find('.elogio-not-found');
-                    if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
-                        imageCard.find('.elogio-image-details').toggle();
-                        imageCard.find('.image-found').hide();
-                        imageCard.find('.elogio-not-found').show();
-                    }
-                }
-                if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
-                    imageCard.find('.loading').show();//if we need annotations we wait for response
-                    bridge.emit(bridge.events.imageDetailsRequired, imageObj);
-                }
-                imageCard.highlight();
-            };
             self.init = function () {
 
                 // Compile mustache templates
@@ -167,7 +141,7 @@ $(document).ready(function () {
                 });
 
                 bridge.on(bridge.events.onImageAction, function (uuid) {
-                    self.openImage(uuid);
+                    sidebarHelper.openImage(uuid);
                 });
 
                 bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
@@ -195,19 +169,7 @@ $(document).ready(function () {
                 });
 
                 //handle click on copy as html button
-                object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
-                    var imageCard = $(this).closest('.image-card'),
-                        copyJSON = {},
-                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
-                        copyToClipBoard;
-                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
-                        annotations = new Elogio.Annotations(imageObj, config);
-                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
-                        copyJSON.uri = imageObj.uri;
-                        copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
-                        bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'});
-                    }
-                });
+                object.imageListView.on('click', '.image-card .elogio-clipboard-html', sidebarHelper.copyAsHTML);
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
                     var imageCard = $(this).closest('.image-card'),
@@ -227,7 +189,7 @@ $(document).ready(function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
                     bridge.emit(bridge.events.onImageAction, imageObj.uuid);
-                    self.openImage(imageObj.uuid);
+                    sidebarHelper.openImage(imageObj.uuid);
                 });
                 //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {

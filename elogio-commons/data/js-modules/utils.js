@@ -171,25 +171,25 @@ Elogio.modules.utils = function (modules) {
      * @param _ - it's a link to method "getMessage" of locale
      * @returns {{feedbackLabel: *, dropDownMenuLabel: *, copyHtmlButtonLabel: *, copyJsonButtonLabel: *, copyImgButtonLabel: *, sourceButtonLabel: *, licenseButtonLabel: *, reportButtonLabel: *, queryButtonLabel: *, openImgInNewTabLabel: *, noLookup: *, blockhash: {moreMatchesInfo: *}, button: {previous: *, next: *}}}
      */
-    self.initLocale = function (_) {
+    self.initLocale = function () {
         return {
-            feedbackLabel: _('feedbackLabel'),
-            dropDownMenuLabel: _('dropDownMenuLabel'),
-            copyHtmlButtonLabel: _('copyHtmlButtonLabel'),
-            copyJsonButtonLabel: _('copyJsonButtonLabel'),
-            copyImgButtonLabel: _('copyImgButtonLabel'),
-            sourceButtonLabel: _('sourceButtonLabel'),
-            licenseButtonLabel: _('licenseButtonLabel'),
-            reportButtonLabel: _('reportButtonLabel'),
-            queryButtonLabel: _('queryButtonLabel'),
-            openImgInNewTabLabel: _('openImageInNewTabLabel'),
-            noLookup: _('noLookup'),
+            feedbackLabel: Elogio._('feedbackLabel'),
+            dropDownMenuLabel: Elogio._('dropDownMenuLabel'),
+            copyHtmlButtonLabel: Elogio._('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: Elogio._('copyJsonButtonLabel'),
+            copyImgButtonLabel: Elogio._('copyImgButtonLabel'),
+            sourceButtonLabel: Elogio._('sourceButtonLabel'),
+            licenseButtonLabel: Elogio._('licenseButtonLabel'),
+            reportButtonLabel: Elogio._('reportButtonLabel'),
+            queryButtonLabel: Elogio._('queryButtonLabel'),
+            openImgInNewTabLabel: Elogio._('openImageInNewTabLabel'),
+            noLookup: Elogio._('noLookup'),
             blockhash: {
-                moreMatchesInfo: _('multiMatchInfo')
+                moreMatchesInfo: Elogio._('multiMatchInfo')
             },
             button: {
-                previous: _('matchPreviousButtonLabel'),
-                next: _('matchNextButtonLabel')
+                previous: Elogio._('matchPreviousButtonLabel'),
+                next: Elogio._('matchNextButtonLabel')
             }
         };
     };
@@ -222,7 +222,6 @@ Elogio.modules.utils = function (modules) {
             imageObj.details = [imageObjects[0]];
             imageObj.currentMatchIndex = 0;
             var bestLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink(), currentLocatorLink;
-            console.log(imageObjects);
             for (var i = 1; i < imageObjects.length; i++) {
                 imageObj.details = [imageObjects[i]];
                 currentLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink();
@@ -237,6 +236,18 @@ Elogio.modules.utils = function (modules) {
         });
         for (i = 0; i < media.length; i++) {
             requestHandler(hrefs[i], defers[i]);
+        }
+    };
+
+
+    self.getTextStatusByStatusCode = function (statusCode) {
+        switch (statusCode) {
+            case 200:
+                return Elogio._('requestError_01');
+            case 0:
+                return Elogio._('requestError_02');
+            default:
+                return Elogio._('requestError_03');
         }
     };
     /**

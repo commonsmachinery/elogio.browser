@@ -3,6 +3,7 @@
  * Warning: jquery and Mustache required!
  */
 Elogio.modules.sidebarHelper = function (modules) {
+    'use strict';
     var self = this;
     /*
      =======================
@@ -11,7 +12,7 @@ Elogio.modules.sidebarHelper = function (modules) {
      */
 
 
-    var config = modules.getModule('config'), utils = modules.getModule('utils');
+    var config = modules.getModule('config'), utils = modules.getModule('utils'), bridge = modules.getModule('bridge');
 
 
     /*
@@ -19,6 +20,9 @@ Elogio.modules.sidebarHelper = function (modules) {
      PRIVATE MEMBERS
      =======================
      */
+    function getImageCardByUUID(uuid) {
+        return $('#' + uuid);
+    }
     function setLicenseColor(licensePlaceHolder, license) {
         if (utils.startsWith(license, 'http://www.europeana.eu/rights/out-of-copyright-non-commercial')) {
             licensePlaceHolder.css({
@@ -109,6 +113,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             }
             return value;
         }
+
         var stringJson = {
             locatorLink: annotations.locatorLink,
             titleLabel: annotations.titleLabel,
@@ -157,7 +162,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             imageList.append(cardElement);
         }
         // If we didn't send lookup query before - show loading
-        if (!imageObj.hasOwnProperty('lookup')) {
+        if (!imageObj.hasOwnProperty('lookup') && !imageObj.error) {
             cardElement.find('.loading').show();
             return; // Waiting for lookup....
         } else {
@@ -245,6 +250,64 @@ Elogio.modules.sidebarHelper = function (modules) {
         } else { // Otherwise - show message
             cardElement.find('.message-area').show();
             cardElement.find('.image-not-found').hide();
+        }
+    };
+
+
+    self.openImage = function (imageUUID, preventAnnotationsLoading, sendTo, from) {
+        var imageCard = getImageCardByUUID(imageUUID);
+        $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
+        var imageObj = imageCard.data(config.sidebar.imageObject);
+        if (imageObj.details) {
+            imageCard.find('.elogio-image-details').toggle();
+            if (imageObj.allMatches) {
+                imageCard.find('.several-matches').show();
+            }
+            imageCard.find('.image-found').show();
+            imageCard.find('.image-not-found').hide();
+        } else if (!imageObj.lookup) {
+            var notFound = imageCard.find('.elogio-not-found');
+            if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
+                imageCard.find('.elogio-image-details').toggle();
+                imageCard.find('.image-found').hide();
+                imageCard.find('.elogio-not-found').show();
+            }
+        }
+        if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
+            imageCard.find('.loading').show();//if we need annotations we wait for response
+            bridge.emit(bridge.events.imageDetailsRequired, imageObj, [sendTo], from);
+        }
+        imageCard.highlight();
+    };
+
+
+    self.copyAsHTML = function (sendTo, from) {
+        var imageCard = $(this).closest('.image-card'),
+            copyJSON = {},
+            imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+            copyToClipBoard;
+        if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
+            annotations = new Elogio.Annotations(imageObj, config);
+            copyJSON = self.initAnnotationsForCopyHandler(annotations);
+            copyJSON.uri = imageObj.uri;
+            copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
+            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'}, [sendTo], from);
+        }
+
+    };
+
+
+    self.copyAsJSON = function (sendTo, from) {
+        var imageCard = $(this).closest('.image-card'),
+            copyJSON = {},
+            imageObj = imageCard.data(config.sidebar.imageObject), annotations,
+            copyToClipBoard;
+        if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
+            annotations = new Elogio.Annotations(imageObj, config);
+            copyJSON = self.initAnnotationsForCopyHandler(annotations);
+            copyJSON.uri = imageObj.uri;
+            copyToClipBoard = self.jsonToString(copyJSON);
+            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'}, [sendTo], from);
         }
     };
 };

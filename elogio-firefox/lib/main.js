@@ -5,10 +5,10 @@ const { defer }  = require('sdk/core/promise');
 const { all }  = require('sdk/core/promise');
 var Elogio = require('./common-chrome-lib.js').Elogio;
 Elogio.Q = {all: all, defer: defer};
-new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], function (modules) {
+new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'utils', 'mainScriptHelper'], function (modules) {
     // FF modules
-    var _ = require('sdk/l10n').get,
-        buttons = require('sdk/ui/button/action'),
+    Elogio._ = require('sdk/l10n').get;
+    var buttons = require('sdk/ui/button/action'),
         pageMod = require("sdk/page-mod"),
         self = require('sdk/self'),
         tabs = require('sdk/tabs'),
@@ -21,7 +21,7 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
         contextMenu = require("sdk/context-menu");
     // Elogio Modules
     var bridge = modules.getModule('bridge'),
-        elogioServer = modules.getModule('elogioServer'),
+        mainScriptHelper = modules.getModule('mainScriptHelper'),
         config = modules.getModule('config'),
         utils = modules.getModule('utils');
     var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
@@ -36,74 +36,6 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
      PRIVATE MEMBERS
      =======================
      */
-
-    /**
-     * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
-     * @param lookupImageObjStorage - it's imageObj storage for lookup request
-     * @param contentWorker
-     */
-    function lookupQuery(lookupImageObjStorage, contentWorker) {
-        var localStore = lookupImageObjStorage,
-            dictionary = {uri: []},
-            tabState = appState.getTabState(contentWorker.tab.id);
-        //create dictionary
-        for (var i = 0; i < localStore.length; i++) {
-            dictionary.uri.push(localStore[i].uri);
-        }
-        elogioServer.lookupQuery(dictionary,
-            function (lookupJson) {
-                for (var i = 0; i < localStore.length; i++) {
-                    var existsInResponse = false,
-                        imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
-                    // If image doesn't exist in local storage anymore - there is no sense to process it
-                    if (!imageFromStorage) {
-                        continue;
-                    }
-                    // Find image from our query in JSON.
-                    for (var j = 0; j < lookupJson.length; j++) {
-                        if (imageFromStorage.uri === lookupJson[j].uri) {
-                            if (existsInResponse) {// if we found first lookup json object then cancel loop
-                                break;
-                            }
-                            existsInResponse = true;
-                            // Extend data ImageObject with lookup data and save it
-                            imageFromStorage.lookup = lookupJson[j];
-                            imageFromStorage.currentMatchIndex = 0;
-                            bridge.emit(bridge.events.newImageFound, imageFromStorage);
-                            contentWorker.port.emit(bridge.events.newImageFound, imageFromStorage);
-                        }
-                    }
-                    // If it doesn't exist - assume it doesn't exist on server
-                    if (!existsInResponse) {
-                        imageFromStorage.lookup = false;
-                        bridge.emit(bridge.events.newImageFound, imageFromStorage);
-                    }
-                }
-            },
-            function (response) {
-                for (var i = 0; i < localStore.length; i++) {
-                    var imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
-                    // If image doesn't exist in local storage anymore - there is no sense to process it
-                    if (!imageFromStorage) {
-                        continue;
-                    }
-                    imageFromStorage.error = getTextStatusByStatusCode(response.status);
-                    indicateError(imageFromStorage);
-                }
-            }
-        );
-    }
-
-    function getTextStatusByStatusCode(statusCode) {
-        switch (statusCode) {
-            case 200:
-                return _('requestError_01');
-            case 0:
-                return _('requestError_02');
-            default:
-                return _('requestError_03');
-        }
-    }
 
     /**
      * This method needs to register all listeners of sidebar
@@ -122,35 +54,12 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
             clipboard.set(clipboardData, request.type);
         });
         bridge.on(bridge.events.oembedRequestRequired, function (imageObj) {
-            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
-                tabState = appState.getTabState(tabs.activeTab.id),
+
+            var tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
-            if (oembedEndpoint) {
-                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
-                    var imageObjFromStorage = tabState
-                        .findImageInStorageByUuid(imageObj.uuid);
-                    if (imageObjFromStorage) {
-                        imageObjFromStorage.lookup = {};
-                        imageObjFromStorage.currentMatchIndex = 0;
-                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        if (imageObjFromStorage.details) {
-                            imageObjFromStorage.details = [];
-                        }
-                        imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex] = utils.oembedJsonToElogioJson(oembedJSON);
-                        indicateError();
-                        //sending details
-                        bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
-                    } else {
-                        console.log("Can't find image in storage: " + imageObj.uuid);
-                    }
-                }, function () {
-                    //on error we need calculate hash
-                    contentWorker.port.emit(bridge.events.hashRequired, imageObj);
-                });
-            } else {
-                //if this image doesn't match for oembed then calculate hash
-                contentWorker.port.emit(bridge.events.hashRequired, imageObj);
-            }
+            mainScriptHelper.oembedLookup(imageObj, tabState, function (image) {
+                indicateError(image);
+            }, contentWorker);
         });
         // Proxy startPageProcessing signal to content script
         bridge.on(bridge.events.startPageProcessing, function () {
@@ -206,52 +115,20 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
         // When panel requires image details from server - perform request and notify panel on result
         bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(tabs.activeTab.id);
-            elogioServer.annotationsQuery(imageObj.lookup.href,
-                function (annotationsJson) {
-                    var imageObjFromStorage = tabState
-                        .findImageInStorageByUuid(imageObj.uuid);
-                    if (imageObjFromStorage) {
-                        if (!imageObjFromStorage.details) {
-                            imageObjFromStorage.details = [];
-                        }
-                        if (imageObjFromStorage.lookup.distance && imageObjFromStorage.lookup.distance !== 0) {
-                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
-                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
-                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                            //lookup thumbnail url of image
-                            utils.findThumbnailOfImage(imageObjFromStorage, elogioServer, function (image) {
-                                indicateError();
-                                bridge.emit(bridge.events.imageDetailsReceived, image);
-                            });
-                        } else {
-                            imageObjFromStorage.currentMatchIndex = imageObj.currentMatchIndex;
-                            imageObjFromStorage.details[imageObj.currentMatchIndex] = annotationsJson;
-                            delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                            indicateError();
-                            bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
-                        }
-                    } else {
-                        console.log("Can't find image in storage: " + imageObj.uuid);
-                    }
-                },
-                function (response) {
-                    //put error to storage
-                    imageObj.error = getTextStatusByStatusCode(response.status);
-                    indicateError(imageObj);
-                },
-                config.global.apiServer.urlLookupOptions
-            );
+            mainScriptHelper.annotationsQuery(imageObj, tabState, function (image) {
+                indicateError(image);
+            });
         });
     }
 
     function toggleSidebar() {
         if (!sidebarIsHidden) {
             button.icon = elogioDisableIcon;
-            button.label = _('pluginStateOff');
+            button.label = Elogio._('pluginStateOff');
             elogioSidebar.hide();
         } else {
             button.icon = elogioIcon;
-            button.label = _('pluginStateOn');
+            button.label = Elogio._('pluginStateOn');
             elogioSidebar.show();
         }
     }
@@ -274,16 +151,16 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
         if (!imageObj) { //indicator if has errors then draw indicator on button
             if (!tabState.hasErrors()) {
                 button.icon = elogioIcon;
-                button.label = _('pluginStateOn');
+                button.label = Elogio._('pluginStateOn');
             } else {
                 button.icon = errorIndicator;
-                button.label = _('pluginGlobalError');
+                button.label = Elogio._('pluginGlobalError');
             }
         }
         if (imageObj && imageObj.error && !imageObj.noData) {
             tabState.putImageToStorage(imageObj);
             button.icon = errorIndicator;
-            button.label = _('pluginGlobalError');
+            button.label = Elogio._('pluginGlobalError');
         }
         if (imageObj && imageObj.error && !sidebarIsHidden) {
             bridge.emit(bridge.events.newImageFound, imageObj);
@@ -309,7 +186,7 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
     }
 
     function setupLocale(bridge) {
-        var locale = utils.initLocale(_);
+        var locale = utils.initLocale();
         bridge.emit(bridge.events.l10nSetupLocale, locale);
     }
 
@@ -332,7 +209,7 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
      * CONTEXT MENU
      */
     contextMenu.Item({
-        label: _('contextMenuItem_01'),
+        label: Elogio._('contextMenuItem_01'),
         context: [contextMenu.SelectorContext('*')],
         contentScriptFile: [self.data.url("js/context-menu.js")],
         onMessage: contextMenuItemClicked
@@ -344,7 +221,7 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
      */
     elogioSidebar = Sidebar({
         id: 'elogio-firefox-plugin',
-        title: _('sidebarTitle'),
+        title: Elogio._('sidebarTitle'),
         url: self.data.url("html/panel.html"),
         onReady: function (worker) {
             pluginState.isEnabled = true;
@@ -409,53 +286,17 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
             contentWorker.port.on(bridge.events.pageProcessingFinished, function () {
                 // if page processing finished then we need to check if all lookup objects were sent to Elog.io server
                 if (tabState.getImagesFromLookupStorage().length > 0) {
-                    lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                    mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (image) {
+                        indicateError(image);
+                    }, contentWorker);
                     appState.getTabState(contentWorker.tab.id).clearLookupImageStorage();
                 }
             });
             //when hash calculated then send hash lookup request
             contentWorker.port.on(bridge.events.hashCalculated, function (imageObj) {
-                var imageObjFromStorage = tabState
-                    .findImageInStorageByUuid(imageObj.uuid);
-                if (!imageObj.error) {
-                    imageObjFromStorage.hash = imageObj.hash;
-                    console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
-                    elogioServer.hashLookupQuery({
-                        hash: imageObjFromStorage.hash,
-                        src: imageObjFromStorage.uri,
-                        context: imageObj.domain
-                    }, function (json) {
-                        if (Array.isArray(json) && json.length > 0) {
-                            var bestMatch = utils.sortJSONByLowestDistance(json);
-                            imageObjFromStorage.lookup = bestMatch.json;
-                            imageObjFromStorage.currentMatchIndex = bestMatch.index;
-                            if (json.length > 1) {
-                                imageObjFromStorage.allMatches = json;
-                            }
-                            delete imageObjFromStorage.error;
-                            delete imageObjFromStorage.noData;
-                            bridge.emit(bridge.events.newImageFound, imageObjFromStorage);//send message when lookup received
-                            contentWorker.port.emit(bridge.events.newImageFound, imageObjFromStorage);//and content script too (for decorate)
-                            //it means, what we need details, because user click on 'query to elog.io'
-                            bridge.emit(bridge.events.imageDetailsRequired, imageObjFromStorage);
-                        } else {
-                            //if we get an empty array, that's mean what no data for this image
-                            imageObjFromStorage.error = _('noDataForImage');
-                            imageObjFromStorage.noData = true;
-                            indicateError(imageObjFromStorage);
-                        }
-                    }, function (response) {
-                        console.log('text status ' + response.statusText + ' ; status code ' + response.status);
-                        imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
-                        indicateError(imageObjFromStorage);
-                    });
-                } else {
-                    //if we get error when using blockhash
-                    console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
-                    imageObjFromStorage.error = _('blockhashError');
-                    imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
-                    indicateError(imageObjFromStorage);
-                }
+                mainScriptHelper.hashLookupQuery(imageObj, tabState, function (image) {
+                    indicateError(image);
+                }, contentWorker);
             });
 
             // if some image was removed from DOM then we need to delete it at here too and send to panel onImageRemoved
@@ -475,7 +316,9 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
                 if (currentTab === tabs.activeTab) {
                     // if image was found then we need to check if lookup storage is ready for query
                     if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
-                        lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                        mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (image) {
+                            indicateError(image);
+                        }, contentWorker);
                         tabState.clearLookupImageStorage();
                     }
                     tabState.putImageToLookupStorage(imageObject);
@@ -523,7 +366,7 @@ new Elogio(['config', 'bridge', 'elogioRequest', 'elogioServer', 'utils'], funct
     // Create UI Button
     var button = buttons.ActionButton({
         id: "elogio-button",
-        label: _('pluginStateOn'),
+        label: Elogio._('pluginStateOn'),
         icon: elogioDisableIcon,
         onClick: function () {
             toggleSidebar();

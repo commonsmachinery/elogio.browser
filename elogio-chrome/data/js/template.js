@@ -1,7 +1,7 @@
 $(document).ready(function () {
     'use strict';
-    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'messaging'], function (modules) {
-        var bridge = modules.getModule('bridge'), messaging = modules.getModule('messaging'),
+    new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge', 'sidebarHelper'], function (modules) {
+        var bridge = modules.getModule('bridge'),
             config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
         var panelController = (function () {
             var object = {
@@ -10,7 +10,8 @@ $(document).ready(function () {
                 messageBox: $('#elogio-messageText'),
                 locale: null
             };
-            var sendTo = "*";
+            var sendTo = "*",
+                from = document.URL;
 
             /**
              * Handler for content
@@ -19,7 +20,7 @@ $(document).ready(function () {
             function listenerForContent(event) {
                 var request = event.data;
                 if (isPluginEnabled || request.eventName === bridge.events.pluginActivated) {
-                    messaging.emit(request.eventName, request.data);
+                    bridge.emitInside(request.eventName, request.data);
                 }
             }
 
@@ -38,7 +39,7 @@ $(document).ready(function () {
                 self = {},
                 isPluginEnabled = true,
                 port = window.parent;
-
+            bridge.registerClient(port, sendTo);
             self.displayMessages = function () {
                 if (!object.imageListView.children().length) {
                     if (isPluginEnabled) {
@@ -81,7 +82,7 @@ $(document).ready(function () {
                         sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem, object.locale);
                     }
                     if (imageCardToOpen) {
-                        self.openImage(imageCardToOpen.uuid);
+                        sidebarHelper.openImage(imageCardToOpen.uuid, false, sendTo, from);
                     }
                 }
             };
@@ -93,153 +94,82 @@ $(document).ready(function () {
                 if (!imageObj.allMatches || imageObj.currentMatchIndex === 0) {
                     card.find('.loading').hide();
                     card.find('.elogio-image-details').hide();
-                    self.openImage(imageObj.uuid, true);
+                    sidebarHelper.openImage(imageObj.uuid, true, sendTo, from);
                 }
             };
 
 
-            self.openImage = function (imageUUID, preventAnnotationsLoading) {
-                var imageCard = getImageCardByUUID(imageUUID);
-                $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
-                var imageObj = imageCard.data(config.sidebar.imageObject);
-                if (imageObj.details) {
-                    imageCard.find('.elogio-image-details').toggle();
-                    if (imageObj.allMatches) {
-                        imageCard.find('.several-matches').show();
-                    }
-                    imageCard.find('.image-found').show();
-                    imageCard.find('.image-not-found').hide();
-                } else if (!imageObj.lookup) {
-                    var notFound = imageCard.find('.elogio-not-found');
-                    if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
-                        imageCard.find('.elogio-image-details').toggle();
-                        imageCard.find('.image-found').hide();
-                        imageCard.find('.elogio-not-found').show();
-                    }
-                }
-                if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
-                    imageCard.find('.loading').show();//if we need annotations we wait for response
-                    port.postMessage({
-                        eventName: bridge.events.imageDetailsRequired,
-                        data: imageObj,
-                        from: 'panel'
-                    }, sendTo);
-                }
-                imageCard.highlight();
-            };
             self.init = function () {
                 // Compile mustache templates
                 Mustache.parse(template.imageItem);
                 Mustache.parse(template.canvasTemplate);
                 Mustache.parse(template.clipboardItem);
-                messaging.on(bridge.events.l10nSetupLocale, function (locale) {
+                bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
                     $('#elogio-feedback').text(locale.feedbackLabel);
-                    port.postMessage({eventName: bridge.events.l10nSetupLocale, from: 'panel'}, sendTo);
+                    bridge.emit(bridge.events.l10nSetupLocale, null, [sendTo], from);
                 });
                 // Subscribe for events
-                messaging.on(bridge.events.newImageFound, function (imageObj) {
+                bridge.on(bridge.events.newImageFound, function (imageObj) {
                     sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                     self.displayMessages();
                 });
 
 
                 //from main.js we get a message which mean: we need to get details of image, because hash lookup was received
-                messaging.on(bridge.events.imageDetailsRequired, function (imageObj) {
+                bridge.on(bridge.events.imageDetailsRequired, function (imageObj) {
                     //and send it back
-                    port.postMessage({
-                        eventName: bridge.events.imageDetailsRequired,
-                        data: imageObj,
-                        from: 'panel'
-                    }, sendTo);
+                    bridge.emit(bridge.events.imageDetailsRequired, imageObj, [sendTo], from);
                 });
 
 
                 //if image disappear from page then we need to remove it at here too
-                messaging.on(bridge.events.onImageRemoved, function (uuid) {
+                bridge.on(bridge.events.onImageRemoved, function (uuid) {
                     getImageCardByUUID(uuid).remove();
                 });
 
-                messaging.on(bridge.events.onImageAction, function (uuid) {
-                    self.openImage(uuid);
+                bridge.on(bridge.events.onImageAction, function (uuid) {
+                    sidebarHelper.openImage(uuid, false, sendTo, from);
                 });
 
-                messaging.on(bridge.events.imageDetailsReceived, function (imageObject) {
+                bridge.on(bridge.events.imageDetailsReceived, function (imageObject) {
                     self.receivedImageDataFromServer(imageObject);
                 });
 
-                messaging.on(bridge.events.startPageProcessing, function () {
+                bridge.on(bridge.events.startPageProcessing, function () {
                     self.hideMessage();
                     if (object.imageListView.length) {
                         object.imageListView.empty();
                     }
-                    port.postMessage({eventName: bridge.events.startPageProcessing, from: 'panel'}, sendTo);
+                    bridge.emit(bridge.events.startPageProcessing, null, [sendTo], from);
                 });
 
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
-                    port.postMessage({
-                        eventName: bridge.events.doorBellInjection,
-                        from: 'panel',
-                        data: {eventName: 'report', uri: imageObj.uri}
-                    }, sendTo);
+                    bridge.emit(bridge.events.doorbellInjection, {
+                        eventName: 'report',
+                        uri: imageObj.uri
+                    }, [sendTo], from);
                 });
                 object.feedbackButton.on('click', function () {
-                    port.postMessage({
-                        eventName: bridge.events.doorBellInjection,
-                        from: 'panel',
-                        data: {eventName: 'feedbackClick'}
-                    }, sendTo);
+                    bridge.emit(bridge.events.doorbellInjection, {eventName: 'feedbackClick'}, [sendTo], from);
                 });
 
                 //handle click on copy as html button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
-                    var imageCard = $(this).closest('.image-card'),
-                        copyJSON = {},
-                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
-                        copyToClipBoard;
-                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
-                        annotations = new Elogio.Annotations(imageObj, config);
-                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
-
-                        copyJSON.uri = imageObj.uri;
-                        copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
-                        port.postMessage({
-                            eventName: bridge.events.copyToClipBoard,
-                            data: {clipboardData: copyToClipBoard, type: 'html'},
-                            from: 'panel'
-                        }, sendTo);
-                    }
+                    sidebarHelper.copyAsHTML(sendTo, from);
                 });
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
-                    var imageCard = $(this).closest('.image-card'),
-                        copyJSON = {},
-                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
-                        copyToClipBoard;
-                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
-                        annotations = new Elogio.Annotations(imageObj, config);
-                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
-                        copyJSON.uri = imageObj.uri;
-                        copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
-                        port.postMessage({
-                            eventName: bridge.events.copyToClipBoard,
-                            data: {clipboardData: copyToClipBoard, type: 'text'},
-                            from: 'panel'
-                        }, sendTo);
-                    }
+                    sidebarHelper.copyAsJSON(sendTo, from);
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');
                     var imageObj = card.data(config.sidebar.imageObject);
-                    port.postMessage({
-                        eventName: bridge.events.onImageAction,
-                        data: imageObj.uuid,
-                        from: 'panel'
-                    }, sendTo);
-                    self.openImage(imageObj.uuid);
+                    bridge.emit(bridge.events.onImageAction, imageObj.uuid, [sendTo], from);
+                    sidebarHelper.openImage(imageObj.uuid, false, sendTo, from);
                 });
                 //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {
@@ -247,11 +177,7 @@ $(document).ready(function () {
                     var imageObj = imageCard.data(config.sidebar.imageObject);
                     imageCard.find('.loading').show();
                     imageCard.find('.image-not-found').hide();
-                    port.postMessage({
-                        eventName: bridge.events.oembedRequestRequired,
-                        data: imageObj,
-                        from: 'panel'
-                    }, sendTo);
+                    bridge.emit(bridge.events.oembedRequestRequired, imageObj, [sendTo], from);
                 });
                 object.imageListView.on('click', '.image-card .several-matches .previous', function () {
                     var imageCard = $(this).closest('.image-card');
@@ -277,18 +203,14 @@ $(document).ready(function () {
                             sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
                         } else {
                             //if next element doesn't exist then query
-                            port.postMessage({
-                                eventName: bridge.events.imageDetailsRequired,
-                                data: imageObj,
-                                from: 'panel'
-                            }, sendTo);
+                            bridge.emit(bridge.events.imageDetailsRequired, imageObj, [sendTo], from);
                         }
                     } else {
                         //do nothing, because it is last matched element
                     }
                 });
             };
-            port.postMessage({eventName: bridge.events.startPageProcessing, from: 'panel'}, sendTo);
+            bridge.emit(bridge.events.startPageProcessing, null, [sendTo], from);
             return self;
         })();
         panelController.init();

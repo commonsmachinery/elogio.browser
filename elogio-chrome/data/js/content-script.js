@@ -1,10 +1,10 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge', 'sidebarHelper', 'messaging'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge', 'sidebarHelper'],
     function (modules) {
         'use strict';
+        Elogio._ = chrome.i18n.getMessage;
         var
             bridge = modules.getModule('bridge'),
-            messaging = modules.getModule('messaging'),
             dom = modules.getModule('dom'),
             imageDecorator = modules.getModule('imageDecorator'),
             config = modules.getModule('config'),
@@ -24,7 +24,8 @@ new Elogio(
          =======================
          */
         var portToPlugin = chrome.runtime.connect({name: "content"});
-        var locale = utils.initLocale(chrome.i18n.getMessage);
+        bridge.registerClient(portToPlugin);
+        var locale = utils.initLocale();
 
         /**
          * Emit from panel
@@ -36,7 +37,7 @@ new Elogio(
                 return; //if received message not for this script
             }
             if (isPluginEnabled || request.eventName === events.pluginActivated) {
-                messaging.emit(request.eventName, request.data, request.from);
+                bridge.emitInside(request.eventName, request.data, request.from);
             }
 
         }
@@ -72,7 +73,7 @@ new Elogio(
          */
 //callback when scan page is finished
         var finish = function () {
-            portToPlugin.postMessage({eventName: events.pageProcessingFinished});
+            bridge.emit(events.pageProcessingFinished);
         };
 
         var contextMenuHandler = function (event) {
@@ -83,8 +84,8 @@ new Elogio(
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
-                portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
-                portToPlugin.postMessage({eventName: events.newImageFound, data: imageObj});
+                bridge.emit(events.newImageFound, imageObj, [panelUrl]);
+                bridge.emit(events.newImageFound, imageObj);
             }, function () {
                 //on error
             }, function () {
@@ -145,7 +146,7 @@ new Elogio(
                 }
             }
             if (targetUUID) {
-                portToPanel.contentWindow.postMessage({eventName: events.onImageAction, data: targetUUID}, panelUrl);
+                bridge.emit(events.onImageAction, targetUUID, [panelUrl]);
             }
         }
 
@@ -154,62 +155,63 @@ new Elogio(
          PANEL LISTENERS
          =======================
          */
-        messaging.on(events.imageDetailsRequired, function (imageObj) {
-            portToPlugin.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
-        }, 'panel');
+        bridge.on(events.imageDetailsRequired, function (imageObj) {
+            bridge.emit(events.imageDetailsRequired, imageObj);
+        }, [panelUrl]);
 
-        messaging.on(events.onImageAction, function (uuid) {
+        bridge.on(events.onImageAction, function (uuid) {
             var elem = dom.getElementByUUID(uuid, document);
             if (elem) {
                 elem.scrollIntoView();
             }
-        }, 'panel');
-        messaging.on(events.doorBellInjection, function (data) {
+        }, [panelUrl]);
+        bridge.on(events.doorbellInjection, function (data) {
             document.dispatchEvent(new CustomEvent('doorbell-injection', {detail: data}));
-        }, 'panel');
+        }, [panelUrl]);
 
 
-        messaging.on(events.oembedRequestRequired, function (imageObj) {
-            portToPlugin.postMessage({eventName: events.oembedRequestRequired, data: imageObj});
-        }, 'panel');
+        bridge.on(events.oembedRequestRequired, function (imageObj) {
+            bridge.emit(events.oembedRequestRequired, imageObj);
+        }, [panelUrl]);
 
-        messaging.on(events.copyToClipBoard, function (copyElement) {
-            portToPlugin.postMessage({eventName: events.copyToClipBoard, data: copyElement});
-        }, 'panel');
+        bridge.on(events.copyToClipBoard, function (copyElement) {
+            bridge.emit(events.copyToClipBoard, copyElement);
+        }, [panelUrl]);
 
-        /**
-         * Fires when query lookup is ready and we need to get annotations for image
-         */
-        messaging.on(events.imageDetailsRequired, function (imageObj) {
-            portToPlugin.postMessage({eventName: events.imageDetailsRequired, data: imageObj});
-        });
-        messaging.on(events.startPageProcessing, function () {
-            portToPanel.contentWindow.postMessage({eventName: bridge.events.l10nSetupLocale, data: locale}, panelUrl);
-        }, 'panel');
-        messaging.on(events.l10nSetupLocale, function () {
+
+        bridge.on(events.startPageProcessing, function () {
+            bridge.emit(bridge.events.l10nSetupLocale, locale, [panelUrl]);
+        }, [panelUrl]);
+        bridge.on(events.l10nSetupLocale, function () {
             scanForImages();
-        }, 'panel');
+        }, [panelUrl]);
 
         /*
          =======================
          EXTENSION LISTENERS
          =======================
          */
-        messaging.on(events.onImageAction, onImageActionHandler);
-        messaging.on(events.hashRequired, function (imageObj) {
+        /**
+         * Fires when query lookup is ready and we need to get annotations for image
+         */
+        bridge.on(events.imageDetailsRequired, function (imageObj) {
+            bridge.emit(events.imageDetailsRequired, imageObj);
+        });
+        bridge.on(events.onImageAction, onImageActionHandler);
+        bridge.on(events.hashRequired, function (imageObj) {
             blockhash(imageObj.uri, 16, 2, function (error, hash) {
                 imageObj.error = error || null;
                 imageObj.hash = hash || null;
-                portToPlugin.postMessage({eventName: events.hashCalculated, data: imageObj});
+                bridge.emit(events.hashCalculated, imageObj);
             });
         });
-        messaging.on(events.imageDetailsReceived, function (imageObj) {
-            portToPanel.contentWindow.postMessage({eventName: events.imageDetailsReceived, data: imageObj}, panelUrl);
+        bridge.on(events.imageDetailsReceived, function (imageObj) {
+            bridge.emit(events.imageDetailsReceived, imageObj, [panelUrl]);
         });
         /**
          * Fires when we get info for image or error
          */
-        messaging.on(events.newImageFound, function (imageObj) {
+        bridge.on(events.newImageFound, function (imageObj) {
             //if we get lookup then decorate
             if (imageObj.lookup) {
                 var element = dom.getElementByUUID(imageObj.uuid, document);
@@ -217,24 +219,24 @@ new Elogio(
                     imageDecorator.decorate(element, document, onImageActionHandler);
                 }
             }
-            portToPanel.contentWindow.postMessage({eventName: events.newImageFound, data: imageObj}, panelUrl);
+            bridge.emit(events.newImageFound, imageObj, [panelUrl]);
         });
-        messaging.on(events.pluginStopped, function () {
+        bridge.on(events.pluginStopped, function () {
             isPluginEnabled = false;
             $('#elogio-panel').remove();
             $('#elogio-button-panel').remove();
             undecorate();
         });
-        messaging.on(events.pluginActivated, function (changedSettings) {
+        bridge.on(events.pluginActivated, function (changedSettings) {
             isPluginEnabled = true;
             if ($) {
                 $('#elogio-button-panel').show();
             }
             setPreferences(changedSettings);
-            portToPlugin.postMessage({eventName: events.startPageProcessing});
+            bridge.emit(events.startPageProcessing);
         });
 
-        messaging.on(events.ready, function (data) {
+        bridge.on(events.ready, function (data) {
             observer.observe(document.body, {attributes: true, childList: true, subtree: true});
             var template = $($.parseHTML(data.panelTemplate, document, true)),
                 body = $('body');
@@ -250,13 +252,14 @@ new Elogio(
             initializeButton(body).elogioSidebar({side: 'right', duration: 300, clickClose: true});
             //attach port to panel
             portToPanel = document.getElementById('elogio-panel');
+            bridge.registerClient(portToPanel, panelUrl);
         });
         portToPlugin.onMessage.addListener(function (request) {
             if (isPluginEnabled || request.eventName === events.pluginActivated) {
-                messaging.emit(request.eventName, request.data, request.from);
+                bridge.emitInside(request.eventName, request.data, request.from);
             }
         });
-        portToPlugin.postMessage({eventName: 'registration'});
+        bridge.emit(events.registration);
 
 
         /*
@@ -289,11 +292,8 @@ new Elogio(
                         // if node is removed element
                         var uuid = mutation.removedNodes[i].getAttribute(config.ui.dataAttributeName);
                         if (uuid) {
-                            portToPlugin.postMessage({eventName: bridge.events.onImageRemoved, data: uuid});
-                            portToPanel.contentWindow.postMessage({
-                                eventName: bridge.events.onImageRemoved,
-                                data: uuid
-                            }, panelUrl);
+                            bridge.emit(bridge.events.onImageRemoved, uuid);
+                            bridge.emit(bridge.events.onImageRemoved, uuid, [panelUrl]);
                         }
                     }
                 }

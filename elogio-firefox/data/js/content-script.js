@@ -1,5 +1,5 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge'],
     function (modules) {
         'use strict';
         var locator = modules.getModule('locator'),
