@@ -167,7 +167,7 @@ Elogio.modules.mainScriptHelper = function (modules) {
                 imageObjFromStorage.currentMatchIndex = 0;
                 delete imageObjFromStorage.error;//if error already exist in this image then delete it
                 if (imageObjFromStorage) {
-                    if (imageObjFromStorage.details) {
+                    if (!imageObjFromStorage.details) {
                         imageObjFromStorage.details = [];
                     }
                     imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex] = utils.oembedJsonToElogioJson(oembedJSON);
@@ -223,6 +223,7 @@ Elogio.modules.mainScriptHelper = function (modules) {
                             if (onError) {
                                 onError();
                             }
+
                             bridge.emit(bridge.events.imageDetailsReceived, image);
                         });
                     } else {

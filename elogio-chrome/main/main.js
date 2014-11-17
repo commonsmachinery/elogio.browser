@@ -113,15 +113,6 @@
         }
 
 
-        /**
-         * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
-         * @param lookupImageObjStorage - it's imageObj storage for lookup request
-         * @param contentWorker
-         */
-
-
-
-
         //init current tab when browser or extension started
         function initTab() {
             chrome.tabs.query({active: true}, function (tab) {
@@ -136,6 +127,7 @@
             });
         }
 
+        //init tab when plug-in started
         initTab();
         function notifyPluginState() {
             var tabState = appState.getTabState(currentTabId);
@@ -168,6 +160,9 @@
         bridge.on(events.pageProcessingFinished, function () {
             var tabState = appState.getTabState(currentTabId);
             if (tabState.getImagesFromLookupStorage().length > 0) {
+                /**
+                 * Sending lookup request. Third parameter - onError handler
+                 */
                 mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (imageObj) {
                     indicateError(imageObj);
                 });
@@ -204,6 +199,9 @@
         });
         bridge.on(events.imageDetailsRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId);
+            /**
+             * Sending query to catalog for image's details, third parameter is onError handler
+             */
             mainScriptHelper.annotationsQuery(imageObj, tabState, function (imageObj) {
                 indicateError(imageObj);
             });
@@ -218,6 +216,9 @@
         });
         bridge.on(events.hashCalculated, function (imageObj) {
             var tabState = appState.getTabState(currentTabId);
+            /**
+             * Sending lookup via hash. It can return many results (sorted by distance)
+             */
             mainScriptHelper.hashLookupQuery(imageObj, tabState, function (imageObj) {
                 indicateError(imageObj);
             });
@@ -230,6 +231,9 @@
                 return;
             }
             if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
+                /**
+                 * Sending lookup request because lookup storage is full
+                 */
                 mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (imageObj) {
                     indicateError(imageObj);
                 });
@@ -256,6 +260,9 @@
                     }
                 }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
+                    /**
+                     * EmitInside - is a handler which just emit event into bridge, and after bridge emit this event into handler
+                     */
                     bridge.emitInside(request.eventName, request.data);
                 }
             });

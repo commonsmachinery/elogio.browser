@@ -42,6 +42,11 @@ new Elogio(
 
         }
 
+        /**
+         * is needed for initializing button which needs for open panel
+         * @param body
+         * @returns {*|jQuery|HTMLElement} - return button
+         */
         function initializeButton(body) {
             var button = $(document.createElement('img'));
             button.addClass('elogio-button');
@@ -71,7 +76,7 @@ new Elogio(
         /**
          * end of doorbell injection
          */
-//callback when scan page is finished
+        //callback when scan page is finished
         var finish = function () {
             bridge.emit(events.pageProcessingFinished);
         };
@@ -80,7 +85,15 @@ new Elogio(
             activeElement = event.target;
         };
 
+        /**
+         * Context menu handler
+         */
         $('body').on('contextmenu', contextMenuHandler);
+
+        /**
+         * Method which starts scanning page
+         * @param nodes
+         */
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
@@ -99,6 +112,9 @@ new Elogio(
             config.ui.highlightRecognizedImages = changedSettings.ui.highlightRecognizedImages;
         }
 
+        /**
+         * Method which removes all changes in the DOM (data attributes, listeners etc.)
+         */
         function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
             var i, n;
@@ -117,6 +133,10 @@ new Elogio(
             }
         }
 
+        /**
+         * Handler when on image was clicked or context menu clicked
+         * @param uuid - uuid of image in the DOM
+         */
         function onImageActionHandler(uuid) {
             var sidebar = $('#elogio-panel');
             //if sidebar hidden then show it

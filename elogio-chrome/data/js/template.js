@@ -53,8 +53,6 @@ $(document).ready(function () {
             };
 
             // method needs to init data in the template
-
-
             self.showMessage = function (html) {
                 object.messageBox.html(html);
                 object.messageBox.fadeIn('fast');

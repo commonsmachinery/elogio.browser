@@ -5,4 +5,7 @@
 Elogio.modules.messaging = function (modules) {
     'use strict';
     Elogio.inherit(this, new Elogio.Observable());
+    /**
+     * This module is needed for bridge, you need inject this module before bridge
+     */
 };
