@@ -171,19 +171,7 @@ $(document).ready(function () {
                 //handle click on copy as html button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-html', sidebarHelper.copyAsHTML);
                 //handle click on copy as json button
-                object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
-                    var imageCard = $(this).closest('.image-card'),
-                        copyJSON = {},
-                        imageObj = imageCard.data(config.sidebar.imageObject), annotations,
-                        copyToClipBoard;
-                    if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
-                        annotations = new Elogio.Annotations(imageObj, config);
-                        copyJSON = sidebarHelper.initAnnotationsForCopyHandler(annotations);
-                        copyJSON.uri = imageObj.uri;
-                        copyToClipBoard = sidebarHelper.jsonToString(copyJSON);
-                        bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'});
-                    }
-                });
+                object.imageListView.on('click', '.image-card .elogio-clipboard-json', sidebarHelper.copyAsJSON);
                 //handle click on image card
                 object.imageListView.on('click', '.image-card .elogio-img', function () {
                     var card = $(this).closest('.image-card');

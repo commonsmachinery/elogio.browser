@@ -60,6 +60,13 @@ Elogio.modules.sidebarHelper = function (modules) {
      */
 
 
+    /**
+     * Method which create image for copy as image format
+     * @param document
+     * @param imageCard
+     * @param canvasTemplate
+     * @param callback - returns base64 image for copy to clipboard
+     */
     self.createCanvas = function (document, imageCard, canvasTemplate, callback) {
         var canvas = document.createElement('canvas'), dataCanvas,
             ctx = canvas.getContext('2d');
@@ -147,7 +154,7 @@ Elogio.modules.sidebarHelper = function (modules) {
     };
 
     /**
-     *
+     *This method is needed for updating and adding image card to panel
      * @param imageList - jquery object container of image cards
      * @param imageObj - image object which we get from content {uri, uuid, lookup, details, error}
      * @param imageItemTemplate - jquery object (selector) of template
@@ -196,6 +203,13 @@ Elogio.modules.sidebarHelper = function (modules) {
             }
         }
     };
+
+
+    /**
+     *This method initialize details for image card
+     * @param imageObj - object of image which need initialize
+     * @param cardElement - card element from panel
+     */
     self.initializeDetails = function (imageObj, cardElement) {
         var annotations = new Elogio.Annotations(imageObj, config);
         if (imageObj.details) { // If we were abe to get annotations - populate details
@@ -254,6 +268,13 @@ Elogio.modules.sidebarHelper = function (modules) {
     };
 
 
+    /**
+     * Open image card
+     * @param imageUUID - uuid of image which need to open
+     * @param preventAnnotationsLoading - if need to load details for image set it to true
+     * @param sendTo - is needed for chrome plugin
+     * @param from - is needed for chrome plugin
+     */
     self.openImage = function (imageUUID, preventAnnotationsLoading, sendTo, from) {
         var imageCard = getImageCardByUUID(imageUUID);
         $('html, body').animate({scrollTop: imageCard.offset().top}, 500);
@@ -281,6 +302,11 @@ Elogio.modules.sidebarHelper = function (modules) {
     };
 
 
+    /**
+     * Handler for copy to clipboard event (html format)
+     * @param sendTo - is needed for chrome plugin
+     * @param from - is needed for chrome plugin
+     */
     self.copyAsHTML = function (sendTo, from) {
         var imageCard = $(this).closest('.image-card'),
             copyJSON = {},
@@ -297,6 +323,11 @@ Elogio.modules.sidebarHelper = function (modules) {
     };
 
 
+    /**
+     * Handler for copy to clipboard event (json format)
+     * @param sendTo - is needed for chrome plugin
+     * @param from - is needed for chrome plugin
+     */
     self.copyAsJSON = function (sendTo, from) {
         var imageCard = $(this).closest('.image-card'),
             copyJSON = {},
@@ -310,4 +341,5 @@ Elogio.modules.sidebarHelper = function (modules) {
             bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'}, [sendTo], from);
         }
     };
+
 };
