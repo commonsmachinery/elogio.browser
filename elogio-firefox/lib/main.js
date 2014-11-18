@@ -36,7 +36,50 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
      PRIVATE MEMBERS
      =======================
      */
+    function notifyPluginState(destination) {
+        if (pluginState.isEnabled) {
+            destination.emit(bridge.events.pluginActivated);
+        } else {
+            destination.emit(bridge.events.pluginStopped);
+        }
+    }
 
+    function pluginStop() {
+        var tabState = appState.getTabState(tabs.activeTab.id),
+            contentWorker = tabState.getWorker();
+        var tabStates, i;
+        if (pluginState.isEnabled) {
+            pluginState.isEnabled = false;
+            // Cleanup local storage
+            tabStates = appState.getAllTabState();
+            if (tabStates) {
+                for (i = 0; i < tabStates.length; i += 1) {
+                    tabStates[i].clearImageStorage();
+                    tabStates[i].clearLookupImageStorage();
+                }
+            }
+            if (contentWorker) {
+                notifyPluginState(contentWorker.port);
+            }
+            notifyPluginState(bridge);
+        }
+    }
+
+    function pluginOn() {
+        var tabState = appState.getTabState(tabs.activeTab.id),
+            contentWorker = tabState.getWorker();
+        if (!pluginState.isEnabled) {
+            pluginState.isEnabled = true;
+            tabState.clearImageStorage();
+            tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
+            notifyPluginState(bridge);
+            if (contentWorker) {
+                contentWorker.port.emit(bridge.events.configUpdated, config);
+                notifyPluginState(contentWorker.port);
+                bridge.emit(bridge.events.startPageProcessing);
+            }
+        }
+    }
     /**
      * This method needs to register all listeners of sidebar
      * @param bridge - it's a worker.port of sidebar
@@ -76,40 +119,11 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
         });
         // When plugin is turned on we need to update state and notify content script
         bridge.on(bridge.events.pluginActivated, function () {
-            var tabState = appState.getTabState(tabs.activeTab.id),
-                contentWorker = tabState.getWorker();
-            if (!pluginState.isEnabled) {
-                pluginState.isEnabled = true;
-                tabState.clearImageStorage();
-                tabState.clearLookupImageStorage();//cleanup and initialize uri storage before start
-                notifyPluginState(bridge);
-                if (contentWorker) {
-                    contentWorker.port.emit(bridge.events.configUpdated, config);
-                    notifyPluginState(contentWorker.port);
-                    bridge.emit(bridge.events.startPageProcessing);
-                }
-            }
+            pluginOn();
         });
         // When plugin is turned off we need to update state and notify content script
         bridge.on(bridge.events.pluginStopped, function () {
-            var tabState = appState.getTabState(tabs.activeTab.id),
-                contentWorker = tabState.getWorker();
-            var tabStates, i;
-            if (pluginState.isEnabled) {
-                pluginState.isEnabled = false;
-                // Cleanup local storage
-                tabStates = appState.getAllTabState();
-                if (tabStates) {
-                    for (i = 0; i < tabStates.length; i += 1) {
-                        tabStates[i].clearImageStorage();
-                        tabStates[i].clearLookupImageStorage();
-                    }
-                }
-                if (contentWorker) {
-                    notifyPluginState(contentWorker.port);
-                }
-                notifyPluginState(bridge);
-            }
+            pluginStop();
             indicateError();//and if tab has errors, then we turn off indicator with errors because plugin stopped
         });
         // When panel requires image details from server - perform request and notify panel on result
@@ -125,21 +139,16 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
         if (!sidebarIsHidden) {
             button.icon = elogioDisableIcon;
             button.label = Elogio._('pluginStateOff');
+            pluginStop();
             elogioSidebar.hide();
         } else {
             button.icon = elogioIcon;
             button.label = Elogio._('pluginStateOn');
+            pluginOn();
             elogioSidebar.show();
         }
     }
 
-    function notifyPluginState(destination) {
-        if (pluginState.isEnabled) {
-            destination.emit(bridge.events.pluginActivated);
-        } else {
-            destination.emit(bridge.events.pluginStopped);
-        }
-    }
 
     /**
      * toggle icon and label of action button, also send image with error message in.
