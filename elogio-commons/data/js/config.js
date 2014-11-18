@@ -14,6 +14,16 @@ Elogio.modules.config = function (modules) {
                 gravatarServerUrl: 'http://www.gravatar.com/avatar/',
                 size: "?s=40"
             },
+            collection: [
+                {
+                    link: 'http://commons.wikimedia.org',
+                    iconUrl: 'http://upload.wikimedia.org/wikipedia/commons/7/79/Wiki-commons.png'
+                },
+                {
+                    link: 'http://commonsmachinery.se',
+                    iconUrl: 'https://raw.githubusercontent.com/commonsmachinery/ci/master/CommonsMachinery_Humphrey_Tin_LightBackground.jpg'
+                }
+            ],
             urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },
         locator: {

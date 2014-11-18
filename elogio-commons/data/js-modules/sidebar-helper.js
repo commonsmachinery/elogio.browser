@@ -238,7 +238,8 @@ Elogio.modules.sidebarHelper = function (modules) {
                 cardElement.find('.elogio-annotations-title').hide();
             }
             if (annotations.getCollectionLink()) {//if exist profile then draw gravatar
-
+                cardElement.find('.elogio-gravatar').attr('src', annotations.getClollectionLink());
+            } else if (annotations.getGravatarLink()) {
                 cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
             } else {
                 cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide

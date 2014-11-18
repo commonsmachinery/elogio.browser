@@ -156,11 +156,17 @@ Elogio.Annotations = function (imageObj, config) {
 
     this.getCollectionLink = function () {
         var collection = getCollection();
-        if (!collection) {
+        if (!collection || !collection.collectionLink) {
             return null;
         }
-        return collection.collectionLink || null;
-    };
+        var configCollection = config.global.apiServer.collection;
+        for (var i = 0; i < configCollection.length; i++) {
+            if (collection.collectionLink.indexOf(configCollection[i].link) != -1) {
+                return configCollection.iconUrl;
+            }
+        }
+    }
+    ;
     this.getCollectionLabel = function () {
         var collection = getCollection();
         if (!collection) {
