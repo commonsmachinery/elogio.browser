@@ -296,7 +296,10 @@ Elogio.modules.sidebarHelper = function (modules) {
         }
         if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server
             imageCard.find('.loading').show();//if we need annotations we wait for response
-            bridge.emit(bridge.events.imageDetailsRequired, imageObj, [sendTo], from);
+            if (sendTo) {
+                sendTo = [sendTo];
+            }
+            bridge.emit(bridge.events.imageDetailsRequired, imageObj, sendTo, from);
         }
         imageCard.highlight();
     };
