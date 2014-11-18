@@ -10,8 +10,11 @@ Elogio.modules.config = function (modules) {
             lookupContext: '/lookup/uri',
             hashLookupContext: '/lookup/blockhash',
             imagesPerRequest: 10,
-            gravatarServerUrl: 'http://www.gravatar.com/avatar/',
-            urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright']}
+            gravatar: {
+                gravatarServerUrl: 'http://www.gravatar.com/avatar/',
+                size: "?s=40"
+            },
+            urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },
         locator: {
             limitImageHeight: 100,

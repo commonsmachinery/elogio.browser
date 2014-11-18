@@ -4,6 +4,7 @@
 Elogio.Annotations = function (imageObj, config) {
     "use strict";
     var details = imageObj.details[imageObj.currentMatchIndex];
+
     function getAnnotationField() {
         return details.annotations || null;
     }
@@ -92,7 +93,7 @@ Elogio.Annotations = function (imageObj, config) {
             return null;
         }
         if (owner.profile && owner.profile.gravatar_hash) {
-            return config.global.apiServer.gravatarServerUrl + owner.profile.gravatar_hash;
+            return config.global.apiServer.gravatar.gravatarServerUrl + owner.profile.gravatar_hash + config.global.apiServer.gravatar.size;
         }
         return null;
     };
@@ -108,6 +109,12 @@ Elogio.Annotations = function (imageObj, config) {
         var annotations = getAnnotationField();
         var creator = getFieldValue(annotations, 'creator');
         return creator || null;
+    }
+
+    function getCollection() {
+        var annotations = getAnnotationField(),
+            collection = getFieldValue(annotations, 'collection');
+        return collection || null;
     }
 
     function getCopyright() {
@@ -145,5 +152,20 @@ Elogio.Annotations = function (imageObj, config) {
             return creator.creatorLink || null;
         }
         return null;
+    };
+
+    this.getCollectionLink = function () {
+        var collection = getCollection();
+        if (!collection) {
+            return null;
+        }
+        return collection.collectionLink || null;
+    };
+    this.getCollectionLabel = function () {
+        var collection = getCollection();
+        if (!collection) {
+            return null;
+        }
+        return collection.collectionLabel || null;
     };
 };

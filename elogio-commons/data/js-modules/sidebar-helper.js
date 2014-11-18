@@ -23,6 +23,7 @@ Elogio.modules.sidebarHelper = function (modules) {
     function getImageCardByUUID(uuid) {
         return $('#' + uuid);
     }
+
     function setLicenseColor(licensePlaceHolder, license) {
         if (utils.startsWith(license, 'http://www.europeana.eu/rights/out-of-copyright-non-commercial')) {
             licensePlaceHolder.css({
@@ -236,8 +237,9 @@ Elogio.modules.sidebarHelper = function (modules) {
             } else {
                 cardElement.find('.elogio-annotations-title').hide();
             }
-            if (annotations.getGravatarLink()) {//if exist profile then draw gravatar
-                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink() + "?s=40");
+            if (annotations.getCollectionLink()) {//if exist profile then draw gravatar
+
+                cardElement.find('.elogio-gravatar').attr('src', annotations.getGravatarLink());
             } else {
                 cardElement.find('.elogio-gravatar').hide();//if no gravatar then hide
             }

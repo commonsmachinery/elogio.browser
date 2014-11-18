@@ -14,6 +14,7 @@
             elogioIcon = 'img/icon_19.png',
             events = bridge.events;
 
+        bridge.registerClient(null, 'messaging');
 
         function loadPreferences() {
             chrome.storage.sync.get('deepScan', function (data) {
@@ -263,7 +264,7 @@
                     /**
                      * EmitInside - is a handler which just emit event into bridge, and after bridge emit this event into handler
                      */
-                    bridge.emitInside(request.eventName, request.data);
+                    bridge.emit(request.eventName, request.data, ['messaging']);
                 }
             });
         });

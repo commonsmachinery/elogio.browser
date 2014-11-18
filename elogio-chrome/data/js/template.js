@@ -3,6 +3,7 @@ $(document).ready(function () {
     new Elogio(['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge', 'sidebarHelper'], function (modules) {
         var bridge = modules.getModule('bridge'),
             config = modules.getModule('config'), sidebarHelper = modules.getModule('sidebarHelper');
+        bridge.registerClient(null, 'messaging');
         var panelController = (function () {
             var object = {
                 feedbackButton: $('#elogio-feedback'),
@@ -20,7 +21,7 @@ $(document).ready(function () {
             function listenerForContent(event) {
                 var request = event.data;
                 if (isPluginEnabled || request.eventName === bridge.events.pluginActivated) {
-                    bridge.emitInside(request.eventName, request.data);
+                    bridge.emit(request.eventName, request.data, ['messaging']);
                 }
             }
 

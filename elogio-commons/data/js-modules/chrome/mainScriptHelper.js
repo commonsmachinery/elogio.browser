@@ -223,7 +223,6 @@ Elogio.modules.mainScriptHelper = function (modules) {
                             if (onError) {
                                 onError();
                             }
-
                             bridge.emit(bridge.events.imageDetailsReceived, image);
                         });
                     } else {
@@ -233,6 +232,7 @@ Elogio.modules.mainScriptHelper = function (modules) {
                         if (onError) {
                             onError();
                         }
+                        console.log(imageObjFromStorage);
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
                     }
 

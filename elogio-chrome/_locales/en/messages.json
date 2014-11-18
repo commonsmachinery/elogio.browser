@@ -5,13 +5,13 @@
     "appDesc": {
         "message": "Look up images on webpages in the Elog.io catalog while browsing."
     },
-    "requestError_01": {
+    "requestErrorRespondWithError": {
         "message": "Server responded, but with errors"
     },
-    "requestError_02": {
+    "requestErrorNetworkError": {
         "message": "Network communication error"
     },
-    "requestError_03": {
+    "requestErrorInternalServError": {
         "message": "Internal server error"
     },
 

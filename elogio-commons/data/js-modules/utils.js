@@ -243,11 +243,11 @@ Elogio.modules.utils = function (modules) {
     self.getTextStatusByStatusCode = function (statusCode) {
         switch (statusCode) {
             case 200:
-                return Elogio._('requestError_01');
+                return Elogio._('requestErrorRespondWithError');
             case 0:
-                return Elogio._('requestError_02');
+                return Elogio._('requestErrorNetworkError');
             default:
-                return Elogio._('requestError_03');
+                return Elogio._('requestErrorInternalServError');
         }
     };
     /**

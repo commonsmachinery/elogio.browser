@@ -25,6 +25,7 @@ new Elogio(
          */
         var portToPlugin = chrome.runtime.connect({name: "content"});
         bridge.registerClient(portToPlugin);
+        bridge.registerClient(null, 'messaging');
         var locale = utils.initLocale();
 
         /**
@@ -37,7 +38,7 @@ new Elogio(
                 return; //if received message not for this script
             }
             if (isPluginEnabled || request.eventName === events.pluginActivated) {
-                bridge.emitInside(request.eventName, request.data, request.from);
+                bridge.emit(request.eventName, request.data, ['messaging'], request.from);
             }
 
         }
@@ -276,7 +277,7 @@ new Elogio(
         });
         portToPlugin.onMessage.addListener(function (request) {
             if (isPluginEnabled || request.eventName === events.pluginActivated) {
-                bridge.emitInside(request.eventName, request.data, request.from);
+                bridge.emit(request.eventName, request.data, ['messaging'], request.from);
             }
         });
         bridge.emit(events.registration);

@@ -40,7 +40,7 @@ Elogio.modules.bridge = function (modules) {
         } else if (transport.contentWindow && transport.contentWindow.postMessage) {
             transport.contentWindow.postMessage({eventName: eventName, data: arg}, destination)
         } else {
-            transport.emit(eventName, arg);
+            transport.emit(eventName, arg, from);
         }
     }
 
@@ -155,7 +155,11 @@ Elogio.modules.bridge = function (modules) {
     };
 
     self.registerClient = function (transportObj, name) {
-        bus[name || defaultTransportName] = transportObj;
+        if (transportObj) {
+            bus[name || defaultTransportName] = transportObj;
+        } else {
+            bus[name || defaultTransportName] = messaging;
+        }
     };
 
     this.on = function (eventName, callback, source) {
@@ -186,8 +190,5 @@ Elogio.modules.bridge = function (modules) {
                 }
             }
         }
-    };
-    self.emitInside = function (eventName, data, from) {
-        messaging.emit(eventName, data, from);
     };
 };

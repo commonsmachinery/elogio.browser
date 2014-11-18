@@ -5,13 +5,13 @@
     "appDesc": {
         "message": "Знаходить інформацію про зображення на веб сторінці на сервері Elog.io"
     },
-    "requestError_01": {
+    "requestErrorRespondWithError": {
         "message": "Сервер відповів, але з помилками"
     },
-    "requestError_02": {
+    "requestErrorNetworkError": {
         "message": "Помилка мережі"
     },
-    "requestError_03": {
+    "requestErrorInternalServError": {
         "message": "Помилка роботи сервера"
     },
 
