@@ -47,25 +47,6 @@ $(document).ready(function () {
             };
 
 
-            self.startPlugin = function () {
-                if (!isPluginEnabled) {
-                    // Clear existing list of
-                    if (object.imageListView.length) {
-                        object.imageListView.empty();
-                    }
-                    bridge.emit(bridge.events.pluginActivated);
-                }
-            };
-
-            self.stopPlugin = function () {
-                if (isPluginEnabled) { //if already stopped then we don't need to stop the plugin again
-                    if (object.imageListView.length) {
-                        object.imageListView.empty();
-                    }
-                    bridge.emit(bridge.events.pluginStopped);
-                }
-            };
-
             self.loadImages = function (imageObjects, imageCardToOpen) {
                 var i;
                 // Clear list
@@ -113,7 +94,6 @@ $(document).ready(function () {
 
                 bridge.on(bridge.events.pluginActivated, function () {
                     isPluginEnabled = true;
-                    self.startPlugin();
                 });
 
                 //from main.js we get a message which mean: we need to get details of image, because hash lookup was received
@@ -124,7 +104,6 @@ $(document).ready(function () {
 
                 bridge.on(bridge.events.pluginStopped, function () {
                     isPluginEnabled = false;
-                    self.stopPlugin();
                     self.displayMessages();
                 });
 

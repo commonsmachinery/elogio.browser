@@ -39,9 +39,9 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
      */
     function notifyPluginState(destination) {
         if (pluginState.isEnabled) {
-            destination.emit(bridge.events.pluginActivated);
+            (destination || bridge).emit(bridge.events.pluginActivated);
         } else {
-            destination.emit(bridge.events.pluginStopped);
+            (destination || bridge).emit(bridge.events.pluginStopped);
         }
     }
 
@@ -86,7 +86,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
      * This method needs to register all listeners of sidebar
      * @param bridge - it's a worker.port of sidebar
      */
-    function registerSidebarEventListeners(bridge) {
+    function registerSidebarEventListeners() {
         bridge.on(bridge.events.onImageAction, function (uuid) {
             var tabState = appState.getTabState(tabs.activeTab.id),
                 contentWorker = tabState.getWorker();
@@ -151,7 +151,6 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
         } else {
             button.icon = elogioIcon;
             button.label = Elogio._('pluginStateOn');
-            pluginOn();
             elogioSidebar.show();
         }
     }
@@ -243,13 +242,13 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             pluginState.isEnabled = true;
             bridge.registerClient(worker.port);
             sidebarIsHidden = false;
+            notifyPluginState();
             // Update config with settings from the Preferences module
             loadApplicationPreferences();
             //after registration and loading preferences we need to register all listeners of sidebar
-            registerSidebarEventListeners(bridge);
+            registerSidebarEventListeners();
             // ... and subscribe for upcoming changes
             simplePrefs.on('', loadApplicationPreferences);
-            notifyPluginState(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
                 setupLocale();

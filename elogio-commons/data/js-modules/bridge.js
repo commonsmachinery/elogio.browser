@@ -190,7 +190,7 @@ Elogio.modules.bridge = function (modules) {
                 if (transport) {
                     emitHandler(eventName, transport, arg, destination[i], from);
                 } else {
-                    console.error('Unknown transport: ' + destination[i]);
+                    console.error('Unknown transport: ' + destination[i] + 'eventName is ' + eventName);
                 }
             }
         }
