@@ -15,6 +15,7 @@ new Elogio(
             observer,
             portToPanel,
             blockhash = blockhashjs.blockhash,
+            feedbackImageObject,
             activeElement = null,
             isPluginEnabled = true;
         config.ui.imageDecorator.iconUrl = chrome.extension.getURL('img/settings-icon.png');
@@ -68,15 +69,6 @@ new Elogio(
             window.attachEvent("onmessage", listenerForPanel);
         }
 
-        /**
-         * doorbell injection
-         */
-        var s = document.createElement('script');
-        s.src = chrome.extension.getURL('data/js/doorbell-injection.js');
-        (document.head || document.documentElement).appendChild(s);
-        /**
-         * end of doorbell injection
-         */
         //callback when scan page is finished
         var finish = function () {
             bridge.emit(events.pageProcessingFinished);
@@ -106,6 +98,68 @@ new Elogio(
                 //on finished
                 finish();
             });
+        }
+
+
+        function displayFeedbackError(message) {
+            var error = $('#elogio-feedback-error');
+            error.text(message);
+            error.show();
+        }
+
+        function hideFeedback(event) {
+            var elem;
+            if (event) {
+                elem = $(event.target);
+            } else {
+                elem = $('#elogio-feedback-container');
+            }
+            if (elem.attr('id') === 'elogio-feedback-container') {
+                $('#elogio-feedback-error').hide();
+                $('#elogio-feedback-success').hide();
+                $('#elogio-legend').show();
+                elem.hide();
+            }
+        }
+
+        function submitFeedback() {
+            var message = $('#elogio-feedback-textarea').val();
+            if (!message || message.trim() === '') {
+                displayFeedbackError('Message is required.');
+                return;
+            }
+            var email = $('#elogio-feedback-email').val();
+            if (!email) {
+                displayFeedbackError('Email is required');
+                return;
+            }
+            bridge.emit(bridge.events.feedBackMessage, {
+                type: 'submit',
+                data: {
+                    message: message,
+                    email: email,
+                    imageObject: feedbackImageObject
+                }
+            });
+            feedbackImageObject = null;
+        }
+
+        function initializeFeedbackWindow(feedBackTemplate) {
+            var div = $('<div>');
+            div.attr('id', 'elogio-feedback-container');
+            div.append(feedBackTemplate);
+            $('body').append(div);
+            div.on('click', hideFeedback);
+            var submitFeedbackButton = $('#elogio-feedback-submit-button');
+            submitFeedbackButton.on('click', submitFeedback);
+        }
+
+        function responseReceived(response) {
+            if (response.status === 200) {
+                $('#elogio-feedback-success').show();
+            } else {
+                displayFeedbackError(response.text);
+            }
         }
 
         function setPreferences(changedSettings) {
@@ -176,20 +230,23 @@ new Elogio(
          PANEL LISTENERS
          =======================
          */
+
+        bridge.on(events.feedBackMessage, function (message) {
+            if (message.data) {
+                feedbackImageObject = message.data;
+            }
+            $('#elogio-feedback-container').show();
+        }, [panelUrl]);
         bridge.on(events.imageDetailsRequired, function (imageObj) {
             bridge.emit(events.imageDetailsRequired, imageObj);
         }, [panelUrl]);
 
         bridge.on(events.onImageAction, function (uuid) {
-            var elem = dom.getElementByUUID(uuid, document);
+            var elem = dom.getElementByUUID(uuid);
             if (elem) {
                 elem.scrollIntoView();
             }
         }, [panelUrl]);
-        bridge.on(events.doorbellInjection, function (data) {
-            document.dispatchEvent(new CustomEvent('doorbell-injection', {detail: data}));
-        }, [panelUrl]);
-
 
         bridge.on(events.oembedRequestRequired, function (imageObj) {
             bridge.emit(events.oembedRequestRequired, imageObj);
@@ -212,6 +269,12 @@ new Elogio(
          EXTENSION LISTENERS
          =======================
          */
+
+        bridge.on(events.feedBackMessage, function (message) {
+            if (message.type === 'response') {
+                responseReceived(message.response);
+            }
+        });
         /**
          * Fires when query lookup is ready and we need to get annotations for image
          */
@@ -260,7 +323,9 @@ new Elogio(
         bridge.on(events.ready, function (data) {
             observer.observe(document.body, {attributes: true, childList: true, subtree: true});
             var template = $($.parseHTML(data.panelTemplate, document, true)),
-                body = $('body');
+                body = $('body'),
+                feedBackTemplate = $($.parseHTML(data.feedBackTemplate, document, true));
+            initializeFeedbackWindow(feedBackTemplate);
             setPreferences(data.config);
             if (config.ui.highlightRecognizedImages) {
                 body.addClass('elogio-highlight');

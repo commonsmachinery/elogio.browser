@@ -24,6 +24,14 @@ Elogio.modules.config = function (modules) {
                     iconUrl: 'https://raw.githubusercontent.com/commonsmachinery/ci/master/CommonsMachinery_Humphrey_Tin_LightBackground.jpg'
                 }
             ],
+            feedback: {
+                endpoint: 'https://doorbell.io/api/applications',
+                appKey: 'MwH2sMdpeflmIFkkgqO7fHBHtXzN7SZJTZywLA5NgmDvclygszxS8YsiURh0uzEz',
+                appId: '423',
+                requestMethod: 'POST',
+                openDialog: '/open',
+                submitDialog: '/submit'
+            },
             urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },
         locator: {

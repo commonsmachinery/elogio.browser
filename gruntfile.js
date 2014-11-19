@@ -311,6 +311,18 @@ module.exports = function (grunt) {
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
+            },
+            feedbackTemplateFfx: {
+                src: ["**/feedbackWindow.html"],
+                cwd: "elogio-commons/data/templates/",
+                dest: "<%= buildDir%>/firefox/data/html/",
+                expand: true
+            },
+            feedbackTemplateCrx: {
+                src: ["**/feedbackWindow.html"],
+                cwd: "elogio-commons/data/templates/",
+                dest: "<%= buildDir%>/chrome/html/",
+                expand: true
             }
         },
         auto_install: {
@@ -388,6 +400,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:beautifyFirefox'
             ]);
@@ -405,6 +418,7 @@ module.exports = function (grunt) {
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules',
                 'uglify:beautifyChrome'
             ]);
@@ -435,6 +449,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:beautifyFirefox',
                 'mozilla-addon-sdk',
@@ -456,6 +471,7 @@ module.exports = function (grunt) {
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules'
             ]);
         }
@@ -487,6 +503,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
                 'mozilla-addon-sdk',
@@ -509,6 +526,7 @@ module.exports = function (grunt) {
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules',
                 'uglify:minifyChrome',
                 'crx'

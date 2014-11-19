@@ -146,13 +146,10 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
-                    bridge.emit(bridge.events.doorbellInjection, {
-                        eventName: 'report',
-                        uri: imageObj.uri
-                    }, [sendTo], from);
+                    bridge.emit(bridge.events.feedBackMessage, {type: 'message', data: imageObj}, [sendTo], from);
                 });
                 object.feedbackButton.on('click', function () {
-                    bridge.emit(bridge.events.doorbellInjection, {eventName: 'feedbackClick'}, [sendTo], from);
+                    bridge.emit(bridge.events.feedBackMessage, {type: 'message', data: null}, [sendTo], from);
                 });
 
                 //handle click on copy as html button

@@ -137,10 +137,6 @@ Elogio.modules.bridge = function (modules) {
          */
         setUUID: 'setUUID',
         /**
-         * fires when need to send message to content script (doorbell actions)
-         */
-        doorbellInjection: 'doorbellInjection',
-        /**
          * Fires when need to setup the locale
          */
         l10nSetupLocale: 'l10nSetupLocale',
@@ -151,7 +147,15 @@ Elogio.modules.bridge = function (modules) {
         /**
          * is needed for registration content script in main.js
          */
-        registration: 'registration'
+        registration: 'registration',
+        /**
+         * Fires when feedback template required
+         */
+        feedbackTemplateRequired: 'feedbackTemplateRequired',
+        /**
+         * Fires when panel sent to content message for feedback
+         */
+        feedBackMessage: 'feedBackMessage'
     };
 
     self.registerClient = function (transportObj, name) {

@@ -105,4 +105,24 @@ Elogio.modules.elogioServer = function (modules) {
         }
         elogioRequest.sendRequest(url, onLoad, onError);
     };
+    /**
+     * load feedback template
+     * @param url - file path
+     * @param onSuccess
+     * @param onError
+     */
+    self.getFeedbackTemplate = function (url, onSuccess, onError) {
+        elogioRequest.getTextFile(url, onSuccess, onError);
+    };
+    /**
+     * sending Feedback message to doorbell.io
+     * @param postBody
+     * @param onSuccess
+     * @param onError
+     */
+    self.sendFeedbackSubmit = function (postBody, onSuccess, onError) {
+        var feedback = config.global.apiServer.feedback,
+            url = feedback.endpoint + '/' + feedback.appId + feedback.submitDialog + urlHelperBuilder({key: feedback.appKey});
+        elogioRequest.sendPOSTFeedbackSubmit(url, postBody, onSuccess, onError);
+    };
 };

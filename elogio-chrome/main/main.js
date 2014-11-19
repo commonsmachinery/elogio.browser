@@ -10,6 +10,7 @@
             elogioLabel = Elogio._('pluginStateOn'),
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
+            elogioServer = modules.getModule('elogioServer'),
             mainScriptHelper = modules.getModule('mainScriptHelper'),
             elogioIcon = 'img/icon_19.png',
             events = bridge.events;
@@ -85,7 +86,16 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    bridge.emit(events.ready, {panelTemplate: panelResponse, config: config});
+                    elogioServer.getFeedbackTemplate(chrome.extension.getURL('html/feedbackWindow.html'), function (feedbackTemplate) {
+                        bridge.emit(events.ready, {
+                            panelTemplate: panelResponse,
+                            config: config,
+                            feedBackTemplate: feedbackTemplate
+                        });
+                    }, function () {
+                        console.error('Error with getting template for feedback');
+                        bridge.emit(events.ready, {panelTemplate: panelResponse, config: config});
+                    });
                 }
             });
 
@@ -214,6 +224,23 @@
         bridge.on(events.oembedRequestRequired, function (imageObj) {
             var tabState = appState.getTabState(currentTabId);
             mainScriptHelper.oembedLookup(imageObj, tabState);
+        });
+        bridge.on(events.feedBackMessage, function (message) {
+            if (message.type === 'submit') {
+                mainScriptHelper.feedbackSubmit(message.data, function (response) {
+                    bridge.emit(bridge.events.feedBackMessage, {
+                        type: 'response',
+                        response: {status: response.status, text: response.responseText}
+                    });
+                }, function (response) {
+                    bridge.emit(bridge.events.feedBackMessage, {
+                        type: 'response',
+                        response: {status: response.status, text: response.responseText}
+                    });
+                });
+            } else {
+                bridge.emit(bridge.events.feedBackMessage, message);
+            }
         });
         bridge.on(events.hashCalculated, function (imageObj) {
             var tabState = appState.getTabState(currentTabId);

@@ -1,3 +1,85 @@
 .elogio-highlight [elogiodecorated] {
     outline: deepskyblue groove 5px;
 }
+
+#elogio-feedback-container {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    background: rgba(206, 171, 107, 0.7)
+}
+
+#elogio-feedback-form {
+    min-width: 400px;
+    min-height: 250px;
+    outline: deepskyblue groove 5px;
+    background: #ffffff;
+    width: 40%;
+    height: 40%;
+    position: absolute;
+    left: 30%;
+    top: 30%;
+}
+
+#elogio-legend {
+    width: auto;
+    color: #7c795d;
+    font-family: 'Trocchi', serif;
+    font-size: 22px;
+    font-weight: normal;
+    line-height: 48px;
+    margin: 0;
+}
+
+#elogio-feedback-success {
+    display: none;
+}
+
+#elogio-feedback-error {
+    display: none;
+}
+
+#elogio-feedback-submit-button {
+    background: #cae285;
+    background: -webkit-gradient(linear, 0 0, 0 bottom, from(#cae285), to(#a3cd5a));
+    background: -moz-linear-gradient(#cae285, #a3cd5a);
+    background: linear-gradient(#cae285, #a3cd5a);
+    border: solid 1px #aad063;
+    border-bottom: solid 3px #799545;
+    box-shadow: inset 0 0 0 1px #e0eeb6;
+    color: #5d7731;
+    text-shadow: 0 1px 0 #d0e5a4;;
+}
+
+#elogio-feedback-submit-button:hover {
+    background: #abd164;
+    background: -webkit-gradient(linear, 0 0, 0 bottom, from(#abd164), to(#b9d972));
+    background: -moz-linear-gradient(#abd164, #b9d972);
+    background: linear-gradient(#abd164, #b9d972);
+    border: solid 1px #98b85b;
+    border-bottom: solid 3px #799545;
+    box-shadow: inset 0 0 0 1px #cce3a1;
+}
+
+#elogio-feedback-submit-button:active {
+    background: #a4cb5d;
+    background: -webkit-gradient(linear, 0 0, 0 bottom, from(#a4cb5d), to(#9ec45a));
+    background: -moz-linear-gradient(#a4cb5d, #9ec45a);
+    background: linear-gradient(#a4cb5d, #9ec45a);
+    border: solid 1px #6e883f;
+    box-shadow: inset 0 10px 15px 0 #90b352;
+}
+
+#elogio-feedback-error {
+    font-family: 'Trocchi', serif;
+    color: red;
+}
+
+#elogio-feedback-success {
+    font-family: 'Trocchi', serif;
+    color: red;
+}

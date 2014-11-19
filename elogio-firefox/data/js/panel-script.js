@@ -159,13 +159,10 @@ $(document).ready(function () {
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
-                    /* global doorbell */
-                    doorbell.setProperty('uri', imageObj.uri);
-                    doorbell.show();
+                    bridge.emit(bridge.events.feedBackMessage, {type: 'message', data: imageObj});
                 });
                 object.feedbackButton.on('click', function () {
-                    /* global doorbell */
-                    doorbell.show();
+                    bridge.emit(bridge.events.feedBackMessage, {type: 'message', data: null});
                 });
 
                 //handle click on copy as html button

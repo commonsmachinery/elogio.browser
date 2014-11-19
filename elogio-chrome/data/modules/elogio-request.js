@@ -22,22 +22,71 @@ Elogio.modules.elogioRequest = function (modules) {
      * @param onSuccess - callback function for success request
      * @param onError - callback function which calls on error
      * @param method - HTTP method to be used
+     * @param headers
      */
     self.sendRequest = function (url, onSuccess, onError, method) {
         url = url || config.global.apiServer.serverUrl;
         method = method || 'GET';
         $.ajax({
             type: method,
-            headers: { Accept: 'application/json' },
+            headers: {Accept: 'application/json'},
             url: url,
             dataType: "json",
             success: function (response) {
-                onSuccess(response);
+                if (onSuccess) {
+                    onSuccess(response);
+                }
             },
             error: function (response) {
-                onError(response);
+                if (onError) {
+                    onError(response);
+                }
+            }
+        });
+    };
+    self.getTextFile = function (url, onSuccess, onError, method) {
+        method = method || 'GET';
+        $.ajax({
+            type: method,
+            url: url,
+            dataType: 'html',
+            success: function (response) {
+                if (onSuccess) {
+                    onSuccess(response);
+                }
+            },
+            error: function (response) {
+                if (onError) {
+                    onError(response);
+                }
             }
         });
     };
 
+    /**
+     * POST request with post body
+     * @param url
+     * @param postBody
+     * @param onSuccess
+     * @param onError
+     */
+
+    self.sendPOSTFeedbackSubmit = function (url, postBody, onSuccess, onError) {
+        $.ajax({
+            type: 'POST',
+            url: url,
+            mimeType: "application/json",
+            data: postBody,
+            success: function (response) {
+                if (onSuccess) {
+                    onSuccess(response);
+                }
+            },
+            error: function (response) {
+                if (onError) {
+                    onError(response);
+                }
+            }
+        });
+    };
 };

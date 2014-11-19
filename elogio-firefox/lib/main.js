@@ -23,7 +23,8 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
     var bridge = modules.getModule('bridge'),
         mainScriptHelper = modules.getModule('mainScriptHelper'),
         config = modules.getModule('config'),
-        utils = modules.getModule('utils');
+        utils = modules.getModule('utils'),
+        elogioServer = modules.getModule('elogioServer');
     var elogioSidebar, sidebarIsHidden = true, scrollToImageCard = null, currentTab,
         appState = new Elogio.ApplicationStateController(),
         pluginState = {
@@ -80,6 +81,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             }
         }
     }
+
     /**
      * This method needs to register all listeners of sidebar
      * @param bridge - it's a worker.port of sidebar
@@ -91,6 +93,11 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             if (contentWorker) {
                 contentWorker.port.emit(bridge.events.onImageAction, uuid);
             }
+        });
+        bridge.on(bridge.events.feedBackMessage, function (message) {
+            var tabState = appState.getTabState(tabs.activeTab.id),
+                contentWorker = tabState.getWorker();
+            contentWorker.port.emit(bridge.events.feedBackMessage, message);
         });
         bridge.on(bridge.events.copyToClipBoard, function (request) {
             var clipboardData = request.data;
@@ -194,7 +201,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
         }
     }
 
-    function setupLocale(bridge) {
+    function setupLocale() {
         var locale = utils.initLocale();
         bridge.emit(bridge.events.l10nSetupLocale, locale);
     }
@@ -245,7 +252,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             notifyPluginState(bridge);
             // Load content in sidebar if possible
             if (pluginState.isEnabled) {
-                setupLocale(bridge);
+                setupLocale();
                 var tabState = appState.getTabState(tabs.activeTab.id),
                     images = tabState.getImagesFromStorage();
                 if (images.length) {
@@ -283,6 +290,30 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             tabState.clearImageStorage();
             tabState.clearLookupImageStorage();
             tabState.attachWorker(contentWorker);
+            //send template as string
+            contentWorker.port.on(bridge.events.feedbackTemplateRequired, function () {
+                elogioServer.getFeedbackTemplate(self.data.url('html/feedbackWindow.html'), function (response) {
+                    contentWorker.port.emit(bridge.events.feedbackTemplateRequired, response);
+                });
+            });
+            contentWorker.port.on(bridge.events.feedBackMessage, function (message) {
+                if (message.type === 'submit') {
+                    mainScriptHelper.feedbackSubmit(message.data, function (response) {
+                        contentWorker.port.emit(bridge.events.feedBackMessage, {
+                            type: 'response',
+                            response: {status: response.status, text: response.text}
+                        });
+                    }, function (response) {
+                        console.error('Response from doorbell.io with errors');
+                        contentWorker.port.emit(bridge.events.feedBackMessage, {
+                            type: 'response',
+                            response: {status: response.status, text: response.text}
+                        });
+                    });
+                } else {
+                    contentWorker.port.emit(bridge.events.feedBackMessage, message);
+                }
+            });
             //if page from cache then we need to save it to tabState
             currentTab.on("pageshow", function (tab, isPersisted) {
                 var tabState = appState.getTabState(tab.id);

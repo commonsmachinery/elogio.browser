@@ -232,7 +232,6 @@ Elogio.modules.mainScriptHelper = function (modules) {
                         if (onError) {
                             onError();
                         }
-                        console.log(imageObjFromStorage);
                         bridge.emit(bridge.events.imageDetailsReceived, imageObjFromStorage);
                     }
 
@@ -251,4 +250,23 @@ Elogio.modules.mainScriptHelper = function (modules) {
         );
     };
 
+
+    self.feedbackSubmit = function (data, onSuccess, onError) {
+        var postBody;
+        if (data.imageObject) {
+            postBody = {
+                "email": data.email,
+                "message": data.message,
+                "properties": {
+                    "uri": data.imageObject.uri
+                }
+            };
+        } else {
+            postBody = {
+                "email": data.email,
+                "message": data.message
+            };
+        }
+        elogioServer.sendFeedbackSubmit(postBody, onSuccess, onError);
+    };
 };
