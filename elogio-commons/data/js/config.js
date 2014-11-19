@@ -32,6 +32,11 @@ Elogio.modules.config = function (modules) {
                 openDialog: '/open',
                 submitDialog: '/submit'
             },
+            //just insert a piece of url
+            determineOptions: [
+                {url: 'facebook.com'},
+                {url: 'twitter.com'}
+            ],
             urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },
         locator: {
@@ -62,7 +67,5 @@ Elogio.modules.config = function (modules) {
     this.sidebar = {
         imageObject: 'imageObj'
     };
-    this.logging = {
-
-    };
+    this.logging = {};
 };

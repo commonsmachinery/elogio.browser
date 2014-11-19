@@ -38,9 +38,16 @@ Elogio.modules.mainScriptHelper = function (modules) {
     self.lookupQuery = function (lookupImageObjStorage, tabState, onError, contentWorker) {
         var localStore = lookupImageObjStorage,
             dictionary = {uri: []};
+        var lookupOptions = config.global.apiServer.determineOptions;
         //create dictionary
         for (var i = 0; i < localStore.length; i++) {
             dictionary.uri.push(localStore[i].uri);
+        }
+        for (var i = 0; i < lookupOptions.length; i++) {
+            if (localStore[0].domain.indexOf(lookupOptions[i]) !== -1) {
+                dictionary.context = localStore[0].domain;
+                break;
+            }
         }
         elogioServer.lookupQuery(dictionary,
             function (lookupJson) {
