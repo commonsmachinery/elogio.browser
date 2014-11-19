@@ -154,11 +154,11 @@ $(document).ready(function () {
 
                 //handle click on copy as html button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-html', function () {
-                    sidebarHelper.copyAsHTML(sendTo, from);
+                    sidebarHelper.copyAsHTML($(this).closest('.image-card'), template.clipboardItem, sendTo, from);
                 });
                 //handle click on copy as json button
                 object.imageListView.on('click', '.image-card .elogio-clipboard-json', function () {
-                    sidebarHelper.copyAsJSON(sendTo, from);
+                    sidebarHelper.copyAsJSON($(this).closest('.image-card'), sendTo, from);
                 });
                 //handle click on image card
                 object.imageListView.on('click', '.image-card .elogio-img', function () {

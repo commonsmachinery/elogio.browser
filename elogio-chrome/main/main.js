@@ -181,26 +181,27 @@
             }
         });
         bridge.on(events.copyToClipBoard, function (selection) {
-            var clipboardData = selection.clipboardData, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
+            var clipboardData = selection.data, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
 
             function exec() {
+                data.contentEditable = true;
+                data.unselectable = "off";
+                data.focus();
                 document.execCommand('SelectAll');
                 document.execCommand("Copy", false, null);
-                copyElement.remove();
+                data.remove();
             }
 
             switch (type) {
                 case 'html':
-                    data = $.parseHTML(clipboardData);
+                    data = $($.parseHTML(clipboardData));
                     body.append(data);
                     exec();
                     break;
                 case 'text':
                     copyElement.text(clipboardData);
                     body.append(copyElement);
-                    copyElement.contentEditable = true;
-                    copyElement.unselectable = "off";
-                    copyElement.focus();
+                    data = copyElement;
                     exec();
                     break;
                 case 'image':

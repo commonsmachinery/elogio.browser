@@ -313,17 +313,19 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @param sendTo - is needed for chrome plugin
      * @param from - is needed for chrome plugin
      */
-    self.copyAsHTML = function (sendTo, from) {
-        var imageCard = $(this).closest('.image-card'),
-            copyJSON = {},
+    self.copyAsHTML = function (imageCard, template, sendTo, from) {
+        var copyJSON = {},
             imageObj = imageCard.data(config.sidebar.imageObject), annotations,
             copyToClipBoard;
         if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
             annotations = new Elogio.Annotations(imageObj, config);
             copyJSON = self.initAnnotationsForCopyHandler(annotations);
             copyJSON.uri = imageObj.uri;
-            copyToClipBoard = Mustache.render(template.clipboardItem, {'imageObj': copyJSON});
-            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'}, [sendTo], from);
+            copyToClipBoard = Mustache.render(template, {'imageObj': copyJSON});
+            if (sendTo) {
+                sendTo = [sendTo];
+            }
+            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'html'}, sendTo, from);
         }
 
     };
@@ -334,9 +336,8 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @param sendTo - is needed for chrome plugin
      * @param from - is needed for chrome plugin
      */
-    self.copyAsJSON = function (sendTo, from) {
-        var imageCard = $(this).closest('.image-card'),
-            copyJSON = {},
+    self.copyAsJSON = function (imageCard, sendTo, from) {
+        var copyJSON = {},
             imageObj = imageCard.data(config.sidebar.imageObject), annotations,
             copyToClipBoard;
         if (imageObj.details && imageObj.details[imageObj.currentMatchIndex]) {
@@ -344,7 +345,10 @@ Elogio.modules.sidebarHelper = function (modules) {
             copyJSON = self.initAnnotationsForCopyHandler(annotations);
             copyJSON.uri = imageObj.uri;
             copyToClipBoard = self.jsonToString(copyJSON);
-            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'}, [sendTo], from);
+            if (sendTo) {
+                sendTo = [sendTo];
+            }
+            bridge.emit(bridge.events.copyToClipBoard, {data: copyToClipBoard, type: 'text'}, sendTo, from);
         }
     };
 
