@@ -62,7 +62,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-commons/less/sidebar.less",
-                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/highlight.css"
+                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/content.css"
                 }
             },
             compileChrome: {
@@ -71,7 +71,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
-                    "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/highlight.css",
+                    "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/content.css",
                     "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
             }

@@ -278,7 +278,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
      */
     pageMod.PageMod({
         include: "*",
-        contentStyleFile: [self.data.url("css/highlight.css"), self.data.url("css/contextMenu.css")],
+        contentStyleFile: [self.data.url("css/content.css"), self.data.url("css/contextMenu.css")],
         contentScriptFile: [self.data.url("js/common-lib.js"), self.data.url("js/content-script.js")],
         contentScriptWhen: "ready",
         attachTo: 'top',

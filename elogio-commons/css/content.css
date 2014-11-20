@@ -1,0 +1,121 @@
+.elogio-highlight [elogiodecorated] {
+    outline: deepskyblue groove 5px;
+}
+
+#elogio-feedback-container {
+    display: none;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 2555, 0.7)
+}
+
+#elogio-feedback-form {
+    min-width: 400px;
+    min-height: 250px;
+    outline: #adadad groove 3px;
+    background: rgba(183, 222, 237, 1);
+    background: -moz-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgb(26, 208, 226) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -o-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -ms-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: linear-gradient(135deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#b7deed', endColorstr='#b7deed', GradientType=1);
+    width: 40%;
+    height: 40%;
+    position: absolute;
+    left: 30%;
+    top: 30%;
+}
+#elogio-legend {
+    color: #000000;
+    font-family: 'Trocchi', serif;
+    font-size: 22px;
+    font-weight: normal;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#elogio-feedback-textarea {
+    resize: none;
+    margin: 10px;
+    height: 40%;
+    max-height: 40%;
+    max-width: 95%;
+    background: #dbdbdb;
+}
+
+#elogio-feedback-success {
+    display: none;
+}
+
+#elogio-feedback-error {
+    display: none;
+}
+
+#elogio-feedback-email {
+    margin-left: 10px;
+}
+
+#elogio-feedback-powered-by {
+    width: 200px;
+    position: relative;
+    font-family: 'Trocchi', serif;
+    font-size: 12px;
+    margin-left: 75%;
+    top: 25px;
+}
+
+#elogio-feedback-messages {
+    margin-left: 10px;
+}
+#elogio-feedback-submit-button {
+    font-family: 'Trocchi', serif;
+    font-size: 16px;
+    background: #28ace2;
+    background: -webkit-gradient(linear, 0 0, 0 bottom, from(#2bbdd0), to(#afe9ee));
+    background: -moz-linear-gradient(#28ace2, #afe9ee);
+    background: linear-gradient(#28ace2, #afe9ee);
+    outline: groove 1px #adadad;
+    box-shadow: inset 0 0 0 1px #afe9ee;
+    color: #000000;
+    text-shadow: 0 1px 0;
+    margin-left: 10px;
+    margin-top: 10px;
+}
+
+#elogio-feedback-submit-button:hover {
+    background: rgba(226, 226, 226, 1);
+    background: -moz-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
+    background: -o-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
+    background: -ms-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
+    background: linear-gradient(135deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#e2e2e2', endColorstr='#fefefe', GradientType=1);
+    outline: groove 1px #0f9ed7;
+    box-shadow: inset 0 0 0 1px #1ad0e2;
+}
+
+#elogio-feedback-submit-button:active {
+    background: rgba(183, 222, 237, 1);
+    background: -moz-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -webkit-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -o-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: -ms-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    background: linear-gradient(135deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#b7deed', endColorstr='#b7deed', GradientType=1);
+    outline: groove 1px #50deee;
+}
+
+#elogio-feedback-error {
+    font-family: 'Trocchi', serif;
+    color: red;
+}
+
+#elogio-feedback-success {
+    font-family: 'Trocchi', serif;
+    color: red;
+}
