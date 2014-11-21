@@ -158,14 +158,14 @@ Elogio.modules.sidebarHelper = function (modules) {
      *This method is needed for updating and adding image card to panel
      * @param imageList - jquery object container of image cards
      * @param imageObj - image object which we get from content {uri, uuid, lookup, details, error}
-     * @param imageItemTemplate - jquery object (selector) of template
+     * @param templates - jquery object (selector) of template
      * @param locale - locale
      */
-    self.addOrUpdateImageCard = function (imageList, imageObj, imageItemTemplate, locale) {
+    self.addOrUpdateImageCard = function (imageList, imageObj, templates, locale) {
         // Try to find existing card and create the new one if it wasn't rendered before
-        var cardElement = imageList.find('#' + imageObj.uuid);
+        var cardElement = imageList.find('#' + imageObj.uuid), navigationPart;
         if (!cardElement.length) {
-            cardElement = $(Mustache.render(imageItemTemplate, {'imageObj': imageObj, 'locale': locale}));
+            cardElement = $(Mustache.render(templates.imageItem, {'imageObj': imageObj, 'locale': locale}));
             cardElement.data(config.sidebar.imageObject, imageObj);
             imageList.append(cardElement);
         }
@@ -182,6 +182,15 @@ Elogio.modules.sidebarHelper = function (modules) {
         if (imageObj.lookup && !imageObj.error) {
             cardElement.data(config.sidebar.imageObject, imageObj);// save lookup data to card
             if (imageObj.hasOwnProperty('details')) { // If annotations were loaded...
+                var matchPlaceHolder = cardElement.find('.match-placeholder');
+                if (!matchPlaceHolder.children().length) {
+                    if (imageObj.allMatches) {
+                        navigationPart = Mustache.render(templates.multipleMatch, {'loc': locale});
+                    } else {
+                        navigationPart = Mustache.render(templates.singleMatch, {'loc': locale});
+                    }
+                    matchPlaceHolder.append($(navigationPart));
+                }
                 self.initializeDetails(imageObj, cardElement);
                 errorArea.hide();//hide this anyway because it is wrong show both of messages
             } else {

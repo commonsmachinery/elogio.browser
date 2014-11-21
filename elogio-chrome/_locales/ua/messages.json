@@ -42,6 +42,12 @@
     "feedbackLabel": {
         "message": "Зворотній зв'язок"
     },
+    "helpButton": {
+        "message": "Допомога"
+    },
+    "aboutButton": {
+        "message": "Про нас"
+    },
     "dropDownMenuLabel": {
         "message": "Дії"
     },
@@ -52,13 +58,13 @@
         "message": "Скопіювати як JSON"
     },
     "copyImgButtonLabel": {
-        "message": "Скопіювати  як зображення"
+        "message": "Скопіювати як зображення"
     },
     "sourceButtonLabel": {
-        "message": "Перейти до джерела"
+        "message": "До джерела"
     },
     "licenseButtonLabel": {
-        "message": "Ознайомитись з ліцензією"
+        "message": "Ліцензія"
     },
     "reportButtonLabel": {
         "message": "Звітувати"

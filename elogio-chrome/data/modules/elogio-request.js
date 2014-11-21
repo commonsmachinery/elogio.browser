@@ -78,11 +78,13 @@ Elogio.modules.elogioRequest = function (modules) {
             mimeType: "application/json",
             data: postBody,
             success: function (response) {
+                console.log(response);
                 if (onSuccess) {
                     onSuccess(response);
                 }
             },
             error: function (response) {
+                console.log(response);
                 if (onError) {
                     onError(response);
                 }

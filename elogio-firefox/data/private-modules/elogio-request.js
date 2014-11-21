@@ -24,12 +24,14 @@ Elogio.modules.elogioRequest = function (modules) {
      * @param method - HTTP method to be used
      */
     self.sendRequest = function (url, onSuccess, onError, method) {
+
         url = url || config.global.apiServer.serverUrl;
         method = method || 'GET';
         var request = new Request({
             url: url,
             headers: { Accept: 'application/json' },
             onComplete: function (response) {
+                console.log(response);
                 if (response.json) {
                     if (onSuccess) {
                         onSuccess(response.json);

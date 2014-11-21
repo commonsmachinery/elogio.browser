@@ -34,8 +34,8 @@ Elogio.modules.config = function (modules) {
             },
             //just insert a piece of url
             determineOptions: [
-                {url: 'facebook.com'},
-                {url: 'twitter.com'}
+                {url: 'facebook.com/'},
+                {url: 'twitter.com/'}
             ],
             urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },

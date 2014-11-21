@@ -139,8 +139,14 @@ Elogio.modules.mainScriptHelper = function (modules) {
                     }
                 }
             }, function (response) {
-                console.log('text status ' + response.statusText + ' ; status code ' + response.status);
-                imageObjFromStorage.error = utils.getTextStatusByStatusCode(response.status);
+                if (response.status === 400) {
+                    //it means the image was not founded because bad request maybe hash is wrong
+                    console.log(response.text + '  Status is: ' + response.status + ' There is ' + response.statusText + ' image url is: ' + imageObjFromStorage.uri);
+                    imageObjFromStorage.error = Elogio._('noDataForImage');
+                } else {
+                    console.log('text status ' + response.statusText + ' ; status code ' + response.status);
+                    imageObjFromStorage.error = utils.getTextStatusByStatusCode(response.status);
+                }
                 if (onError) {
                     onError(imageObjFromStorage);
                 }

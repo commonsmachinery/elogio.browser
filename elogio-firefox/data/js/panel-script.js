@@ -6,13 +6,17 @@ $(document).ready(function () {
             var object = {
                 feedbackButton: $('#elogio-feedback'),
                 imageListView: $("#elogio-imageListView"),
+                helpButton: $('#elogio-help'),
+                aboutButton: $('#elogio-about'),
                 messageBox: $('#elogio-messageText'),
                 locale: null
             };
             var template = {
                 imageItem: $("#elogio-image-template").html(),
                 clipboardItem: $("#elogio-clipboard-template").html(),
-                canvasTemplate: $('#elogio-canvas-template').html()
+                canvasTemplate: $('#elogio-canvas-template').html(),
+                multipleMatch: $('#elogio-multiple-template').html(),
+                singleMatch: $('#elogio-single-template').html()
             };
             var
                 self = {},
@@ -56,7 +60,7 @@ $(document).ready(function () {
                 // Add all objects
                 if (imageObjects) {
                     for (i = 0; i < imageObjects.length; i += 1) {
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template.imageItem, object.locale);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObjects[i], template, object.locale);
                     }
                     if (imageCardToOpen) {
                         sidebarHelper.openImage(imageCardToOpen);
@@ -67,7 +71,7 @@ $(document).ready(function () {
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(config.sidebar.imageObject, imageObj);
-                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                 if (!imageObj.allMatches || imageObj.currentMatchIndex === 0) {
                     card.find('.loading').hide();
                     card.find('.elogio-image-details').hide();
@@ -81,6 +85,8 @@ $(document).ready(function () {
                 Mustache.parse(template.imageItem);
                 Mustache.parse(template.canvasTemplate);
                 Mustache.parse(template.clipboardItem);
+                Mustache.parse(template.multipleMatch);
+                Mustache.parse(template.singleMatch);
                 //at first we need to setup locale
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
@@ -88,7 +94,7 @@ $(document).ready(function () {
 
                 // Subscribe for events
                 bridge.on(bridge.events.newImageFound, function (imageObj) {
-                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                    sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                     self.displayMessages();
                 });
 
@@ -175,7 +181,7 @@ $(document).ready(function () {
                         imageCard.find('.image-not-found').hide();
                         imageObj.currentMatchIndex--;
                         imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                     } else {
                         //do nothing, because it is first matched element
                     }
@@ -188,7 +194,7 @@ $(document).ready(function () {
                         imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
                         //if next element already exist then we don't need to do query
                         if (imageObj.details.length > imageObj.currentMatchIndex) {
-                            sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                            sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                         } else {
                             //if next element doesn't exist then query
                             bridge.emit(bridge.events.imageDetailsRequired, imageObj);

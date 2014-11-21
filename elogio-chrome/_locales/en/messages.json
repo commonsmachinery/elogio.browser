@@ -40,7 +40,13 @@
         "message": "We don't have any information about this image, but you can query Elog.io to match it against images in the catalog."
     },
     "feedbackLabel": {
-        "message": "feedback"
+        "message": "Feedback"
+    },
+    "helpButton": {
+        "message": "Help"
+    },
+    "aboutButton": {
+        "message": "About"
     },
     "dropDownMenuLabel": {
         "message": "Actions"

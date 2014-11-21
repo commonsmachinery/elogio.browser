@@ -42,6 +42,12 @@
     "feedbackLabel": {
         "message": "Обратная связь"
     },
+    "helpButton": {
+        "message": "Помощь"
+    },
+    "aboutButton": {
+        "message": "О нас"
+    },
     "dropDownMenuLabel": {
         "message": "Действия"
     },
