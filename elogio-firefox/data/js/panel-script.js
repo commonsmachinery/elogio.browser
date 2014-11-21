@@ -71,6 +71,7 @@ $(document).ready(function () {
             self.receivedImageDataFromServer = function (imageObj) {
                 var card = getImageCardByUUID(imageObj.uuid);
                 card.data(config.sidebar.imageObject, imageObj);
+                card.find('.image-not-found').hide();
                 sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                 if (!imageObj.allMatches || imageObj.currentMatchIndex === 0) {
                     card.find('.loading').hide();
@@ -167,11 +168,16 @@ $(document).ready(function () {
                 });
                 //handle click on query button
                 object.imageListView.on('click', '.image-card .query-button', function () {
-                    var imageCard = $(this).closest('.image-card');
-                    var imageObj = imageCard.data(config.sidebar.imageObject);
-                    imageCard.find('.loading').show();
-                    imageCard.find('.image-not-found').hide();
-                    bridge.emit(bridge.events.oembedRequestRequired, imageObj);
+                    //if query never clicked
+                    var button = $(this);
+                    if (!button.hasClass('disabled')) {
+                        var imageCard = $(this).closest('.image-card');
+                        var imageObj = imageCard.data(config.sidebar.imageObject);
+                        imageCard.find('.query-loading').show();
+                        button.find('.elogio-query-message').text(object.locale.querying);
+                        button.addClass('disabled');
+                        bridge.emit(bridge.events.oembedRequestRequired, imageObj);
+                    }
                 });
                 object.imageListView.on('click', '.image-card .several-matches .previous', function () {
                     var imageCard = $(this).closest('.image-card');
