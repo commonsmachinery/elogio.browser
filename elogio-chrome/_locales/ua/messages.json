@@ -72,6 +72,9 @@
     "queryButtonLabel": {
         "message": "Запит"
     },
+    "querying": {
+        "message": "Зачекайте"
+    },
     "openImageInNewTabLabel": {
         "message": "Відкрити в новій вкладці"
     },
@@ -83,10 +86,10 @@
     },
     ,
     "matchNextButtonLabel": {
-        "message": "=>"
+        "message": ">>"
     },
     "matchPreviousButtonLabel": {
-        "message": "<="
+        "message": "<<"
     },
     "multiMatchInfo": {
         "message": "Запит до elog.io дав більше ніж одне співпадіння. Ви можете обрати будь-яке"

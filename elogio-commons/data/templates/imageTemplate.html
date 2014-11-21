@@ -25,11 +25,14 @@
         </div>
         <div class="image-not-found" style="display:none">
                 <div class="alert alert-warning">{{locale.noLookup}}</div>
-                <button class="btn btn-primary query-button">{{locale.queryButtonLabel}}</button>
+                <button class="btn btn-primary query-button">
+                <span class="elogio-query-message">{{locale.queryButtonLabel}}</span>
+                <img class="query-loading" src="../img/process-indicator.gif"/>
+                </button>
         </div>
     </div>
     <div class="message-area" style="display:none"></div>
-    <div id="elogio-not-found" class="alert error-area alert-danger" style="display:none"></div>
+    <div class="alert error-area alert-danger elogio-not-found" style="display:none"></div>
     <div class="loading" style="display:none"></div>
     <div>
         <a class="btn btn-primary elogio-hash" style="display:none" target="_blank">{{locale.openImgInNewTabLabel}}</a>

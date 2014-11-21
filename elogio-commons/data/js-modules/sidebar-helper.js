@@ -168,6 +168,8 @@ Elogio.modules.sidebarHelper = function (modules) {
             cardElement = $(Mustache.render(templates.imageItem, {'imageObj': imageObj, 'locale': locale}));
             cardElement.data(config.sidebar.imageObject, imageObj);
             imageList.append(cardElement);
+        } else {
+            cardElement.data(config.sidebar.imageObject, imageObj);
         }
         // If we didn't send lookup query before - show loading
         if (!imageObj.hasOwnProperty('lookup') && !imageObj.error) {
@@ -204,6 +206,7 @@ Elogio.modules.sidebarHelper = function (modules) {
             } else {
                 //at here imageObj has errors and need to show it in sidebar
                 errorArea.text(imageObj.error);
+                cardElement.find('.image-not-found').hide();
                 errorArea.show();
                 if (imageObj.blockhashError) {
                     var hash = cardElement.find('.elogio-hash');
@@ -303,7 +306,10 @@ Elogio.modules.sidebarHelper = function (modules) {
             if (!notFound.is(':visible')) {//if image data does not exist then we hide always query button
                 imageCard.find('.elogio-image-details').toggle();
                 imageCard.find('.image-found').hide();
-                imageCard.find('.elogio-not-found').show();
+            }
+            if (imageObj.noData) {
+                imageCard.find('.elogio-not-found').toggle();
+                imageCard.find('.image-not-found').hide();
             }
         }
         if (!preventAnnotationsLoading && !imageObj.details && imageObj.lookup) { //if details doesn't exist then send request to server

@@ -72,6 +72,9 @@
     "queryButtonLabel": {
         "message": "Запрос"
     },
+    "querying": {
+        "message": "Запрашиваю"
+    },
     "openImageInNewTabLabel": {
         "message": "Открыть в новой вкладке"
     },
@@ -82,10 +85,10 @@
         "message": "Если опция включена, то плагин будет искать все картинки на странице, даже те которые являются фоном."
     },
     "matchNextButtonLabel": {
-        "message": "=>"
+        "message": ">>"
     },
     "matchPreviousButtonLabel": {
-        "message": "<="
+        "message": "<<"
     },
     "multiMatchInfo": {
         "message": "Запрос к elog.io дал больше чем одно совпадение. Вы можете выбрать любое."

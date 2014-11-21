@@ -72,6 +72,9 @@
     "queryButtonLabel": {
         "message": "Query"
     },
+    "querying": {
+        "message": "Querying"
+    },
     "openImageInNewTabLabel": {
         "message": "Open Image in new tab"
     },
@@ -82,10 +85,10 @@
         "message": "Enables a more thorough but also more time-consuming search that includes element background images.  Websites often use background images even for the main content to achieve more dynamic effects or to make it difficult to copy images."
     },
     "matchNextButtonLabel": {
-        "message": "=>"
+        "message": ">>"
     },
     "matchPreviousButtonLabel": {
-        "message": "<="
+        "message": "<<"
     },
     "multiMatchInfo": {
         "message": "Query to elog.io returned more than one matches and you can choose any of them."
