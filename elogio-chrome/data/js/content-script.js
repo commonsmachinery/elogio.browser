@@ -167,6 +167,7 @@ new Elogio(
         }
 
         function setPreferences(changedSettings) {
+            config.global.firstRun = changedSettings.global.firstRun || null;
             config.global.locator.deepScan = changedSettings.global.locator.deepScan;
             config.ui.highlightRecognizedImages = changedSettings.ui.highlightRecognizedImages;
         }
@@ -343,6 +344,10 @@ new Elogio(
             //attach port to panel
             portToPanel = document.getElementById('elogio-panel');
             bridge.registerClient(portToPanel, panelUrl);
+            if (config.global.firstRun) {
+                config.global.firstRun = false;
+                onImageActionHandler();
+            }
         });
         portToPlugin.onMessage.addListener(function (request) {
             if (isPluginEnabled || request.eventName === events.pluginActivated) {

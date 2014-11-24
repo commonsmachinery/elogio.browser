@@ -16,6 +16,15 @@
             events = bridge.events;
 
         bridge.registerClient(null, 'messaging');
+        chrome.runtime.onInstalled.addListener(function (details) {
+            if (details.reason === "install") {
+                config.global.firstRun = true;
+                chrome.tabs.create({
+                    url: 'http://elog.io/',
+                    active: true
+                });
+            }
+        });
 
         function loadPreferences() {
             chrome.storage.sync.get('deepScan', function (data) {

@@ -32,6 +32,14 @@
             "title": "srever's domain",
             "hidden": true,
             "value": "https://catalog.elog.io"
+        },
+        {
+            "name": "firstRun",
+            "title": "first run or not",
+            "description": "indicate first run or not",
+            "type": "bool",
+            "hidden": true,
+            "value": true
         }
     ]
 }
