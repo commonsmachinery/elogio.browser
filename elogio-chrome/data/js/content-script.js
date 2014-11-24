@@ -346,6 +346,7 @@ new Elogio(
             bridge.registerClient(portToPanel, panelUrl);
             if (config.global.firstRun) {
                 config.global.firstRun = false;
+                bridge.emit(bridge.events.firstRun);
                 onImageActionHandler();
             }
         });

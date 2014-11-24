@@ -189,6 +189,9 @@
                 appState.getTabState(currentTabId).clearLookupImageStorage();
             }
         });
+        bridge.on(events.firstRun, function () {
+            config.global.firstRun = false;
+        });
         bridge.on(events.copyToClipBoard, function (selection) {
             var clipboardData = selection.data, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
 

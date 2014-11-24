@@ -155,7 +155,11 @@ Elogio.modules.bridge = function (modules) {
         /**
          * Fires when panel sent to content message for feedback
          */
-        feedBackMessage: 'feedBackMessage'
+        feedBackMessage: 'feedBackMessage',
+        /**
+         * Fires when is needed turn off first run state
+         */
+        firstRun: 'firstRun'
     };
 
     self.registerClient = function (transportObj, name) {
