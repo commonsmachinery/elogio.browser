@@ -1,7 +1,9 @@
+body {
+  padding: 0;
+}
 .elogio-panel {
-  padding-right: 3px;
-  padding-left: 3px;
-  border-left: groove 2px #00b3ee;
+  padding-right: 0;
+  padding-left: 0;
   [elogio-actions] {
     font-size: 12px;
   }
@@ -21,7 +23,8 @@
     .image-card {
       background: #ffffff;
       width: 100%;
-      border-bottom: 1px solid black;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #00b3ee;
       margin: 5px 0;
       .elogio-gravatar {
         max-width: 40px;
@@ -33,7 +36,13 @@
         height: 10px;
       }
       .several-matches {
-        padding-bottom: 3px;
+        .alert {
+          margin-bottom: 5px;
+        }
+        .more-than-one-match {
+          padding-bottom: 5px;
+        }
+        padding-bottom: 10px;
       }
       .no-lookup-data {
         width: 100%;
@@ -57,7 +66,7 @@
         }
 
         .picture {
-          max-height: 400px;
+          max-height: 700px;
           width: 100%;
           max-width: 100%;
         }
@@ -67,13 +76,6 @@
         .elogio-thumbnail {
           width: 75%;
           height: 75%;
-
-          img {
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
-          }
-
           .picture {
             max-height: 100%;
             max-width: 100%;

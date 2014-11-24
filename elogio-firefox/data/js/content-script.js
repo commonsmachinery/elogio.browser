@@ -43,6 +43,8 @@ new Elogio(
 
         function submitFeedback() {
             var message = document.getElementById('elogio-feedback-textarea').value;
+            document.getElementById('elogio-feedback-success').style.display = 'none';
+            document.getElementById('elogio-feedback-error').style.display = 'none';
             if (!message || message.trim() === '') {
                 displayFeedbackError('Message is required.');
                 return;
@@ -64,8 +66,10 @@ new Elogio(
         }
 
         function responseReceived(response) {
-            if (response.status === 200) {
-                document.getElementById('elogio-feedback-success').style.display = 'block';
+            if (response.status === 201) {
+                var success = document.getElementById('elogio-feedback-success');
+                success.innerHTML = response.text;
+                success.style.display = 'block';
             } else {
                 displayFeedbackError(response.text);
             }

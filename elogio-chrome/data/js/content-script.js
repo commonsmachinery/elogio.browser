@@ -124,6 +124,8 @@ new Elogio(
 
         function submitFeedback() {
             var message = $('#elogio-feedback-textarea').val();
+            $('#elogio-feedback-error').hide();
+            $('#elogio-feedback-success').hide();
             if (!message || message.trim() === '') {
                 displayFeedbackError('Message is required.');
                 return;
@@ -155,8 +157,10 @@ new Elogio(
         }
 
         function responseReceived(response) {
-            if (response.status === 200) {
-                $('#elogio-feedback-success').show();
+            if (response.status === 201) {
+                var success = $('#elogio-feedback-success');
+                success.text(response.text);
+                success.show();
             } else {
                 displayFeedbackError(response.text);
             }

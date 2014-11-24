@@ -31,7 +31,6 @@ Elogio.modules.elogioRequest = function (modules) {
             url: url,
             headers: { Accept: 'application/json' },
             onComplete: function (response) {
-                console.log(response);
                 if (response.json) {
                     if (onSuccess) {
                         onSuccess(response.json);

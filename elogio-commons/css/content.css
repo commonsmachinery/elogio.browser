@@ -13,10 +13,10 @@
     background: rgba(255, 255, 2555, 0.7)
 }
 
-#elogio-feedback-form {
-    min-width: 400px;
+.elogio-feedback-form {
+    min-width: 500px;
     min-height: 250px;
-    outline: #adadad groove 3px;
+    border: #adadad groove 3px;
     background: rgba(183, 222, 237, 1);
     background: -moz-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
     background: -webkit-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 18%, rgb(26, 208, 226) 51%, rgba(183, 222, 237, 1) 100%);
@@ -30,7 +30,8 @@
     left: 30%;
     top: 30%;
 }
-#elogio-legend {
+
+.elogio-feedback-form .elogio-legend {
     color: #000000;
     font-family: 'Trocchi', serif;
     font-size: 22px;
@@ -39,7 +40,7 @@
     margin-right: auto;
 }
 
-#elogio-feedback-textarea {
+.elogio-feedback-form .elogio-feedback-textarea {
     resize: none;
     margin: 10px;
     height: 40%;
@@ -49,32 +50,33 @@
     background: #dbdbdb;
 }
 
-#elogio-feedback-success {
+.elogio-feedback-form .elogio-feedback-success {
     display: none;
 }
 
-#elogio-feedback-error {
+.elogio-feedback-form .elogio-feedback-error {
     display: none;
 }
 
-#elogio-feedback-email {
+.elogio-feedback-form .elogio-feedback-email {
     margin-left: 10px;
     max-width: 40%;
 }
 
-#elogio-feedback-powered-by {
-    width: 200px;
-    position: relative;
+.elogio-feedback-form .elogio-feedback-powered-by {
+    width: auto;
+    position: absolute;
     font-family: 'Trocchi', serif;
     font-size: 12px;
-    margin-left: 75%;
-    top: 25px;
+    right: 5px;
+    bottom: 10px;
 }
 
-#elogio-feedback-messages {
+.elogio-feedback-form .elogio-feedback-messages {
     margin-left: 10px;
 }
-#elogio-feedback-submit-button {
+
+.elogio-feedback-form .elogio-feedback-submit-button {
     font-family: 'Trocchi', serif;
     font-size: 16px;
     background: #28ace2;
@@ -89,7 +91,7 @@
     margin-top: 10px;
 }
 
-#elogio-feedback-submit-button:hover {
+.elogio-feedback-form .elogio-feedback-submit-button:hover {
     background: rgba(226, 226, 226, 1);
     background: -moz-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
     background: -webkit-linear-gradient(-45deg, rgba(226, 226, 226, 1) 0%, rgba(219, 219, 219, 1) 50%, rgba(209, 209, 209, 1) 51%, rgba(254, 254, 254, 1) 100%);
@@ -101,7 +103,7 @@
     box-shadow: inset 0 0 0 1px #1ad0e2;
 }
 
-#elogio-feedback-submit-button:active {
+.elogio-feedback-form .elogio-feedback-submit-button:active {
     background: rgba(183, 222, 237, 1);
     background: -moz-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
     background: -webkit-linear-gradient(-45deg, rgba(183, 222, 237, 1) 0%, rgba(113, 206, 239, 1) 33%, rgba(33, 180, 226, 1) 51%, rgba(183, 222, 237, 1) 100%);
@@ -112,12 +114,12 @@
     outline: groove 1px #50deee;
 }
 
-#elogio-feedback-error {
+.elogio-feedback-form .elogio-feedback-error {
     font-family: 'Trocchi', serif;
     color: red;
 }
 
-#elogio-feedback-success {
+.elogio-feedback-form .elogio-feedback-success {
     font-family: 'Trocchi', serif;
-    color: red;
+    color: green;
 }

@@ -14,7 +14,10 @@
                 "data/js/common-lib.js",
                 "data/js/content-script.js"],
             "matches": [ "*://*/*", "https://*/*"],
-            "css": ["styles/highlight.css", "styles/panel.css"]
+            "css": [
+                "styles/content.css",
+                "styles/panel.css"
+            ]
         }
     ],
 
