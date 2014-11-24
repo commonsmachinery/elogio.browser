@@ -162,7 +162,7 @@ Elogio.Annotations = function (imageObj, config) {
         var configCollection = config.global.apiServer.collection;
         for (var i = 0; i < configCollection.length; i++) {
             if (collection.collectionLink.indexOf(configCollection[i].link) != -1) {
-                return configCollection.iconUrl;
+                return configCollection[i].iconUrl;
             }
         }
     }
