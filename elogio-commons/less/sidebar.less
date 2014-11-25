@@ -1,32 +1,67 @@
-
+body {
+  padding: 0;
+}
 .elogio-panel {
-  padding: 5px;
+  padding-right: 0;
+  padding-left: 0;
+  [elogio-actions] {
+    font-size: 12px;
+  }
   .elogio-header {
     left: 0px;
     top: 0px;
-    margin: 12px 0;
     width: 100%;
+    border-bottom: solid #999999 1px;
     color: #ffffff;
+    .btn {
+      font-size: 11px;
+    }
   }
   .elogio-image-card-container {
     width: 100%;
-    padding: 10px;
 
     .image-card {
       background: #ffffff;
       width: 100%;
-      border-bottom: 1px solid black;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #00b3ee;
       margin: 5px 0;
+      .elogio-gravatar {
+        max-width: 40px;
+        max-height: 40px;
+      }
+      .query-loading {
+        display: none;
+        width: 16px;
+        height: 10px;
+      }
+      .gravatar {
+        padding-right: 5px;
+      }
+      .several-matches {
+        margin-left: 15px;
+        .alert {
+          margin-left: -15px;
+          margin-bottom: 5px;
+        }
+        .more-than-one-match {
+          padding-bottom: 5px;
+        }
+        padding-bottom: 10px;
+      }
+      .single-match {
+        margin-left: 15px;
+        padding-bottom: 10px;
+      }
       .no-lookup-data {
         width: 100%;
       }
       .query-button {
-        margin-left: auto;
-        margin-right: auto;
+        margin-left: 15px;
       }
       .thumbnail-image {
         width: 100%;
-        height: 150px;
+        height: auto;
 
         img {
           display: block;
@@ -39,11 +74,25 @@
         }
 
         .picture {
-          max-height: 150px;
+          max-height: 700px;
+          width: 100%;
           max-width: 100%;
         }
       }
+
       .elogio-image-details {
+        .elogio-thumbnail {
+          margin-left: 15px;
+          width: 75%;
+          height: 75%;
+          .picture {
+            max-height: 100%;
+            max-width: 100%;
+          }
+        }
+        .details-text {
+          padding-left: 15px;
+        }
         padding-top: 5px;
         .dropdown-menu li {
           cursor: pointer;
@@ -51,6 +100,7 @@
       }
     }
   }
+
   #messageView span {
     font-size: 1.2rem;
   }

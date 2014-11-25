@@ -90,4 +90,39 @@ Elogio.modules.elogioServer = function (modules) {
         var url = oembedEndpoint + urlHelperBuilder({url: imageUrl});
         elogioRequest.sendRequest(url, onLoad, onError);
     };
+
+
+    /**
+     * Just send request just by built url
+     * @param url - built url for request
+     * @param onLoad -
+     * @param onError
+     */
+    self.sendRequestJustByUrl = function (url, onLoad, onError) {
+        if (!url) {
+            console.error('Url is undefined');
+            return;
+        }
+        elogioRequest.sendRequest(url, onLoad, onError);
+    };
+    /**
+     * load feedback template
+     * @param url - file path
+     * @param onSuccess
+     * @param onError
+     */
+    self.getFeedbackTemplate = function (url, onSuccess, onError) {
+        elogioRequest.getTextFile(url, onSuccess, onError);
+    };
+    /**
+     * sending Feedback message to doorbell.io
+     * @param postBody
+     * @param onSuccess
+     * @param onError
+     */
+    self.sendFeedbackSubmit = function (postBody, onSuccess, onError) {
+        var feedback = config.global.apiServer.feedback,
+            url = feedback.endpoint + '/' + feedback.appId + feedback.submitDialog + urlHelperBuilder({key: feedback.appKey});
+        elogioRequest.sendPOSTFeedbackSubmit(url, postBody, onSuccess, onError);
+    };
 };

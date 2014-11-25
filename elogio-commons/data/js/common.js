@@ -66,21 +66,10 @@ Elogio.Observable = function () {
     "use strict";
     var bus = {};
 
-    function validateEventName(eventName, self) {
-        if (self.events.indexOf(eventName) === -1) {
-            console.error('Event ' + eventName + ' is not supported by ' + self.constructor.name);
-            return false;
-        }
-        return true;
-    }
-
     this.events = [];
 
     this.emit = function (eventName, arg, target) {
         var i, handlers;
-        if (!validateEventName(eventName, this)) {
-            return;
-        }
         target = target || 'default';
         if (!bus[eventName]) {
             console.error("seems you doesn't have handlers for event " + eventName);
@@ -98,9 +87,6 @@ Elogio.Observable = function () {
 
     this.on = function (eventName, callback, target) {
         var handlers;
-        if (!validateEventName(eventName, this)) {
-            return;
-        }
         target = target || 'default';
         if (!bus[eventName]) {
             bus[eventName] = [];
@@ -166,6 +152,12 @@ Elogio.StateController.events = {
     onPropertyChanged: 'onChanged',
     onInitialized: 'onInitialized'
 };
+
+if (typeof Q !== 'undefined') {
+    if (Elogio.Q === 'undefined') {
+        Elogio.Q = Q;
+    }
+}
 
 // If module is used in Chrome context
 if (typeof exports !== 'undefined') {

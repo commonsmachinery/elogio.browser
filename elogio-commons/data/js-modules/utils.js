@@ -10,7 +10,6 @@ Elogio.modules.utils = function (modules) {
      REQUIREMENTS
      =======================
      */
-
     var config = modules.getModule('config');
     /*
      =======================
@@ -148,22 +147,110 @@ Elogio.modules.utils = function (modules) {
     };
 
 
-    self.getJSONByLowestDistance = function (arrayJSON) {
-        var minDistance = 0, index = 0;
-        for (var i = 0; i < arrayJSON.length; i++) {
-            if (!arrayJSON[i].hasOwnProperty('distance')) {
-                console.error('Received blockhash json without distance');
-                return;
-            }
-            if (arrayJSON[i].distance <= minDistance) {
-                minDistance = arrayJSON[i].distance;
-                index = i;
+    /**
+     * Sort array of matches by distance
+     * @param arrayJSON
+     * @returns {{json: *, index: number}}
+     */
+    self.sortJSONByLowestDistance = function (arrayJSON) {
+        var distanceBuffer = 0;
+        for (var i = 0; i < arrayJSON.length - 1; i++) {
+            for (var j = i + 1; j < arrayJSON.length; j++) {
+                if (arrayJSON[i].distance > arrayJSON[i].distance) {
+                    distanceBuffer = arrayJSON[i].distance;
+                    arrayJSON[i].distance = arrayJSON[j].distance;
+                    arrayJSON[j].distance = distanceBuffer;
+                }
             }
         }
-        return arrayJSON[index];
+        return {json: arrayJSON[0], index: 0};
+    };
+
+    /**
+     *
+     * @param _ - it's a link to method "getMessage" of locale
+     * @returns {{feedbackLabel: *, dropDownMenuLabel: *, copyHtmlButtonLabel: *, copyJsonButtonLabel: *, copyImgButtonLabel: *, sourceButtonLabel: *, licenseButtonLabel: *, reportButtonLabel: *, queryButtonLabel: *, openImgInNewTabLabel: *, noLookup: *, blockhash: {moreMatchesInfo: *}, button: {previous: *, next: *}}}
+     */
+    self.initLocale = function () {
+        return {
+            feedbackLabel: Elogio._('feedbackLabel'),
+            querying: Elogio._('querying'),
+            dropDownMenuLabel: Elogio._('dropDownMenuLabel'),
+            copyHtmlButtonLabel: Elogio._('copyHtmlButtonLabel'),
+            copyJsonButtonLabel: Elogio._('copyJsonButtonLabel'),
+            copyImgButtonLabel: Elogio._('copyImgButtonLabel'),
+            sourceButtonLabel: Elogio._('sourceButtonLabel'),
+            licenseButtonLabel: Elogio._('licenseButtonLabel'),
+            reportButtonLabel: Elogio._('reportButtonLabel'),
+            queryButtonLabel: Elogio._('queryButtonLabel'),
+            openImgInNewTabLabel: Elogio._('openImageInNewTabLabel'),
+            noLookup: Elogio._('noLookup'),
+            blockhash: {
+                moreMatchesInfo: Elogio._('multiMatchInfo')
+            },
+            button: {
+                previous: Elogio._('matchPreviousButtonLabel'),
+                next: Elogio._('matchNextButtonLabel')
+            }
+        };
+    };
+
+    self.findThumbnailOfImage = function (imageObjFromStorage, elogioServer, callback) {
+        if (!imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].media) {
+            console.error('no one thumbnail for image');
+            return;
+        }
+        var requestHandler = function (href, promise) {
+            elogioServer.sendRequestJustByUrl(href, function (response) {
+                promise.resolve(response);
+            }, function () {
+                promise.reject();
+            });
+        };
+
+
+        var media = imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].media, hrefs = [], defers = [], i, promises = [];
+        //prepare promises
+        for (i = 0; i < media.length; i++) {
+            hrefs.push(media[i].href);
+            defers.push((Elogio.Q || Q).defer());
+            promises.push(defers[i].promise);
+        }
+        var all = (Elogio.Q || Q).all(promises);
+        all.then(function (imageObjects) {
+            //looking for the best url
+            var imageObj = {};
+            imageObj.details = [imageObjects[0]];
+            imageObj.currentMatchIndex = 0;
+            var bestLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink(), currentLocatorLink;
+            for (var i = 1; i < imageObjects.length; i++) {
+                imageObj.details = [imageObjects[i]];
+                currentLocatorLink = new Elogio.Annotations(imageObj, config).getLocatorLink();
+                if (bestLocatorLink.length < currentLocatorLink.length) {
+                    bestLocatorLink = currentLocatorLink;
+                }
+            }
+            imageObjFromStorage.details[imageObjFromStorage.currentMatchIndex].thumbnailUrl = bestLocatorLink;
+            if (callback) {
+                callback(imageObjFromStorage);
+            }
+        });
+        for (i = 0; i < media.length; i++) {
+            requestHandler(hrefs[i], defers[i]);
+        }
     };
 
 
+    self.getTextStatusByStatusCode = function (statusCode) {
+        switch (statusCode) {
+            case 200:
+                return Elogio._('requestErrorRespondWithError');
+            case 0:
+                return Elogio._('requestErrorNetworkError');
+            default:
+                return Elogio._('requestErrorInternalServError');
+        }
+    };
     /**
      * Generates random UUID
      * @return{String} Generated UUID

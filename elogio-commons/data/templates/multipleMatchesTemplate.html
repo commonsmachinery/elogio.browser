@@ -1,0 +1,25 @@
+<script id="elogio-multiple-template" type="x-tmpl-mustache">
+<div class="several-matches">
+        <div class="alert alert-warning more-than-one-match">{{loc.blockhash.moreMatchesInfo}}</div>
+    <div class="btn-group btn-group-xs elogio-scroll-group" role="group">
+        <div class="btn-group" role="group">
+        <button type="button" class="btn btn-info previous btn-xs">{{loc.button.previous}}</button>
+        </div>
+            <div class="btn-group" role="group">
+            <button class="btn btn-default btn-xs" dropdown-toggle" type="button" data-toggle="dropdown">Match <i class="current-match-index"></i> of <i class="count-matches"></i>
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" role="menu" elogio-actions>
+                    <li><a target="_blank" href="" class='elogio-locatorlink'>{{loc.sourceButtonLabel}}</a></li>
+                    <li><a target="_blank" href="" class='elogio-license-link'>{{loc.licenseButtonLabel}}</a></li>
+                    <li><a class='elogio-report-work'>{{loc.reportButtonLabel}}</a></li>
+                    <li><a class="elogio-clipboard-html">{{loc.copyHtmlButtonLabel}}</a></li>
+                    <li><a class="elogio-clipboard-json">{{loc.copyJsonButtonLabel}}</a></li>
+                </ul>
+            </div>
+        <div class="btn-group" role="group">
+        <button type="button" class="btn btn-xs btn-info next">{{loc.button.next}}</button>
+        </div>
+    </div>
+</div>
+</script>

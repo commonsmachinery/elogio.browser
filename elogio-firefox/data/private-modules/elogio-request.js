@@ -24,6 +24,7 @@ Elogio.modules.elogioRequest = function (modules) {
      * @param method - HTTP method to be used
      */
     self.sendRequest = function (url, onSuccess, onError, method) {
+
         url = url || config.global.apiServer.serverUrl;
         method = method || 'GET';
         var request = new Request({
@@ -49,5 +50,60 @@ Elogio.modules.elogioRequest = function (modules) {
                 request.post();
         }
     };
+
+    self.getTextFile = function (url, onSuccess, onError, method) {
+        method = method || 'GET';
+        var request = new Request({
+            url: url,
+            overrideMimeType: 'text/html',
+            onComplete: function (response) {
+                if (response) {
+                    if (onSuccess) {
+                        onSuccess(response.text);
+                    }
+                } else {
+                    if (onError) {
+                        onError(response);
+                    }
+                }
+            }
+        });
+        switch (method) {
+            case 'GET':
+                request.get();
+                break;
+            case 'POST':
+                request.post();
+        }
+    };
+
+    /**
+     * POST request with post body
+     * @param url
+     * @param postBody
+     * @param onSuccess
+     * @param onError
+     */
+
+    self.sendPOSTFeedbackSubmit = function (url, postBody, onSuccess, onError) {
+        var request = new Request({
+            url: url,
+            overrideMimeType: "application/json",
+            content: postBody,
+            onComplete: function (response) {
+                if (response) {
+                    if (onSuccess) {
+                        onSuccess(response);
+                    }
+                } else {
+                    if (onError) {
+                        onError(response);
+                    }
+                }
+            }
+        });
+        request.post();
+    };
+
 
 };

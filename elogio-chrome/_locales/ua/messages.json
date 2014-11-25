@@ -5,13 +5,13 @@
     "appDesc": {
         "message": "Знаходить інформацію про зображення на веб сторінці на сервері Elog.io"
     },
-    "requestError_01": {
+    "requestErrorRespondWithError": {
         "message": "Сервер відповів, але з помилками"
     },
-    "requestError_02": {
+    "requestErrorNetworkError": {
         "message": "Помилка мережі"
     },
-    "requestError_03": {
+    "requestErrorInternalServError": {
         "message": "Помилка роботи сервера"
     },
 
@@ -42,6 +42,12 @@
     "feedbackLabel": {
         "message": "Зворотній зв'язок"
     },
+    "helpButton": {
+        "message": "Допомога"
+    },
+    "aboutButton": {
+        "message": "Про нас"
+    },
     "dropDownMenuLabel": {
         "message": "Дії"
     },
@@ -52,19 +58,22 @@
         "message": "Скопіювати як JSON"
     },
     "copyImgButtonLabel": {
-        "message": "Скопіювати  як зображення"
+        "message": "Скопіювати як зображення"
     },
     "sourceButtonLabel": {
-        "message": "Перейти до джерела"
+        "message": "До джерела"
     },
     "licenseButtonLabel": {
-        "message": "Ознайомитись з ліцензією"
+        "message": "Ліцензія"
     },
     "reportButtonLabel": {
         "message": "Звітувати"
     },
     "queryButtonLabel": {
         "message": "Запит"
+    },
+    "querying": {
+        "message": "Зачекайте"
     },
     "openImageInNewTabLabel": {
         "message": "Відкрити в новій вкладці"
@@ -74,5 +83,15 @@
     },
     "deepScan": {
         "message": "Якщо ця опція увімкнена, то плагін буде шукати навіть фонові зображення"
+    },
+    ,
+    "matchNextButtonLabel": {
+        "message": ">>"
+    },
+    "matchPreviousButtonLabel": {
+        "message": "<<"
+    },
+    "multiMatchInfo": {
+        "message": "Запит до elog.io дав більше ніж одне співпадіння. Ви можете обрати будь-яке"
     }
 }

@@ -5,13 +5,13 @@
     "appDesc": {
         "message": "Ищет информацию о картинках на страничке на сервере Elog.io"
     },
-    "requestError_01": {
+    "requestErrorRespondWithError": {
         "message": "Сервер ответил, но с ошибками"
     },
-    "requestError_02": {
+    "requestErrorNetworkError": {
         "message": "Ошибка сети"
     },
-    "requestError_03": {
+    "requestErrorInternalServError": {
         "message": "Ошибка на сервере"
     },
 
@@ -42,6 +42,12 @@
     "feedbackLabel": {
         "message": "Обратная связь"
     },
+    "helpButton": {
+        "message": "Помощь"
+    },
+    "aboutButton": {
+        "message": "О нас"
+    },
     "dropDownMenuLabel": {
         "message": "Действия"
     },
@@ -66,6 +72,9 @@
     "queryButtonLabel": {
         "message": "Запрос"
     },
+    "querying": {
+        "message": "Запрашиваю"
+    },
     "openImageInNewTabLabel": {
         "message": "Открыть в новой вкладке"
     },
@@ -74,5 +83,14 @@
     },
     "deepScan": {
         "message": "Если опция включена, то плагин будет искать все картинки на странице, даже те которые являются фоном."
+    },
+    "matchNextButtonLabel": {
+        "message": ">>"
+    },
+    "matchPreviousButtonLabel": {
+        "message": "<<"
+    },
+    "multiMatchInfo": {
+        "message": "Запрос к elog.io дал больше чем одно совпадение. Вы можете выбрать любое."
     }
 }

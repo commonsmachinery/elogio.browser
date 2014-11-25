@@ -10,8 +10,34 @@ Elogio.modules.config = function (modules) {
             lookupContext: '/lookup/uri',
             hashLookupContext: '/lookup/blockhash',
             imagesPerRequest: 10,
-            gravatarServerUrl: 'http://www.gravatar.com/avatar/',
-            urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright']}
+            gravatar: {
+                gravatarServerUrl: 'http://www.gravatar.com/avatar/',
+                size: "?s=40"
+            },
+            collection: [
+                {
+                    link: 'http://commons.wikimedia.org',
+                    iconUrl: 'http://upload.wikimedia.org/wikipedia/commons/7/79/Wiki-commons.png'
+                },
+                {
+                    link: 'http://commonsmachinery.se',
+                    iconUrl: 'https://raw.githubusercontent.com/commonsmachinery/ci/master/CommonsMachinery_Humphrey_Tin_LightBackground.jpg'
+                }
+            ],
+            feedback: {
+                endpoint: 'https://doorbell.io/api/applications',
+                appKey: 'MwH2sMdpeflmIFkkgqO7fHBHtXzN7SZJTZywLA5NgmDvclygszxS8YsiURh0uzEz',
+                appId: '423',
+                requestMethod: 'POST',
+                openDialog: '/open',
+                submitDialog: '/submit'
+            },
+            //just insert a piece of url
+            determineOptions: [
+                {url: 'facebook.com/'},
+                {url: 'twitter.com/'}
+            ],
+            urlLookupOptions: {include: ['owner'], annotations: ['title,locator,policy,creator,copyright,collection']}
         },
         locator: {
             limitImageHeight: 100,
@@ -41,7 +67,5 @@ Elogio.modules.config = function (modules) {
     this.sidebar = {
         imageObject: 'imageObj'
     };
-    this.logging = {
-
-    };
+    this.logging = {};
 };

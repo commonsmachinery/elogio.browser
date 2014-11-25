@@ -3,17 +3,28 @@
  */
 (function () {
     'use strict';
-    new Elogio(['config', 'bridge', 'utils', 'elogioRequest', 'elogioServer', 'messaging'], function (modules) {
+    new Elogio(['config', 'messaging', 'bridge', 'utils', 'elogioRequest', 'elogioServer', 'mainScriptHelper'], function (modules) {
+        Elogio._ = chrome.i18n.getMessage;
         var bridge = modules.getModule('bridge'),
             config = modules.getModule('config'),
-            elogioServer = modules.getModule('elogioServer'),
-            messaging = modules.getModule('messaging'),
-            elogioLabel = chrome.i18n.getMessage('pluginStateOn'),
-            utils = modules.getModule('utils'),
+            elogioLabel = Elogio._('pluginStateOn'),
             elogioDisabledIcon = 'img/icon_19_disabled.png',
             elogioErrorIcon = 'img/icon_19_error.png',
+            elogioServer = modules.getModule('elogioServer'),
+            mainScriptHelper = modules.getModule('mainScriptHelper'),
             elogioIcon = 'img/icon_19.png',
             events = bridge.events;
+
+        bridge.registerClient(null, 'messaging');
+        chrome.runtime.onInstalled.addListener(function (details) {
+            if (details.reason === "install") {
+                config.global.firstRun = true;
+                chrome.tabs.create({
+                    url: 'http://elog.io/',
+                    active: true
+                });
+            }
+        });
 
         function loadPreferences() {
             chrome.storage.sync.get('deepScan', function (data) {
@@ -43,7 +54,7 @@
             if (pluginState.isEnabled) {
                 loadPreferences();
                 chrome.browserAction.setIcon({path: elogioDisabledIcon});
-                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginStateOff')});
+                chrome.browserAction.setTitle({title: Elogio._('pluginStateOff')});
                 pluginState.isEnabled = false;
                 notifyPluginState();
             } else {
@@ -58,11 +69,12 @@
         function contextMenuItemClick() {
             //don't need to check uuid because content script checking: if uuid is null then just open sidebar, else open and scroll
             var tabState = appState.getTabState(currentTabId);
-            tabState.getWorker().postMessage({eventName: events.onImageAction});
+            bridge.registerClient(tabState.getWorker());
+            bridge.emit(events.onImageAction);
         }
 
         chrome.contextMenus.create({
-            'title': chrome.i18n.getMessage('contextMenuItem_01'),
+            'title': Elogio._('contextMenuItem_01'),
             'contexts': ['all'],
             'onclick': contextMenuItemClick
         });
@@ -70,16 +82,7 @@
         chrome.browserAction.onClicked.addListener(function () {
             togglePluginState();
         });
-        function getTextStatusByStatusCode(statusCode) {
-            switch (statusCode) {
-                case 200:
-                    return chrome.i18n.getMessage('requestError_01');
-                case 0:
-                    return chrome.i18n.getMessage('requestError_02');
-                default:
-                    return chrome.i18n.getMessage('requestError_03');
-            }
-        }
+
 
         /**
          * Load template and send it to content
@@ -92,7 +95,16 @@
                     var tabState = appState.getTabState(currentTabId);
                     tabState.clearImageStorage();
                     tabState.clearLookupImageStorage();
-                    tabState.getWorker().postMessage({eventName: events.ready, data: {panelTemplate: panelResponse, config: config}});
+                    elogioServer.getFeedbackTemplate(chrome.extension.getURL('html/feedbackWindow.html'), function (feedbackTemplate) {
+                        bridge.emit(events.ready, {
+                            panelTemplate: panelResponse,
+                            config: config,
+                            feedBackTemplate: feedbackTemplate
+                        });
+                    }, function () {
+                        console.error('Error with getting template for feedback');
+                        bridge.emit(events.ready, {panelTemplate: panelResponse, config: config});
+                    });
                 }
             });
 
@@ -107,74 +119,17 @@
                     chrome.browserAction.setTitle({title: elogioLabel});
                 } else {
                     chrome.browserAction.setIcon({path: elogioErrorIcon});
-                    chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
+                    chrome.browserAction.setTitle({title: Elogio._('pluginGlobalError')});
                 }
             }
             if (imageObj && imageObj.error && !imageObj.noData) {
                 tabState.putImageToStorage(imageObj);
                 chrome.browserAction.setIcon({path: elogioErrorIcon});
-                chrome.browserAction.setTitle({title: chrome.i18n.getMessage('pluginGlobalError')});
+                chrome.browserAction.setTitle({title: Elogio._('pluginGlobalError')});
             }
             if (imageObj && imageObj.error) {
-                tabState.getWorker().postMessage({eventName: events.newImageFound, data: imageObj});
+                bridge.emit(events.newImageFound, imageObj);
             }
-        }
-
-
-        /**
-         * This method needs to send request to elogio server, and sends to panel imageObj with or without lookup data;
-         * @param lookupImageObjStorage - it's imageObj storage for lookup request
-         * @param contentWorker
-         */
-
-        function lookupQuery(lookupImageObjStorage, contentWorker) {
-            var localStore = lookupImageObjStorage,
-                dictionary = {uri: []},
-                tabState = appState.getTabState(currentTabId);
-            //create dictionary
-            for (var i = 0; i < localStore.length; i++) {
-                dictionary.uri.push(localStore[i].uri);
-            }
-            elogioServer.lookupQuery(dictionary,
-                function (lookupJson) {
-                    for (var i = 0; i < localStore.length; i++) {
-                        var existsInResponse = false,
-                            imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
-                        // If image doesn't exist in local storage anymore - there is no sense to process it
-                        if (!imageFromStorage) {
-                            continue;
-                        }
-                        // Find image from our query in JSON.
-                        for (var j = 0; j < lookupJson.length; j++) {
-                            if (imageFromStorage.uri === lookupJson[j].uri) {
-                                if (existsInResponse) {// if we found first lookup json object then cancel loop
-                                    break;
-                                }
-                                existsInResponse = true;
-                                // Extend data ImageObject with lookup data and save it
-                                imageFromStorage.lookup = lookupJson[j];
-                                contentWorker.postMessage({eventName: events.newImageFound, data: imageFromStorage});
-                            }
-                        }
-                        // If it doesn't exist - assume it doesn't exist on server
-                        if (!existsInResponse) {
-                            imageFromStorage.lookup = false;
-                            contentWorker.postMessage({eventName: events.newImageFound, data: imageFromStorage});
-                        }
-                    }
-                },
-                function (response) {
-                    for (var i = 0; i < localStore.length; i++) {
-                        var imageFromStorage = tabState.findImageInStorageByUuid(localStore[i].uuid);
-                        // If image doesn't exist in local storage anymore - there is no sense to process it
-                        if (!imageFromStorage) {
-                            continue;
-                        }
-                        imageFromStorage.error = getTextStatusByStatusCode(response.status);
-                        indicateError(imageFromStorage);
-                    }
-                }
-            );
         }
 
 
@@ -182,10 +137,17 @@
         function initTab() {
             chrome.tabs.query({active: true}, function (tab) {
                 currentTabId = tab[0].id;
-                indicateError();
+                var tabState = appState.getTabState(currentTabId);
+                bridge.registerClient(tabState.getWorker());
+                if (pluginState.isEnabled) {
+                    indicateError();
+                } else {
+                    notifyPluginState();
+                }
             });
         }
 
+        //init tab when plug-in started
         initTab();
         function notifyPluginState() {
             var tabState = appState.getTabState(currentTabId);
@@ -193,10 +155,10 @@
             if (!pluginState.isEnabled && contentWorker) {
                 tabState.clearImageStorage();
                 tabState.clearLookupImageStorage();
-                contentWorker.postMessage({eventName: events.pluginStopped});
+                bridge.emit(events.pluginStopped);
             }
             if (pluginState.isEnabled && contentWorker) {
-                contentWorker.postMessage({eventName: events.pluginActivated, data: config});
+                bridge.emit(events.pluginActivated, config);
             }
         }
 
@@ -207,42 +169,51 @@
         function setPort(port) {
             var tabState = appState.getTabState(currentTabId);
             tabState.attachWorker(port);
+            bridge.registerClient(tabState.getWorker());
         }
 
-        messaging.on(events.startPageProcessing, function () {
+        bridge.on(events.startPageProcessing, function () {
             if (pluginState.isEnabled) {
                 loadTemplate();
             }
         });
-        messaging.on(events.pageProcessingFinished, function () {
-            var tabState = appState.getTabState(currentTabId),
-                contentWorker = tabState.getWorker();
+        bridge.on(events.pageProcessingFinished, function () {
+            var tabState = appState.getTabState(currentTabId);
             if (tabState.getImagesFromLookupStorage().length > 0) {
-                lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                /**
+                 * Sending lookup request. Third parameter - onError handler
+                 */
+                mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (imageObj) {
+                    indicateError(imageObj);
+                });
                 appState.getTabState(currentTabId).clearLookupImageStorage();
             }
         });
-        messaging.on(events.copyToClipBoard, function (selection) {
-            var clipboardData = selection.clipboardData, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
+        bridge.on(events.firstRun, function () {
+            config.global.firstRun = false;
+        });
+        bridge.on(events.copyToClipBoard, function (selection) {
+            var clipboardData = selection.data, data, type = selection.type, copyElement = $('<div></div>'), body = $('body');
 
             function exec() {
+                data.contentEditable = true;
+                data.unselectable = "off";
+                data.focus();
                 document.execCommand('SelectAll');
                 document.execCommand("Copy", false, null);
-                copyElement.remove();
+                data.remove();
             }
 
             switch (type) {
                 case 'html':
-                    data = $.parseHTML(clipboardData);
+                    data = $($.parseHTML(clipboardData));
                     body.append(data);
                     exec();
                     break;
                 case 'text':
                     copyElement.text(clipboardData);
                     body.append(copyElement);
-                    copyElement.contentEditable = true;
-                    copyElement.unselectable = "off";
-                    copyElement.focus();
+                    data = copyElement;
                     exec();
                     break;
                 case 'image':
@@ -250,104 +221,63 @@
                     break;
             }
         });
-        messaging.on(events.imageDetailsRequired, function (imageObj) {
-            var tabState = appState.getTabState(currentTabId),
-                contentWorker = tabState.getWorker();
-            elogioServer.annotationsQuery(imageObj.lookup.href,
-                function (annotationsJson) {
-                    var imageObjFromStorage = tabState
-                        .findImageInStorageByUuid(imageObj.uuid);
-                    if (imageObjFromStorage) {
-                        imageObjFromStorage.details = annotationsJson;
-                        delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                        indicateError();
-                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
-                    } else {
-                        console.log("Can't find image in storage: " + imageObj.uuid);
-                    }
-                },
-                function (response) {
-                    //put error to storage
-                    imageObj.error = getTextStatusByStatusCode(response.status);
-                    indicateError(imageObj);
-                },
-                config.global.apiServer.urlLookupOptions
-            );
+        bridge.on(events.imageDetailsRequired, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId);
+            /**
+             * Sending query to catalog for image's details, third parameter is onError handler
+             */
+            mainScriptHelper.annotationsQuery(imageObj, tabState, function (imageObj) {
+                indicateError(imageObj);
+            });
         });
-        messaging.on(events.onImageRemoved, function (uuid) {
+        bridge.on(events.onImageRemoved, function (uuid) {
             var tabState = appState.getTabState(currentTabId);
             tabState.removeImageFromStorageByUuid(uuid);
         });
-        messaging.on(events.oembedRequestRequired, function (imageObj) {
-            var oembedEndpoint = utils.getOembedEndpointForImageUri(imageObj.uri),
-                tabState = appState.getTabState(currentTabId),
-                contentWorker = tabState.getWorker();
-            if (oembedEndpoint) {
-                elogioServer.oembedLookup(oembedEndpoint, imageObj.uri, function (oembedJSON) {
-                    var imageObjFromStorage = tabState
-                        .findImageInStorageByUuid(imageObj.uuid);
-                    imageObjFromStorage.lookup = true;
-                    delete imageObjFromStorage.error;//if error already exist in this image then delete it
-                    if (imageObjFromStorage) {
-                        imageObjFromStorage.details = utils.oembedJsonToElogioJson(oembedJSON);
-                        indicateError();
-                        //sending details
-                        contentWorker.postMessage({eventName: events.imageDetailsReceived, data: imageObjFromStorage});
-                    } else {
-                        console.log("Can't find image in storage: " + imageObj.uuid);
-                    }
-                }, function () {
-                    //on error we need calculate hash
-                    contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
-                });
-            } else {
-                //if this image doesn't match for oembed then calculate hash
-                contentWorker.postMessage({eventName: events.hashRequired, data: imageObj});
-            }
+        bridge.on(events.oembedRequestRequired, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId);
+            mainScriptHelper.oembedLookup(imageObj, tabState);
         });
-        messaging.on(events.hashCalculated, function (imageObj) {
-            var tabState = appState.getTabState(currentTabId),
-                imageObjFromStorage = tabState.findImageInStorageByUuid(imageObj.uuid),
-                contentWorker = tabState.getWorker();
-            if (!imageObj.error) {
-                imageObjFromStorage.hash = imageObj.hash;
-                console.log('hash is: ' + imageObj.hash + '  and src= ' + imageObj.uri);
-                elogioServer.hashLookupQuery({hash: imageObjFromStorage.hash, src: imageObjFromStorage.uri, context: imageObj.domain}, function (json) {
-                    if (Array.isArray(json) && json.length > 0) {
-                        imageObjFromStorage.lookup = utils.getJSONByLowestDistance(json);
-                        delete imageObjFromStorage.error;
-                        delete imageObjFromStorage.noData;
-                        contentWorker.postMessage({eventName: events.newImageFound, data: imageObjFromStorage});//send message when lookup received
-                        //it means, what we need details, because user click on 'query to elog.io'
-                        contentWorker.postMessage({eventName: events.imageDetailsRequired, data: imageObjFromStorage});
-                    } else {
-                        //if we get an empty array, that's mean what no data for this image
-                        imageObjFromStorage.error = chrome.i18n.getMessage('noDataForImage');
-                        imageObjFromStorage.noData = true;
-                        indicateError(imageObjFromStorage);
-                    }
+        bridge.on(events.feedBackMessage, function (message) {
+            if (message.type === 'submit') {
+                mainScriptHelper.feedbackSubmit(message.data, function (response) {
+                    bridge.emit(bridge.events.feedBackMessage, {
+                        type: 'response',
+                        response: {status: response.status, text: response.responseText}
+                    });
                 }, function (response) {
-                    console.log('text status ' + response.statusText + ' ; status code ' + response.status);
-                    imageObjFromStorage.error = getTextStatusByStatusCode(response.status);
-                    indicateError(imageObjFromStorage);
+                    bridge.emit(bridge.events.feedBackMessage, {
+                        type: 'response',
+                        response: {status: response.status, text: response.responseText}
+                    });
                 });
             } else {
-                //if we get error when using blockhash
-                console.log('hash is: ' + imageObj.error + '  and src= ' + imageObj.uri);
-                imageObjFromStorage.error = chrome.i18n.getMessage('blockhashError');
-                imageObjFromStorage.blockhashError = 'yes';//we need to mark if block hash error
-                indicateError(imageObjFromStorage);
+                bridge.emit(bridge.events.feedBackMessage, message);
             }
         });
-        messaging.on(events.newImageFound, function (imageObj) {
-            var tabState = appState.getTabState(currentTabId),
-                contentWorker = tabState.getWorker();
+        bridge.on(events.hashCalculated, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId);
+            /**
+             * Sending lookup via hash. It can return many results (sorted by distance)
+             */
+            mainScriptHelper.hashLookupQuery(imageObj, tabState, function (imageObj) {
+                indicateError(imageObj);
+            });
+
+        });
+        bridge.on(events.newImageFound, function (imageObj) {
+            var tabState = appState.getTabState(currentTabId);
             // Maybe we already have image with this URL in storage?
             if (tabState.findImageInStorageByUrl(imageObj.uri)) {
                 return;
             }
             if (tabState.getImagesFromLookupStorage().length >= config.global.apiServer.imagesPerRequest) {
-                lookupQuery(tabState.getImagesFromLookupStorage(), contentWorker);
+                /**
+                 * Sending lookup request because lookup storage is full
+                 */
+                mainScriptHelper.lookupQuery(tabState.getImagesFromLookupStorage(), tabState, function (imageObj) {
+                    indicateError(imageObj);
+                });
                 tabState.clearLookupImageStorage();
             }
             tabState.putImageToLookupStorage(imageObj);
@@ -371,7 +301,10 @@
                     }
                 }
                 if (request.eventName !== 'registration' && pluginState.isEnabled) {
-                    messaging.emit(request.eventName, request.data);
+                    /**
+                     * EmitInside - is a handler which just emit event into bridge, and after bridge emit this event into handler
+                     */
+                    bridge.emit(request.eventName, request.data, ['messaging']);
                 }
             });
         });

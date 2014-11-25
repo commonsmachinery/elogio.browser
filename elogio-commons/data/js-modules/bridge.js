@@ -11,7 +11,7 @@ Elogio.modules.bridge = function (modules) {
      REQUIREMENTS
      =======================
      */
-    //var config = modules.getModule('config');
+    var messaging = modules.getModule('messaging');
 
     /*
      =======================
@@ -20,10 +20,34 @@ Elogio.modules.bridge = function (modules) {
      */
     var bus = {}, defaultTransportName = 'default';
 
+
+    function onHandler(eventName, transport, callback, source) {
+        if (transport && transport.postMessage || !transport) {
+            messaging.on(eventName, callback, source);
+        } else {
+            transport.on(eventName, callback);
+        }
+    }
+
+
+    function emitHandler(eventName, transport, arg, destination, from) {
+        if (transport.postMessage) {
+            if (from) {
+                transport.postMessage({eventName: eventName, data: arg, from: from}, destination);
+            } else {
+                transport.postMessage({eventName: eventName, data: arg}, destination);
+            }
+        } else if (transport.contentWindow && transport.contentWindow.postMessage) {
+            transport.contentWindow.postMessage({eventName: eventName, data: arg}, destination)
+        } else {
+            transport.emit(eventName, arg, from);
+        }
+    }
+
     function checkEventName(eventName) {
         if (!self.events.hasOwnProperty(eventName)) {
             console.warn('Event "' + eventName + '" is unknown. Check bridge module for ' +
-                'complete list of available events.');
+            'complete list of available events.');
             return false;
         }
         return true;
@@ -35,7 +59,7 @@ Elogio.modules.bridge = function (modules) {
      =======================
      */
 
-    this.events = {
+    self.events = {
         /**
          * Fires each time after plugin state was switched to Active
          */
@@ -113,61 +137,64 @@ Elogio.modules.bridge = function (modules) {
          */
         setUUID: 'setUUID',
         /**
-         * fires when need to send message to content script (doorbell actions)
-         */
-        doorBellInjection: 'doorbellInjection',
-        /**
          * Fires when need to setup the locale
          */
         l10nSetupLocale: 'l10nSetupLocale',
         /**
          * Fires when user click on query button at first time, and at first we need to check oembed data if exist
          */
-        oembedRequestRequired: 'oembedRequestRequired'
+        oembedRequestRequired: 'oembedRequestRequired',
+        /**
+         * is needed for registration content script in main.js
+         */
+        registration: 'registration',
+        /**
+         * Fires when feedback template required
+         */
+        feedbackTemplateRequired: 'feedbackTemplateRequired',
+        /**
+         * Fires when panel sent to content message for feedback
+         */
+        feedBackMessage: 'feedBackMessage',
+        /**
+         * Fires when is needed turn off first run state
+         */
+        firstRun: 'firstRun'
     };
 
-    this.registerClient = function (transportObj, name) {
-        if (!transportObj.on || !transportObj.emit) {
-            console.error('Unable to register transport. Transport object should provide "on" and "emit" methods.');
+    self.registerClient = function (transportObj, name) {
+        if (transportObj) {
+            bus[name || defaultTransportName] = transportObj;
+        } else {
+            bus[name || defaultTransportName] = messaging;
         }
-        bus[name || defaultTransportName] = transportObj;
     };
 
     this.on = function (eventName, callback, source) {
         var i, transport;
-        if (source === '*') {
-            source = Object.getOwnPropertyNames(bus);
-        } else {
-            source = source || [defaultTransportName];
-        }
+        source = source || [defaultTransportName];
         if (checkEventName(eventName)) {
             for (i = 0; i < source.length; i += 1) {
                 transport = bus[source[i]];
-                if (transport) {
-                    if (callback) {
-                        transport.on(eventName, callback);
-                    }
-                } else {
-                    console.error('Unknown transport: ' + source[i]);
+                if (callback) {
+                    onHandler(eventName, transport, callback, source);
                 }
             }
         }
     };
 
-    this.emit = function (eventName, arg, destination) {
+    self.emit = function (eventName, arg, destination, from) {
         var i, transport;
-        if (destination === 'default') {
+        if (!destination) {
             destination = [defaultTransportName];
-        } else {
-            destination = destination || Object.getOwnPropertyNames(bus);
         }
         if (checkEventName(eventName)) {
             for (i = 0; i < destination.length; i += 1) {
                 transport = bus[destination[i]];
                 if (transport) {
-                    transport.emit(eventName, arg);
+                    emitHandler(eventName, transport, arg, destination[i], from);
                 } else {
-                    console.error('Unknown transport: ' + destination[i]);
+                    console.error('Unknown transport: ' + destination[i] + 'eventName is ' + eventName);
                 }
             }
         }

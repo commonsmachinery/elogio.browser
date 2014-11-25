@@ -1,5 +1,5 @@
 new Elogio(
-    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'bridge'],
+    ['config', 'utils', 'dom', 'imageDecorator', 'locator', 'messaging', 'bridge'],
     function (modules) {
         'use strict';
         var locator = modules.getModule('locator'),
@@ -7,7 +7,8 @@ new Elogio(
             dom = modules.getModule('dom'),
             config = modules.getModule('config'),
             bridge = modules.getModule('bridge'),
-            blockhash = blockhashjs.blockhash;
+            blockhash = blockhashjs.blockhash,
+            feedbackImageObject;
 
 
         /*
@@ -16,7 +17,63 @@ new Elogio(
          =======================
          */
         var observer;
+        // Initialize bridge
+        bridge.registerClient(self.port);
 
+        function displayFeedbackError(message) {
+            var error = document.getElementById('elogio-feedback-error');
+            error.innerHTML = message;
+            error.style.display = 'block';
+        }
+
+        function hideFeedback(event) {
+            var elem;
+            if (event) {
+                elem = event.target;
+            } else {
+                elem = document.getElementById('elogio-feedback-container');
+            }
+            if (elem.id === 'elogio-feedback-container') {
+                document.getElementById('elogio-feedback-error').style.display = 'none';
+                document.getElementById('elogio-feedback-success').style.display = 'none';
+                document.getElementById('elogio-legend').style.display = 'block';
+                elem.style.display = 'none';
+            }
+        }
+
+        function submitFeedback() {
+            var message = document.getElementById('elogio-feedback-textarea').value;
+            document.getElementById('elogio-feedback-success').style.display = 'none';
+            document.getElementById('elogio-feedback-error').style.display = 'none';
+            if (!message || message.trim() === '') {
+                displayFeedbackError('Message is required.');
+                return;
+            }
+            var email = document.getElementById('elogio-feedback-email').value;
+            if (!email) {
+                displayFeedbackError('Email is required');
+                return;
+            }
+            bridge.emit(bridge.events.feedBackMessage, {
+                type: 'submit',
+                data: {
+                    message: message,
+                    email: email,
+                    imageObject: feedbackImageObject
+                }
+            });
+            feedbackImageObject = null;
+        }
+
+        function responseReceived(response) {
+            if (response.status === 201) {
+                var success = document.getElementById('elogio-feedback-success');
+                success.innerHTML = response.text;
+                success.style.display = 'block';
+            } else {
+                displayFeedbackError(response.text);
+            }
+        }
 
         function scanForImages(nodes) {
             nodes = nodes || null;
@@ -48,9 +105,30 @@ new Elogio(
             }
         }
 
-        // Initialize bridge
-        bridge.registerClient(self.port);
 
+        //initialize feedback
+        bridge.on(bridge.events.feedbackTemplateRequired, function (response) {
+            var div = document.createElement('div');
+            div.setAttribute('id', 'elogio-feedback-container');
+            div.innerHTML = response;
+            document.body.appendChild(div);
+            //when clicked at around feedback window just hide it
+            div.addEventListener('click', hideFeedback);
+            var submitFeedbackButton = document.getElementById('elogio-feedback-submit-button');
+            submitFeedbackButton.addEventListener('click', submitFeedback);
+        });
+        //show window when button clicked
+        bridge.on(bridge.events.feedBackMessage, function (message) {
+            if (message.type !== 'response') {
+                if (message.data) {
+                    feedbackImageObject = message.data;
+                }
+                document.getElementById('elogio-feedback-container').style.display = 'block';
+            } else {
+                responseReceived(message.response);
+            }
+        });
+        bridge.emit(bridge.events.feedbackTemplateRequired);
         window.addEventListener('pageshow', function () {
             bridge.emit(bridge.events.pageShowEvent);
         }, false);
@@ -109,7 +187,7 @@ new Elogio(
                  * careful, because we need to observe attributes too. For example: if node already exist in the DOM,
                  * and script of the page just set attribute 'url' of this node.
                  */
-                observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+                observer.observe(document.body, {attributes: true, childList: true, subtree: true});
             }
         });
         bridge.on(bridge.events.startPageProcessing, scanForImages);

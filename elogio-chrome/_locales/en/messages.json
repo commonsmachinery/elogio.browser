@@ -5,13 +5,13 @@
     "appDesc": {
         "message": "Browser extension to easily query a catalog of photographs to answer: is this photograph I'm looking at openly licensed?"
     },
-    "requestError_01": {
+    "requestErrorRespondWithError": {
         "message": "Server responded, but with errors"
     },
-    "requestError_02": {
+    "requestErrorNetworkError": {
         "message": "Network communication error"
     },
-    "requestError_03": {
+    "requestErrorInternalServError": {
         "message": "Internal server error"
     },
 
@@ -40,7 +40,13 @@
         "message": "We don't have any information about this image, but you can query Elog.io to match it against images in the catalog."
     },
     "feedbackLabel": {
-        "message": "feedback"
+        "message": "Feedback"
+    },
+    "helpButton": {
+        "message": "Help"
+    },
+    "aboutButton": {
+        "message": "About"
     },
     "dropDownMenuLabel": {
         "message": "Actions"
@@ -66,6 +72,9 @@
     "queryButtonLabel": {
         "message": "Query"
     },
+    "querying": {
+        "message": "Querying"
+    },
     "openImageInNewTabLabel": {
         "message": "Open Image in new tab"
     },
@@ -74,5 +83,14 @@
     },
     "deepScan": {
         "message": "Enables a more thorough but also more time-consuming search that includes element background images.  Websites often use background images even for the main content to achieve more dynamic effects or to make it difficult to copy images."
+    },
+    "matchNextButtonLabel": {
+        "message": ">>"
+    },
+    "matchPreviousButtonLabel": {
+        "message": "<<"
+    },
+    "multiMatchInfo": {
+        "message": "Query to elog.io returned more than one matches and you can choose any of them."
     }
 }

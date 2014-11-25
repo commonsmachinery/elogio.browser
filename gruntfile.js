@@ -22,7 +22,9 @@ module.exports = function (grunt) {
                         imageCard: 'elogio-commons/data/templates/imageTemplate.html',
                         clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
                         common: 'elogio-commons/data/templates/commonTemplate.html',
-                        canvas: 'elogio-commons/data/templates/canvas.html'
+                        canvas: 'elogio-commons/data/templates/canvas.html',
+                        multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
                     }
                 }
             },
@@ -34,7 +36,9 @@ module.exports = function (grunt) {
                         imageCard: 'elogio-commons/data/templates/imageTemplate.html',
                         clipboard: 'elogio-commons/data/templates/clipboardTemplate.html',
                         common: 'elogio-commons/data/templates/commonTemplate.html',
-                        canvas: 'elogio-commons/data/templates/canvas.html'
+                        canvas: 'elogio-commons/data/templates/canvas.html',
+                        multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
                     }
                 }
             }
@@ -62,7 +66,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/firefox/data/css/sidebar.css": "elogio-commons/less/sidebar.less",
-                    "<%= buildDir%>/firefox/data/css/highlight.css": "elogio-commons/css/highlight.css"
+                    "<%= buildDir%>/firefox/data/css/content.css": "elogio-commons/less/content.less"
                 }
             },
             compileChrome: {
@@ -71,7 +75,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
-                    "<%= buildDir%>/chrome/styles/highlight.css": "elogio-commons/css/highlight.css",
+                    "<%= buildDir%>/chrome/styles/content.css": "elogio-commons/less/content.less",
                     "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
             }
@@ -223,7 +227,7 @@ module.exports = function (grunt) {
                     compress: true,
                     preserveComments: false,
                     beautify: false},
-                src: ["**/**.js"],
+                src: ["**/**.js", "!**/main.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -235,7 +239,7 @@ module.exports = function (grunt) {
                     preserveComments: true,
                     beautify: true
                 },
-                src: ["**/*.js"],
+                src: ["**/*.js", "!**/main.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
                 expand: true
@@ -269,6 +273,12 @@ module.exports = function (grunt) {
         },
 
         copy: {
+            qjs: {
+                src: ["q.js"],
+                cwd: "node_modules/q/",
+                dest: "elogio-commons/data/deps/q",
+                expand: true
+            },
             resourcesWithoutJSForFirefox: {
                 src: ["**", "!**/*.js", "!**/panel.html", "!**/test", "!**/tests"],
                 cwd: "elogio-firefox/",
@@ -282,7 +292,7 @@ module.exports = function (grunt) {
                 expand: true
             },
             resourcesWithoutJSForChrome: {
-                src: ["**", "!**/*.js", "!**.pem", "!html/", "!**/modules", "!**/test", "!**/tests"],
+                src: ["**", "!**/*.js", "!**.pem", "!html/", "!**/modules", "!**/test", "!**/tests", "!**/less/**"],
                 cwd: "elogio-chrome/",
                 dest: "<%= buildDir%>/chrome/",
                 expand: true
@@ -295,15 +305,28 @@ module.exports = function (grunt) {
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "!**/test/**"],
+                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "!**/test/**", "!**/less/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
             },
             firefoxLibs: {
-                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/mustache.js", "!**/test/**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/mustache.js", "!**/test/**", "!**/less**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
+                expand: true
+            },
+
+            feedbackTemplateFfx: {
+                src: ["**/feedbackWindow.html"],
+                cwd: "elogio-commons/data/templates/",
+                dest: "<%= buildDir%>/firefox/data/html/",
+                expand: true
+            },
+            feedbackTemplateCrx: {
+                src: ["**/feedbackWindow.html"],
+                cwd: "elogio-commons/data/templates/",
+                dest: "<%= buildDir%>/chrome/html/",
                 expand: true
             }
         },
@@ -382,6 +405,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:beautifyFirefox'
             ]);
@@ -394,10 +418,12 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules',
                 'uglify:beautifyChrome'
             ]);
@@ -428,6 +454,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:beautifyFirefox',
                 'mozilla-addon-sdk',
@@ -443,11 +470,13 @@ module.exports = function (grunt) {
             grunt.task.run([
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'uglify:beautifyChrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules'
             ]);
         }
@@ -479,6 +508,7 @@ module.exports = function (grunt) {
                 'htmlbuild:firefox',
                 'copy:firefoxLibs',
                 'copy:scriptsffx',
+                'copy:feedbackTemplateFfx',
                 'concat:firefoxModules',
                 'uglify:minifyFirefox',
                 'mozilla-addon-sdk',
@@ -496,10 +526,12 @@ module.exports = function (grunt) {
                 'bower',
                 'lint-chrome',
                 'less:compileChrome',
+                'copy:qjs',
                 'copy:resourcesWithoutJSForChrome',
                 'htmlbuild:chrome',
                 'copy:chromeLibs',
                 'copy:scriptscrx',
+                'copy:feedbackTemplateCrx',
                 'concat:chromeModules',
                 'uglify:minifyChrome',
                 'crx'
