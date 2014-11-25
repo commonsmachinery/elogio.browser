@@ -224,6 +224,7 @@ module.exports = function (grunt) {
             minifyFirefox: {
                 options: {
                     mangle: true,
+                    //when dist just drop console.log
                     compress: {
                         drop_console: true
                     },
@@ -250,6 +251,7 @@ module.exports = function (grunt) {
             minifyChrome: {
                 options: {
                     mangle: true,
+                    //when dist just drop console.log
                     compress: {
                         drop_console: true
                     },
