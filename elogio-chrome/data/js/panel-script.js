@@ -198,7 +198,7 @@ $(document).ready(function () {
                         imageCard.find('.image-not-found').hide();
                         imageObj.currentMatchIndex--;
                         imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                     } else {
                         //do nothing, because it is first matched element
                     }
