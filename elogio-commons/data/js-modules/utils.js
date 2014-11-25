@@ -174,6 +174,8 @@ Elogio.modules.utils = function (modules) {
     self.initLocale = function () {
         return {
             feedbackLabel: Elogio._('feedbackLabel'),
+            helpButtonLabel: Elogio._('helpButton'),
+            aboutButtonLabel: Elogio._('aboutButton'),
             querying: Elogio._('querying'),
             dropDownMenuLabel: Elogio._('dropDownMenuLabel'),
             copyHtmlButtonLabel: Elogio._('copyHtmlButtonLabel'),

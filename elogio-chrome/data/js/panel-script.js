@@ -114,6 +114,8 @@ $(document).ready(function () {
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
                     $('#elogio-feedback').text(locale.feedbackLabel);
+                    $('#elogio-help').text(locale.helpButtonLabel);
+                    $('#elogio-about').text(locale.aboutButtonLabel);
                     bridge.emit(bridge.events.l10nSetupLocale, null, [sendTo], from);
                 });
                 // Subscribe for events
