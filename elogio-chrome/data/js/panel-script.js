@@ -39,7 +39,8 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html(),
                 multipleMatch: $('#elogio-multiple-template').html(),
-                singleMatch: $('#elogio-single-template').html()
+                singleMatch: $('#elogio-single-template').html(),
+                detailsTemplate: $('#elogio-image-details-template').html()
             };
             var // eventHandlers = {},
                 self = {},
@@ -111,6 +112,7 @@ $(document).ready(function () {
                 Mustache.parse(template.clipboardItem);
                 Mustache.parse(template.multipleMatch);
                 Mustache.parse(template.singleMatch);
+                Mustache.parse(template.detailsTemplate);
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
                     $('#elogio-feedback').text(locale.feedbackLabel);
@@ -198,7 +200,7 @@ $(document).ready(function () {
                         imageCard.find('.image-not-found').hide();
                         imageObj.currentMatchIndex--;
                         imageObj.lookup = imageObj.allMatches[imageObj.currentMatchIndex];
-                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template.imageItem, object.locale);
+                        sidebarHelper.addOrUpdateImageCard(object.imageListView, imageObj, template, object.locale);
                     } else {
                         //do nothing, because it is first matched element
                     }

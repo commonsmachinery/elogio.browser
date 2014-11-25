@@ -16,7 +16,8 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html(),
                 multipleMatch: $('#elogio-multiple-template').html(),
-                singleMatch: $('#elogio-single-template').html()
+                singleMatch: $('#elogio-single-template').html(),
+                detailsTemplate: $('#elogio-image-details-template').html()
             };
             var
                 self = {},
@@ -88,6 +89,7 @@ $(document).ready(function () {
                 Mustache.parse(template.clipboardItem);
                 Mustache.parse(template.multipleMatch);
                 Mustache.parse(template.singleMatch);
+                Mustache.parse(template.detailsTemplate);
                 //at first we need to setup locale
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;

@@ -24,7 +24,8 @@ module.exports = function (grunt) {
                         common: 'elogio-commons/data/templates/commonTemplate.html',
                         canvas: 'elogio-commons/data/templates/canvas.html',
                         multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
-                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html',
+                        details: 'elogio-commons/data/templates/detailsImageCardTemplate.html'
                     }
                 }
             },
@@ -38,7 +39,8 @@ module.exports = function (grunt) {
                         common: 'elogio-commons/data/templates/commonTemplate.html',
                         canvas: 'elogio-commons/data/templates/canvas.html',
                         multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
-                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html',
+                        details: 'elogio-commons/data/templates/detailsImageCardTemplate.html'
                     }
                 }
             }
