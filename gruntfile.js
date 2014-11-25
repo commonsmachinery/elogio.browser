@@ -316,6 +316,7 @@ module.exports = function (grunt) {
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
             },
+
             feedbackTemplateFfx: {
                 src: ["**/feedbackWindow.html"],
                 cwd: "elogio-commons/data/templates/",
