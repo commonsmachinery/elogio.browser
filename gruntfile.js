@@ -47,7 +47,7 @@ module.exports = function (grunt) {
             package: {
                 "src": "build/chrome",
                 "dest": "dist/chrome/elogio-chrome-<%= manifest.version %>.crx",
-                "exclude": [ ".git", ".svn" ],
+                "exclude": [".git", ".svn"],
                 "privateKey": "elogio-chrome/chrome.pem",
                 "options": {
                     "maxBuffer": 3000 * 1024 //build extension with a weight up to 3MB
@@ -55,8 +55,8 @@ module.exports = function (grunt) {
             }
         },
         clean: {
-            firefox: ["<%= buildDir%>/firefox" , "<%= distDir %>/firefox", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"],
-            chrome: ["<%= buildDir%>/chrome" , "<%= distDir %>/chrome", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"]
+            firefox: ["<%= buildDir%>/firefox", "<%= distDir %>/firefox", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"],
+            chrome: ["<%= buildDir%>/chrome", "<%= distDir %>/chrome", "tmp/mozilla-addon-sdk/addon-sdk-1.17-official/python-lib/cuddlefish/tests"]
         },
 
         less: {
@@ -85,7 +85,7 @@ module.exports = function (grunt) {
             options: {
                 stripBanners: false,
                 banner: '/*! <%= pkg.name %> modules - v<%= pkg.version %> - ' +
-                    '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
+                '<%= grunt.template.today("yyyy-mm-dd") %> */\n'
             },
             firefoxModules: {
                 files: {
@@ -224,9 +224,13 @@ module.exports = function (grunt) {
             minifyFirefox: {
                 options: {
                     mangle: true,
-                    compress: true,
+                    //when dist just drop console.log
+                    compress: {
+                        drop_console: true
+                    },
                     preserveComments: false,
-                    beautify: false},
+                    beautify: false
+                },
                 src: ["**/**.js", "!**/main.js"],
                 cwd: "elogio-firefox/",
                 dest: "<%= buildDir%>/firefox/",
@@ -247,9 +251,13 @@ module.exports = function (grunt) {
             minifyChrome: {
                 options: {
                     mangle: true,
-                    compress: true,
+                    //when dist just drop console.log
+                    compress: {
+                        drop_console: true
+                    },
                     preserveComments: false,
-                    beautify: false},
+                    beautify: false
+                },
                 src: ["**/*.js"],
                 cwd: "<%= buildDir%>/chrome/",
                 dest: "<%= buildDir%>/chrome/",
