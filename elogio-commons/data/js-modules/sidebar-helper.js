@@ -64,8 +64,8 @@ Elogio.modules.sidebarHelper = function (modules) {
     /**
      * Method which create image for copy as image format
      * @param document
-     * @param imageCard
-     * @param canvasTemplate
+     * @param imageCard - jquery object
+     * @param canvasTemplate - HTML string
      * @param callback - returns base64 image for copy to clipboard
      */
     self.createCanvas = function (document, imageCard, canvasTemplate, callback) {
@@ -222,11 +222,13 @@ Elogio.modules.sidebarHelper = function (modules) {
      *This method initialize details for image card
      * @param imageObj - object of image which need initialize
      * @param cardElement - card element from panel
+     * @param templates - link to templates
      */
     self.initializeDetails = function (imageObj, cardElement, templates) {
         var annotations = new Elogio.Annotations(imageObj, config),
             templateData = {}, detailsTemplate, detailsPlaceholder = cardElement.find('.details-placeholder');
-        if (imageObj.details) { // If we were abe to get annotations - populate details
+        if (imageObj.details) {
+            //initialize details object for rendering via mustache
             templateData = {
                 thumbnailImage: imageObj.details[imageObj.currentMatchIndex].thumbnailUrl,
                 collectionLink: annotations.getCollectionLink(),
@@ -235,11 +237,14 @@ Elogio.modules.sidebarHelper = function (modules) {
                 by: annotations.getCopyrightLabel() || annotations.getCreatorLabel(),
                 license: annotations.getLicenseLabel()
             };
+            //if image has several matches then display it (count and current)
             if (imageObj.allMatches) {
                 cardElement.find('.current-match-index').text(imageObj.currentMatchIndex + 1);
                 cardElement.find('.count-matches').text(imageObj.allMatches.length);
             }
+            //menu actions
             cardElement.find('.elogio-locatorlink').attr('href', annotations.getLocatorLink());
+            //color of license
             if (annotations.getLicenseLink()) {
                 var licenseLink = annotations.getLicenseLink(),
                     licensePlaceHolder = cardElement.find('.elogio-license');
@@ -251,6 +256,7 @@ Elogio.modules.sidebarHelper = function (modules) {
                     });
                 }
             }
+            //menu actions
             if (annotations.getLicenseLink()) {
                 cardElement.find('.elogio-license-link').attr('href', annotations.getLicenseLink());
             } else {
@@ -260,10 +266,13 @@ Elogio.modules.sidebarHelper = function (modules) {
             cardElement.find('.message-area').show();
             cardElement.find('.image-not-found').hide();
         }
+        //cleanup details always
         detailsPlaceholder.empty();
+        //render details
         detailsTemplate = $(Mustache.render(templates.detailsTemplate, {'imageObj': templateData}));
+        //append details to image card
         detailsPlaceholder.append(detailsTemplate);
-        //when details updated
+        //then just animate image card to top
         $('html, body').animate({scrollTop: cardElement.offset().top}, 500);
     };
 
