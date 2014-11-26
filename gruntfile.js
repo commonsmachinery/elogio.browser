@@ -315,13 +315,13 @@ module.exports = function (grunt) {
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "!**/test/**", "!**/less/**"],
+                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "**/html2canvas.js", "!**/test/**", "!**/less/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
             },
             firefoxLibs: {
-                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/mustache.js", "!**/test/**", "!**/less**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/html2canvas.js", "**/mustache.js", "!**/test/**", "!**/less**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true

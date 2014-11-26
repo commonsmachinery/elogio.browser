@@ -272,12 +272,14 @@ Elogio.modules.mainScriptHelper = function (modules) {
                 "message": data.message,
                 "properties": {
                     "uri": data.imageObject.uri
-                }
+                },
+                "screenshot": data.screenshot || undefined
             };
         } else {
             postBody = {
                 "email": data.email,
-                "message": data.message
+                "message": data.message,
+                "screenshot": data.screenshot || undefined
             };
         }
         elogioServer.sendFeedbackSubmit(postBody, onSuccess, onError);

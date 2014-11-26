@@ -135,14 +135,36 @@ new Elogio(
                 displayFeedbackError('Email is required');
                 return;
             }
-            bridge.emit(bridge.events.feedBackMessage, {
-                type: 'submit',
-                data: {
-                    message: message,
-                    email: email,
-                    imageObject: feedbackImageObject
-                }
-            });
+            if ($('#elogio-screenshot').is(':checked')) {
+                var feedbackwindow = $('#elogio-feedback-container');
+                feedbackwindow.hide();
+                html2canvas(document.body, {
+                    onrendered: function (canvas) {
+                        var dataURL = canvas.toDataURL('image/jpeg');
+                        feedbackwindow.show();
+                        bridge.emit(bridge.events.feedBackMessage, {
+                            type: 'submit',
+                            data: {
+                                message: message,
+                                email: email,
+                                imageObject: feedbackImageObject,
+                                screenshot: dataURL
+                            }
+                        });
+                    },
+                    useCORS: true,
+                    allowTaint: false
+                });
+            } else {
+                bridge.emit(bridge.events.feedBackMessage, {
+                    type: 'submit',
+                    data: {
+                        message: message,
+                        email: email,
+                        imageObject: feedbackImageObject
+                    }
+                });
+            }
             feedbackImageObject = null;
         }
 
