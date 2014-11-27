@@ -41,20 +41,26 @@ new Elogio(
             }
         }
 
+        /**
+         * When submit clicked (button on submit form)
+         */
         function submitFeedback() {
             var message = document.getElementById('elogio-feedback-textarea').value;
             document.getElementById('elogio-feedback-success').style.display = 'none';
             document.getElementById('elogio-feedback-error').style.display = 'none';
+            //if no message then display error
             if (!message || message.trim() === '') {
                 displayFeedbackError('Message is required.');
                 return;
             }
             var email = document.getElementById('elogio-feedback-email').value;
+            //if no email then display error
             if (!email) {
                 displayFeedbackError('Email is required');
                 return;
             }
             var needForScreenshot = document.getElementById('elogio-screenshot').checked;
+            //if need screenshot
             if (needForScreenshot) {
                 bridge.emit(bridge.events.feedBackMessage, {type: 'giveMeScreenshot'});
             } else {
@@ -70,6 +76,7 @@ new Elogio(
             feedbackImageObject = null;
         }
 
+        //it means what response from doorbell received (feedback)
         function responseReceived(response) {
             if (response.status === 201) {
                 var success = document.getElementById('elogio-feedback-success');
@@ -80,6 +87,7 @@ new Elogio(
             }
         }
 
+        //start scan page
         function scanForImages(nodes) {
             nodes = nodes || null;
             locator.findImages(document, nodes, function (imageObj) {
@@ -92,6 +100,7 @@ new Elogio(
             });
         }
 
+        //remove all "elogio" changes in the DOM
         function undecorate() {
             var elements = dom.getElementsByAttribute(config.ui.decoratedItemAttribute, document);
             var i, n;
@@ -130,11 +139,13 @@ new Elogio(
                     break;
                 case 'takeScreenshot':
                     var feedbackwindow = document.getElementById('elogio-feedback-container'), screenshotData = message.data;
+                    //hide feedback window, because it doesn't need on screenshot
                     feedbackwindow.style.display = 'none';
                     html2canvas(document.body, {
                         onrendered: function (canvas) {
                             var dataURL = canvas.toDataURL('image/jpeg'),
                                 fullScreenshot = document.createElement('canvas'), ctx = fullScreenshot.getContext('2d'), contentScreenshotImage, panelScreenshotImage;
+                            //show feedback window because screenshot loaded
                             feedbackwindow.style.display = 'block';
                             //load content screenShot
                             contentScreenshotImage = document.createElement('img');
@@ -147,6 +158,7 @@ new Elogio(
                                     //stick it together
                                     ctx.drawImage(panelScreenshotImage, 0, 0, panelScreenshotImage.width, panelScreenshotImage.height);
                                     ctx.drawImage(contentScreenshotImage, panelScreenshotImage.width, 0, contentScreenshotImage.width, contentScreenshotImage.height);
+                                    //send it to main script for submit on doorbell's API
                                     bridge.emit(bridge.events.feedBackMessage, {
                                         type: 'submit',
                                         data: {
