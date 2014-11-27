@@ -147,14 +147,23 @@ new Elogio(
                                 fullScreenshot = document.createElement('canvas'), ctx = fullScreenshot.getContext('2d'), contentScreenshotImage, panelScreenshotImage;
                             //show feedback window because screenshot loaded
                             feedbackwindow.style.display = 'block';
+                            var loadingMessage = document.getElementById('elogio-feedback-success');
+                            loadingMessage.innerHTML = 'Please wait. Screenshot is loading...';
+                            loadingMessage.style.display = 'block';
                             //load content screenShot
                             contentScreenshotImage = document.createElement('img');
                             contentScreenshotImage.onload = function () {
                                 //load panel screenshot
                                 panelScreenshotImage = document.createElement('img');
                                 panelScreenshotImage.onload = function () {
-                                    fullScreenshot.width = document.documentElement.clientWidth + screenshotData.width;
-                                    fullScreenshot.height = document.documentElement.clientHeight;
+                                    var maxHeight;
+                                    if (document.body.clientHeight >= screenshotData.height) {
+                                        maxHeight = document.body.clientHeight;
+                                    } else {
+                                        maxHeight = screenshotData.height;
+                                    }
+                                    fullScreenshot.width = document.body.clientWidth + screenshotData.width;
+                                    fullScreenshot.height = maxHeight;
                                     //stick it together
                                     ctx.drawImage(panelScreenshotImage, 0, 0, panelScreenshotImage.width, panelScreenshotImage.height);
                                     ctx.drawImage(contentScreenshotImage, panelScreenshotImage.width, 0, contentScreenshotImage.width, contentScreenshotImage.height);
@@ -176,8 +185,8 @@ new Elogio(
                         useCORS: true,
                         allowTaint: false,
                         //sreenshoting only visible part and without panel
-                        width: document.documentElement.clientWidth,
-                        height: document.documentElement.clientHeight
+                        width: document.body.clientWidth,
+                        height: document.body.clientHeight
                     });
                     break;
                 default:

@@ -162,17 +162,16 @@ $(document).ready(function () {
                                 bridge.emit(bridge.events.feedBackMessage, {
                                     type: 'giveMeScreenshot',
                                     data: {
-                                        width: document.documentElement.clientWidth,
-                                        height: document.documentElement.clientHeight,
+                                        width: document.body.clientWidth,
+                                        height: document.body.clientHeight,
                                         url: dataURL
                                     }
                                 }, [sendTo], from);
                             },
                             useCORS: true,
                             allowTaint: false,
-                            //sreenshoting only visible part
-                            width: document.documentElement.clientWidth,
-                            height: document.documentElement.clientHeight
+                            width: document.body.clientWidth,
+                            height: document.body.clientHeight
                         });
                     }
                 });

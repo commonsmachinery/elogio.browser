@@ -251,17 +251,24 @@ new Elogio(
                             var dataURL = canvas.toDataURL('image/jpeg'),
                                 fullScreenshot = $('<canvas/>'), ctx = fullScreenshot[0].getContext('2d'), contentScreenshotImage, panelScreenshotImage;
                             feedbackwindow.show();
+                            feedbackwindow.find('#elogio-feedback-success').text('Please wait. Screenshot is loading...').show();
                             //load content screenShot
                             contentScreenshotImage = $('<img/>');
                             contentScreenshotImage.load(function () {
                                 //load panel screenshot
                                 panelScreenshotImage = $('<img/>');
                                 panelScreenshotImage.load(function () {
-                                    fullScreenshot[0].width = document.documentElement.clientWidth;
-                                    fullScreenshot[0].height = document.documentElement.clientHeight;
+                                    var maxHeight;
+                                    if (document.body.clientHeight >= screenshotData.height) {
+                                        maxHeight = document.body.clientHeight;
+                                    } else {
+                                        maxHeight = screenshotData.height;
+                                    }
+                                    fullScreenshot[0].width = document.body.clientWidth + screenshotData.width;
+                                    fullScreenshot[0].height = maxHeight;
                                     //stick it together
-                                    ctx.drawImage(contentScreenshotImage[0], 0, 0, contentScreenshotImage[0].width, contentScreenshotImage[0].height);
-                                    ctx.drawImage(panelScreenshotImage[0], contentScreenshotImage[0].width, 0, panelScreenshotImage[0].width, panelScreenshotImage[0].height);
+                                    ctx.drawImage(contentScreenshotImage[0], 0, 0, document.body.clientWidth, document.body.clientHeight);
+                                    ctx.drawImage(panelScreenshotImage[0], document.body.clientWidth, 0, panelScreenshotImage[0].width, panelScreenshotImage[0].height);
                                     bridge.emit(bridge.events.feedBackMessage, {
                                         type: 'submit',
                                         data: {
@@ -278,9 +285,8 @@ new Elogio(
                         },
                         useCORS: true,
                         allowTaint: false,
-                        //sreenshoting only visible part and without panel
-                        width: document.documentElement.clientWidth - screenshotData.width,
-                        height: document.documentElement.clientHeight
+                        width: document.body.clientWidth - screenshotData.width,
+                        height: document.body.clientHeight
                     });
                     break;
                 default:

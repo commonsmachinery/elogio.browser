@@ -152,8 +152,8 @@ $(document).ready(function () {
                                 bridge.emit(bridge.events.feedBackMessage, {
                                     type: 'takeScreenshot',
                                     data: {
-                                        width: document.documentElement.clientWidth,
-                                        height: document.documentElement.clientHeight,
+                                        width: document.body.clientWidth,
+                                        height: document.body.clientHeight,
                                         url: dataURL
                                     }
                                 });
@@ -161,8 +161,8 @@ $(document).ready(function () {
                             useCORS: true,
                             allowTaint: false,
                             //sreenshoting only visible part
-                            width: document.documentElement.clientWidth,
-                            height: document.documentElement.clientHeight
+                            width: document.body.clientWidth,
+                            height: document.body.clientHeight
                         });
                     }
                 });
