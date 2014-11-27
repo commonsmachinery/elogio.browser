@@ -34,6 +34,7 @@
         "Elogio",
         "exports",
         "require",
-        "blockhashjs"
+        "blockhashjs",
+        "html2canvas"
     ]
 }

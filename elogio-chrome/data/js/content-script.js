@@ -242,50 +242,52 @@ new Elogio(
 
         bridge.on(events.feedBackMessage, function (message) {
             //if screenshot received from the panel
-            if (message.type === 'giveMeScreenshot') {
-                var feedbackwindow = $('#elogio-feedback-container'), screenshotData = message.data;
-                feedbackwindow.hide();
-                html2canvas(document.body, {
-                    onrendered: function (canvas) {
-                        var dataURL = canvas.toDataURL('image/jpeg'),
-                            fullScreenshot = $('<canvas/>'), ctx = fullScreenshot[0].getContext('2d'), contentScreenshotImage, panelScreenshotImage;
-                        feedbackwindow.show();
-                        //load content screenShot
-                        contentScreenshotImage = $('<img/>');
-                        contentScreenshotImage.load(function () {
-                            //load panel screenshot
-                            panelScreenshotImage = $('<img/>');
-                            panelScreenshotImage.load(function () {
-                                fullScreenshot[0].width = document.documentElement.clientWidth;
-                                fullScreenshot[0].height = document.documentElement.clientHeight;
-                                //stick it together
-                                ctx.drawImage(contentScreenshotImage[0], 0, 0, contentScreenshotImage[0].width, contentScreenshotImage[0].height);
-                                ctx.drawImage(panelScreenshotImage[0], contentScreenshotImage[0].width, 0, panelScreenshotImage[0].width, panelScreenshotImage[0].height);
-                                bridge.emit(bridge.events.feedBackMessage, {
-                                    type: 'submit',
-                                    data: {
-                                        message: $('#elogio-feedback-textarea').val(),
-                                        email: $('#elogio-feedback-email').val(),
-                                        imageObject: feedbackImageObject,
-                                        screenshot: fullScreenshot[0].toDataURL('image/jpeg')
-                                    }
+            switch (message.type) {
+                case 'giveMeScreenshot':
+                    var feedbackwindow = $('#elogio-feedback-container'), screenshotData = message.data;
+                    feedbackwindow.hide();
+                    html2canvas(document.body, {
+                        onrendered: function (canvas) {
+                            var dataURL = canvas.toDataURL('image/jpeg'),
+                                fullScreenshot = $('<canvas/>'), ctx = fullScreenshot[0].getContext('2d'), contentScreenshotImage, panelScreenshotImage;
+                            feedbackwindow.show();
+                            //load content screenShot
+                            contentScreenshotImage = $('<img/>');
+                            contentScreenshotImage.load(function () {
+                                //load panel screenshot
+                                panelScreenshotImage = $('<img/>');
+                                panelScreenshotImage.load(function () {
+                                    fullScreenshot[0].width = document.documentElement.clientWidth;
+                                    fullScreenshot[0].height = document.documentElement.clientHeight;
+                                    //stick it together
+                                    ctx.drawImage(contentScreenshotImage[0], 0, 0, contentScreenshotImage[0].width, contentScreenshotImage[0].height);
+                                    ctx.drawImage(panelScreenshotImage[0], contentScreenshotImage[0].width, 0, panelScreenshotImage[0].width, panelScreenshotImage[0].height);
+                                    bridge.emit(bridge.events.feedBackMessage, {
+                                        type: 'submit',
+                                        data: {
+                                            message: $('#elogio-feedback-textarea').val(),
+                                            email: $('#elogio-feedback-email').val(),
+                                            imageObject: feedbackImageObject,
+                                            screenshot: fullScreenshot[0].toDataURL('image/jpeg')
+                                        }
+                                    });
                                 });
+                                panelScreenshotImage.attr('src', screenshotData.url);
                             });
-                            panelScreenshotImage.attr('src', screenshotData.url);
-                        });
-                        contentScreenshotImage.attr('src', dataURL);
-                    },
-                    useCORS: true,
-                    allowTaint: false,
-                    //sreenshoting only visible part and without panel
-                    width: document.documentElement.clientWidth - screenshotData.width,
-                    height: document.documentElement.clientHeight
-                });
-            } else {
-                if (message.data) {
-                    feedbackImageObject = message.data;
-                }
-                $('#elogio-feedback-container').show();
+                            contentScreenshotImage.attr('src', dataURL);
+                        },
+                        useCORS: true,
+                        allowTaint: false,
+                        //sreenshoting only visible part and without panel
+                        width: document.documentElement.clientWidth - screenshotData.width,
+                        height: document.documentElement.clientHeight
+                    });
+                    break;
+                default:
+                    if (message.data) {
+                        feedbackImageObject = message.data;
+                    }
+                    $('#elogio-feedback-container').show();
             }
         }, [panelUrl]);
         bridge.on(events.imageDetailsRequired, function (imageObj) {

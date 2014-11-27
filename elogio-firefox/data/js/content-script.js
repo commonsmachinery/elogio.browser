@@ -54,14 +54,19 @@ new Elogio(
                 displayFeedbackError('Email is required');
                 return;
             }
-            bridge.emit(bridge.events.feedBackMessage, {
-                type: 'submit',
-                data: {
-                    message: message,
-                    email: email,
-                    imageObject: feedbackImageObject
-                }
-            });
+            var needForScreenshot = document.getElementById('elogio-screenshot').checked;
+            if (needForScreenshot) {
+                bridge.emit(bridge.events.feedBackMessage, {type: 'giveMeScreenshot'});
+            } else {
+                bridge.emit(bridge.events.feedBackMessage, {
+                    type: 'submit',
+                    data: {
+                        message: message,
+                        email: email,
+                        imageObject: feedbackImageObject
+                    }
+                });
+            }
             feedbackImageObject = null;
         }
 
@@ -119,13 +124,55 @@ new Elogio(
         });
         //show window when button clicked
         bridge.on(bridge.events.feedBackMessage, function (message) {
-            if (message.type !== 'response') {
-                if (message.data) {
-                    feedbackImageObject = message.data;
-                }
-                document.getElementById('elogio-feedback-container').style.display = 'block';
-            } else {
-                responseReceived(message.response);
+            switch (message.type) {
+                case 'response':
+                    responseReceived(message.response);
+                    break;
+                case 'takeScreenshot':
+                    var feedbackwindow = document.getElementById('elogio-feedback-container'), screenshotData = message.data;
+                    feedbackwindow.style.display = 'none';
+                    html2canvas(document.body, {
+                        onrendered: function (canvas) {
+                            var dataURL = canvas.toDataURL('image/jpeg'),
+                                fullScreenshot = document.createElement('canvas'), ctx = fullScreenshot.getContext('2d'), contentScreenshotImage, panelScreenshotImage;
+                            feedbackwindow.style.display = 'block';
+                            //load content screenShot
+                            contentScreenshotImage = document.createElement('img');
+                            contentScreenshotImage.onload = function () {
+                                //load panel screenshot
+                                panelScreenshotImage = document.createElement('img');
+                                panelScreenshotImage.onload = function () {
+                                    fullScreenshot.width = document.documentElement.clientWidth + screenshotData.width;
+                                    fullScreenshot.height = document.documentElement.clientHeight;
+                                    //stick it together
+                                    ctx.drawImage(panelScreenshotImage, 0, 0, panelScreenshotImage.width, panelScreenshotImage.height);
+                                    ctx.drawImage(contentScreenshotImage, panelScreenshotImage.width, 0, contentScreenshotImage.width, contentScreenshotImage.height);
+                                    bridge.emit(bridge.events.feedBackMessage, {
+                                        type: 'submit',
+                                        data: {
+                                            message: document.getElementById('elogio-feedback-textarea').value,
+                                            email: document.getElementById('elogio-feedback-email').value,
+                                            imageObject: feedbackImageObject,
+                                            screenshot: fullScreenshot.toDataURL('image/jpeg')
+                                        }
+                                    });
+                                };
+                                panelScreenshotImage.src = screenshotData.url;
+                            };
+                            contentScreenshotImage.src = dataURL;
+                        },
+                        useCORS: true,
+                        allowTaint: false,
+                        //sreenshoting only visible part and without panel
+                        width: document.documentElement.clientWidth,
+                        height: document.documentElement.clientHeight
+                    });
+                    break;
+                default:
+                    if (message.data) {
+                        feedbackImageObject = message.data;
+                    }
+                    document.getElementById('elogio-feedback-container').style.display = 'block';
             }
         });
         bridge.emit(bridge.events.feedbackTemplateRequired);

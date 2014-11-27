@@ -144,6 +144,29 @@ $(document).ready(function () {
                     bridge.emit(bridge.events.startPageProcessing);
                 });
 
+                bridge.on(bridge.events.feedBackMessage, function (message) {
+                    if (message.type === 'giveMeScreenshot') {
+                        html2canvas(document.body, {
+                            onrendered: function (canvas) {
+                                var dataURL = canvas.toDataURL('image/jpeg');
+                                bridge.emit(bridge.events.feedBackMessage, {
+                                    type: 'takeScreenshot',
+                                    data: {
+                                        width: document.documentElement.clientWidth,
+                                        height: document.documentElement.clientHeight,
+                                        url: dataURL
+                                    }
+                                });
+                            },
+                            useCORS: true,
+                            allowTaint: false,
+                            //sreenshoting only visible part
+                            width: document.documentElement.clientWidth,
+                            height: document.documentElement.clientHeight
+                        });
+                    }
+                });
+
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);
