@@ -200,9 +200,14 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
         }
     }
 
-    function setupLocale() {
+    function setupLocale(receiver) {
         var locale = utils.initLocale();
-        bridge.emit(bridge.events.l10nSetupLocale, locale);
+
+        if (receiver) {
+            receiver.emit(bridge.events.l10nSetupLocale, locale);
+        } else {
+            bridge.emit(bridge.events.l10nSetupLocale, locale);
+        }
     }
 
     function contextMenuItemClicked(uuid) {
@@ -287,9 +292,10 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
             var
                 tabState = appState.getTabState(currentTab.id);
             tabState.clearImageStorage();
+            //send template as string
+            setupLocale(contentWorker.port);
             tabState.clearLookupImageStorage();
             tabState.attachWorker(contentWorker);
-            //send template as string
             contentWorker.port.on(bridge.events.feedbackTemplateRequired, function () {
                 elogioServer.getFeedbackTemplate(self.data.url('html/feedbackWindow.html'), function (response) {
                     contentWorker.port.emit(bridge.events.feedbackTemplateRequired, response);

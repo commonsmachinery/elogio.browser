@@ -33,6 +33,21 @@
     "sidebarTitle": {
         "message": "Elog.io Image Catalog"
     },
+    "sendLabel": {
+        "message": "Send"
+    },
+    "pleaseWaitLabel": {
+        "message": "Please wait..."
+    },
+    "successFeedbackMessage": {
+        "message": "Thanks for you feedback"
+    },
+    "feedbackWindowHeader": {
+        "message": "Hello! We'd be happy to connect."
+    },
+    "attachScreenshotLabel": {
+        "message": "Attach a screenshot"
+    },
     "contextMenuItem_01": {
         "message": "Find in Elog.io"
     },

@@ -33,6 +33,21 @@
     "sidebarTitle": {
         "message": "Elog.io каталог зображень"
     },
+    "sendLabel": {
+        "message": "Відправити"
+    },
+    "pleaseWaitLabel": {
+        "message": "Зачекайте будь ласка"
+    },
+    "successFeedbackMessage": {
+        "message": "Ваш запит выдправлено успішно"
+    },
+    "feedbackWindowHeader": {
+        "message": "Привіт. Ми раді бути з вами на зв'язку"
+    },
+    "attachScreenshotLabel": {
+        "message": "Прикріпити скріншот"
+    },
     "contextMenuItem_01": {
         "message": "Знайти в панелі Elog.io"
     },

@@ -8,6 +8,7 @@ new Elogio(
             config = modules.getModule('config'),
             bridge = modules.getModule('bridge'),
             blockhash = blockhashjs.blockhash,
+            contentLocale,
             feedbackImageObject;
 
 
@@ -71,7 +72,7 @@ new Elogio(
                 displayFeedbackError('Message is required.');
                 return;
             }
-            button.innerHTML = 'Wait please...';
+            button.innerHTML = contentLocale.pleaseWaitLabel;
             removeClass(button, 'elogio-enabled');
             button.className += ' elogio-disabled';
             var email = document.getElementById('elogio-feedback-email').value;
@@ -93,9 +94,6 @@ new Elogio(
                         imageObject: feedbackImageObject
                     }
                 });
-                removeClass(button, 'elogio-disabled');
-                button.className += ' elogio-enabled';
-                button.innerHTML = 'Send';
             }
             feedbackImageObject = null;
         }
@@ -105,14 +103,14 @@ new Elogio(
             var button = document.getElementById('elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = document.getElementById('elogio-feedback-success');
-                success.innerHTML = response.text;
+                success.innerHTML = contentLocale.successFeedbackMessage;
                 success.style.display = 'block';
             } else {
                 displayFeedbackError(response.text);
             }
             removeClass(button, 'elogio-disabled');
             button.className += ' elogio-enabled';
-            button.innerHTML = 'Send';
+            button.innerHTML = contentLocale.sendLabel;
         }
 
         //start scan page
@@ -147,6 +145,9 @@ new Elogio(
             }
         }
 
+        bridge.on(bridge.events.l10nSetupLocale, function (locale) {
+            contentLocale = locale;
+        });
 
         //initialize feedback
         bridge.on(bridge.events.feedbackTemplateRequired, function (response) {
@@ -157,6 +158,9 @@ new Elogio(
             //when clicked at around feedback window just hide it
             div.addEventListener('click', hideFeedback);
             var submitFeedbackButton = document.getElementById('elogio-feedback-submit-button');
+            submitFeedbackButton.innerHTML = contentLocale.sendLabel;
+            document.getElementById('elogio-legend').innerHTML = contentLocale.feedbackWindowHeader;
+            document.getElementById('attach-screenshot-label').innerHTML = contentLocale.attachScreenshotLabel;
             submitFeedbackButton.addEventListener('click', submitFeedback);
         });
         //show window when button clicked

@@ -193,7 +193,12 @@ Elogio.modules.utils = function (modules) {
             button: {
                 previous: Elogio._('matchPreviousButtonLabel'),
                 next: Elogio._('matchNextButtonLabel')
-            }
+            },
+            "sendLabel": Elogio._('sendLabel'),
+            "pleaseWaitLabel": Elogio._('pleaseWaitLabel'),
+            "successFeedbackMessage": Elogio._('successFeedbackMessage'),
+            "feedbackWindowHeader": Elogio._('feedbackWindowHeader'),
+            "attachScreenshotLabel": Elogio._('attachScreenshotLabel')
         };
     };
 

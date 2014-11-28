@@ -139,7 +139,7 @@ new Elogio(
                 displayFeedbackError('Email is required');
                 return;
             }
-            button.text('Wait please...');
+            button.text(Elogio._('pleaseWaitLabel'));
             button.addClass('elogio-disabled');
             button.removeClass('elogio-enabled');
             if ($('#elogio-screenshot').is(':checked')) {
@@ -153,9 +153,6 @@ new Elogio(
                         imageObject: feedbackImageObject
                     }
                 });
-                button.removeClass('elogio-disabled');
-                button.addClass('elogio-enabled');
-                button.text('Send');
             }
             feedbackImageObject = null;
         }
@@ -167,6 +164,9 @@ new Elogio(
             $('body').append(div);
             div.on('click', hideFeedback);
             var submitFeedbackButton = $('#elogio-feedback-submit-button');
+            submitFeedbackButton.text(Elogio._('sendLabel'));
+            $('#elogio-legend').text(Elogio._('feedbackWindowHeader'));
+            $('#attach-screenshot-label').text(Elogio._('attachScreenshotLabel'));
             submitFeedbackButton.on('click', submitFeedback);
         }
 
@@ -174,7 +174,7 @@ new Elogio(
             var submit = $('#elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = $('#elogio-feedback-success');
-                success.text(response.text);
+                success.text(Elogio._('successFeedbackMessage'));
                 success.show();
             } else {
                 displayFeedbackError(response.text);
