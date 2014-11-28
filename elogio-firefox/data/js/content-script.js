@@ -16,6 +16,20 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        function removeClass(obj, cls) {
+            var classes = obj.className.split(' ');
+            if (!classes.length) {
+                return;
+            }
+            for (var i = 0; i < classes.length; i++) {
+                if (classes[i] === cls) {
+                    classes.splice(i, 1); // удалить класс
+                    i--; // (*)
+                }
+            }
+            obj.className = classes.join(' ');
+        }
+
         var observer;
         // Initialize bridge
         bridge.registerClient(self.port);
@@ -45,6 +59,10 @@ new Elogio(
          * When submit clicked (button on submit form)
          */
         function submitFeedback() {
+            var button = document.getElementById('elogio-feedback-submit-button');
+            if (button.classList.contains('elogio-disabled')) {
+                return;
+            }
             var message = document.getElementById('elogio-feedback-textarea').value;
             document.getElementById('elogio-feedback-success').style.display = 'none';
             document.getElementById('elogio-feedback-error').style.display = 'none';
@@ -53,6 +71,9 @@ new Elogio(
                 displayFeedbackError('Message is required.');
                 return;
             }
+            button.innerHTML = 'Wait please...';
+            removeClass(button, 'elogio-enabled');
+            button.className += ' elogio-disabled';
             var email = document.getElementById('elogio-feedback-email').value;
             //if no email then display error
             if (!email) {
@@ -72,12 +93,16 @@ new Elogio(
                         imageObject: feedbackImageObject
                     }
                 });
+                removeClass(button, 'elogio-disabled');
+                button.className += ' elogio-enabled';
+                button.innerHTML = 'Send';
             }
             feedbackImageObject = null;
         }
 
         //it means what response from doorbell received (feedback)
         function responseReceived(response) {
+            var button = document.getElementById('elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = document.getElementById('elogio-feedback-success');
                 success.innerHTML = response.text;
@@ -85,6 +110,9 @@ new Elogio(
             } else {
                 displayFeedbackError(response.text);
             }
+            removeClass(button, 'elogio-disabled');
+            button.className += ' elogio-enabled';
+            button.innerHTML = 'Send';
         }
 
         //start scan page
@@ -147,9 +175,6 @@ new Elogio(
                                 fullScreenshot = document.createElement('canvas'), ctx = fullScreenshot.getContext('2d'), contentScreenshotImage, panelScreenshotImage;
                             //show feedback window because screenshot loaded
                             feedbackwindow.style.display = 'block';
-                            var loadingMessage = document.getElementById('elogio-feedback-success');
-                            loadingMessage.innerHTML = 'Please wait. Screenshot is loading...';
-                            loadingMessage.style.display = 'block';
                             //load content screenShot
                             contentScreenshotImage = document.createElement('img');
                             contentScreenshotImage.onload = function () {

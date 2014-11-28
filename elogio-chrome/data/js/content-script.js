@@ -123,6 +123,10 @@ new Elogio(
         }
 
         function submitFeedback() {
+            var button = $('#elogio-feedback-submit-button');
+            if (button.hasClass('elogio-disabled')) {
+                return;
+            }
             var message = $('#elogio-feedback-textarea').val();
             $('#elogio-feedback-error').hide();
             $('#elogio-feedback-success').hide();
@@ -135,6 +139,9 @@ new Elogio(
                 displayFeedbackError('Email is required');
                 return;
             }
+            button.text('Wait please...');
+            button.addClass('elogio-disabled');
+            button.removeClass('elogio-enabled');
             if ($('#elogio-screenshot').is(':checked')) {
                 bridge.emit(events.feedBackMessage, {type: 'giveMeScreenshot'}, [panelUrl]);
             } else {
@@ -146,6 +153,9 @@ new Elogio(
                         imageObject: feedbackImageObject
                     }
                 });
+                button.removeClass('elogio-disabled');
+                button.addClass('elogio-enabled');
+                button.text('Send');
             }
             feedbackImageObject = null;
         }
@@ -161,6 +171,7 @@ new Elogio(
         }
 
         function responseReceived(response) {
+            var submit = $('#elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = $('#elogio-feedback-success');
                 success.text(response.text);
@@ -168,6 +179,9 @@ new Elogio(
             } else {
                 displayFeedbackError(response.text);
             }
+            submit.text('Send');
+            submit.addClass('elogio-enabled');
+            submit.removeClass('elogio-disabled');
         }
 
         function setPreferences(changedSettings) {
@@ -251,7 +265,6 @@ new Elogio(
                             var dataURL = canvas.toDataURL('image/jpeg'),
                                 fullScreenshot = $('<canvas/>'), ctx = fullScreenshot[0].getContext('2d'), contentScreenshotImage, panelScreenshotImage;
                             feedbackwindow.show();
-                            feedbackwindow.find('#elogio-feedback-success').text('Please wait. Screenshot is loading...').show();
                             //load content screenShot
                             contentScreenshotImage = $('<img/>');
                             contentScreenshotImage.load(function () {

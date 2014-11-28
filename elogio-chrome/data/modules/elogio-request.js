@@ -72,7 +72,6 @@ Elogio.modules.elogioRequest = function (modules) {
      */
 
     self.sendPOSTFeedbackSubmit = function (url, postBody, onSuccess, onError) {
-        console.log(postBody);
         $.ajax({
             type: 'POST',
             url: url,

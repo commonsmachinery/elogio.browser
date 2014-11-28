@@ -301,7 +301,6 @@ Elogio.modules.mainScriptHelper = function (modules) {
                 };
             }
         }
-        console.log(postBody);
         elogioServer.sendFeedbackSubmit(postBody, onSuccess, onError);
     };
 };
