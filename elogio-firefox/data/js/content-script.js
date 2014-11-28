@@ -8,6 +8,7 @@ new Elogio(
             config = modules.getModule('config'),
             bridge = modules.getModule('bridge'),
             blockhash = blockhashjs.blockhash,
+            contentLocale,
             feedbackImageObject;
 
 
@@ -16,6 +17,20 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        function removeClass(obj, cls) {
+            var classes = obj.className.split(' ');
+            if (!classes.length) {
+                return;
+            }
+            for (var i = 0; i < classes.length; i++) {
+                if (classes[i] === cls) {
+                    classes.splice(i, 1); // удалить класс
+                    i--; // (*)
+                }
+            }
+            obj.className = classes.join(' ');
+        }
+
         var observer;
         // Initialize bridge
         bridge.registerClient(self.port);
@@ -45,6 +60,10 @@ new Elogio(
          * When submit clicked (button on submit form)
          */
         function submitFeedback() {
+            var button = document.getElementById('elogio-feedback-submit-button');
+            if (button.classList.contains('elogio-disabled')) {
+                return;
+            }
             var message = document.getElementById('elogio-feedback-textarea').value;
             document.getElementById('elogio-feedback-success').style.display = 'none';
             document.getElementById('elogio-feedback-error').style.display = 'none';
@@ -53,6 +72,9 @@ new Elogio(
                 displayFeedbackError('Message is required.');
                 return;
             }
+            button.innerHTML = contentLocale.pleaseWaitLabel;
+            removeClass(button, 'elogio-enabled');
+            button.className += ' elogio-disabled';
             var email = document.getElementById('elogio-feedback-email').value;
             //if no email then display error
             if (!email) {
@@ -78,13 +100,17 @@ new Elogio(
 
         //it means what response from doorbell received (feedback)
         function responseReceived(response) {
+            var button = document.getElementById('elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = document.getElementById('elogio-feedback-success');
-                success.innerHTML = response.text;
+                success.innerHTML = contentLocale.successFeedbackMessage;
                 success.style.display = 'block';
             } else {
                 displayFeedbackError(response.text);
             }
+            removeClass(button, 'elogio-disabled');
+            button.className += ' elogio-enabled';
+            button.innerHTML = contentLocale.sendLabel;
         }
 
         //start scan page
@@ -119,6 +145,9 @@ new Elogio(
             }
         }
 
+        bridge.on(bridge.events.l10nSetupLocale, function (locale) {
+            contentLocale = locale;
+        });
 
         //initialize feedback
         bridge.on(bridge.events.feedbackTemplateRequired, function (response) {
@@ -129,6 +158,9 @@ new Elogio(
             //when clicked at around feedback window just hide it
             div.addEventListener('click', hideFeedback);
             var submitFeedbackButton = document.getElementById('elogio-feedback-submit-button');
+            submitFeedbackButton.innerHTML = contentLocale.sendLabel;
+            document.getElementById('elogio-legend').innerHTML = contentLocale.feedbackWindowHeader;
+            document.getElementById('attach-screenshot-label').innerHTML = contentLocale.attachScreenshotLabel;
             submitFeedbackButton.addEventListener('click', submitFeedback);
         });
         //show window when button clicked
@@ -147,9 +179,6 @@ new Elogio(
                                 fullScreenshot = document.createElement('canvas'), ctx = fullScreenshot.getContext('2d'), contentScreenshotImage, panelScreenshotImage;
                             //show feedback window because screenshot loaded
                             feedbackwindow.style.display = 'block';
-                            var loadingMessage = document.getElementById('elogio-feedback-success');
-                            loadingMessage.innerHTML = 'Please wait. Screenshot is loading...';
-                            loadingMessage.style.display = 'block';
                             //load content screenShot
                             contentScreenshotImage = document.createElement('img');
                             contentScreenshotImage.onload = function () {
