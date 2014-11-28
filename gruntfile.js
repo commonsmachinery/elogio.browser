@@ -77,6 +77,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
+                    "<%= buildDir%>/chrome/styles/prefs.css": "elogio-chrome/data/less/prefs.less",
                     "<%= buildDir%>/chrome/styles/content.css": "elogio-commons/less/content.less",
                     "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
