@@ -5,41 +5,48 @@
     <title>Elog.io settings</title>
     <meta charset="UTF-8">
     <link type="text/css" rel="stylesheet" href="../data/deps/bootstrap/bootstrap.css"/>
-    <link type="text/css" rel="stylesheet" href="../styles/sidebar.css"/>
+    <link type="text/css" rel="stylesheet" href="../styles/prefs.css"/>
     <script src="../data/deps/jquery/jquery.js" type="text/javascript"></script>
     <script src="../data/deps/jquery-color/jquery.color.js" type="text/javascript"></script>
     <script src="../data/deps/bootstrap/bootstrap.js" type="text/javascript"></script>
 </head>
-<body>
+<body class="preferences">
 <p id="serverUrl" serverUrl="https://catalog.elog.io" style="display: none"></p>
 
 <div class="lead jumbotron alert alert-info text-center">Welcome to Elog.io plug-in options</div>
-<div>
+<div class="after-head">
 
-    <div class="btn-group">
-        <input id="deepScan" type="checkbox" class="pull-left"/>
+    <div class="option-group">
+        <img src="../img/elogioblue.png" class="thumbnail"/>
+    </div>
+    <div class="option-group option-header">
+        <div class="btn-group">
+            <div class="group-item">
+                <input id="deepScan" class="checkbox pull-left" type="checkbox"/>
 
-        <div id="deepScanLabel" style="width: 97%" class="alert alert-success pull-right">
-            Enables a more thorough but also more time-consuming search that includes element background images.
-            Websites often use background images even for the main content to achieve more dynamic effects or to
-            make it difficult to copy images.
+                <div id="deepScanLabel" class="alert alert-success description">
+                    Enables a more thorough but also more time-consuming search that includes element background images.
+                    Websites often use background images even for the main content to achieve more dynamic effects or to
+                    make it difficult to copy images.
+                </div>
+            </div>
+
         </div>
 
-    </div>
 
+        <div class="btn-group">
+            <input id="highlightRecognizedImages" class="checkbox pull-left" type="checkbox"/>
 
-    <div class="btn-group">
-        <input id="highlightRecognizedImages" class="pull-left" type="checkbox"/>
+            <div id="highlightRecognizedImagesLabel" class="alert alert-success description">
+                Mark each recognized image on a page with a red border.
+            </div>
 
-        <div id="highlightRecognizedImagesLabel" style="margin-left: 25px" class="alert alert-success pull-right">
-            Mark each recognized image on a page with a red border.
         </div>
-
     </div>
-
-
-    <div id="status" class=""></div>
-    <button id="save" class="btn btn-success">Save preferences</button>
+    <div class="option-group">
+        <div id="status" class="alert alert-success status pull-right">Options saved...</div>
+        <button id="save" class="btn btn-success pull-left">Save preferences</button>
+    </div>
     <script src="options.js"></script>
 </div>
 </body>

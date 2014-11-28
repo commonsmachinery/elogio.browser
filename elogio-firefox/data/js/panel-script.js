@@ -16,7 +16,8 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html(),
                 multipleMatch: $('#elogio-multiple-template').html(),
-                singleMatch: $('#elogio-single-template').html()
+                singleMatch: $('#elogio-single-template').html(),
+                detailsTemplate: $('#elogio-image-details-template').html()
             };
             var
                 self = {},
@@ -88,6 +89,7 @@ $(document).ready(function () {
                 Mustache.parse(template.clipboardItem);
                 Mustache.parse(template.multipleMatch);
                 Mustache.parse(template.singleMatch);
+                Mustache.parse(template.detailsTemplate);
                 //at first we need to setup locale
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
@@ -140,6 +142,29 @@ $(document).ready(function () {
                         object.imageListView.empty();
                     }
                     bridge.emit(bridge.events.startPageProcessing);
+                });
+
+                bridge.on(bridge.events.feedBackMessage, function (message) {
+                    if (message.type === 'giveMeScreenshot') {
+                        html2canvas(document.body, {
+                            onrendered: function (canvas) {
+                                var dataURL = canvas.toDataURL('image/jpeg');
+                                bridge.emit(bridge.events.feedBackMessage, {
+                                    type: 'takeScreenshot',
+                                    data: {
+                                        width: document.body.clientWidth,
+                                        height: document.body.clientHeight,
+                                        url: dataURL
+                                    }
+                                });
+                            },
+                            useCORS: true,
+                            allowTaint: false,
+                            //sreenshoting only visible part
+                            width: document.body.clientWidth,
+                            height: document.body.clientHeight
+                        });
+                    }
                 });
 
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {

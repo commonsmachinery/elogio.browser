@@ -39,7 +39,8 @@ $(document).ready(function () {
                 clipboardItem: $("#elogio-clipboard-template").html(),
                 canvasTemplate: $('#elogio-canvas-template').html(),
                 multipleMatch: $('#elogio-multiple-template').html(),
-                singleMatch: $('#elogio-single-template').html()
+                singleMatch: $('#elogio-single-template').html(),
+                detailsTemplate: $('#elogio-image-details-template').html()
             };
             var // eventHandlers = {},
                 self = {},
@@ -111,6 +112,7 @@ $(document).ready(function () {
                 Mustache.parse(template.clipboardItem);
                 Mustache.parse(template.multipleMatch);
                 Mustache.parse(template.singleMatch);
+                Mustache.parse(template.detailsTemplate);
                 bridge.on(bridge.events.l10nSetupLocale, function (locale) {
                     object.locale = locale;
                     $('#elogio-feedback').text(locale.feedbackLabel);
@@ -152,7 +154,27 @@ $(document).ready(function () {
                     }
                     bridge.emit(bridge.events.startPageProcessing, null, [sendTo], from);
                 });
-
+                bridge.on(bridge.events.feedBackMessage, function (message) {
+                    if (message.type === 'giveMeScreenshot') {
+                        html2canvas(document.body, {
+                            onrendered: function (canvas) {
+                                var dataURL = canvas.toDataURL('image/jpeg');
+                                bridge.emit(bridge.events.feedBackMessage, {
+                                    type: 'giveMeScreenshot',
+                                    data: {
+                                        width: document.body.clientWidth,
+                                        height: document.body.clientHeight,
+                                        url: dataURL
+                                    }
+                                }, [sendTo], from);
+                            },
+                            useCORS: true,
+                            allowTaint: false,
+                            width: document.body.clientWidth,
+                            height: document.body.clientHeight
+                        });
+                    }
+                });
                 object.imageListView.on('click', '.image-card .elogio-report-work', function () {
                     var imageCard = $(this).closest('.image-card'),
                         imageObj = imageCard.data(config.sidebar.imageObject);

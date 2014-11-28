@@ -12,10 +12,10 @@ function saveOptions() {
         serverUrl: serverUrl
     }, function () {
         // Update status to let user know options were saved.
-        var status = $('#status')[0];
-        status.textContent = 'Options saved.';
+        var status = $('#status');
+        status.show();
         setTimeout(function () {
-            status.textContent = '';
+            status.hide();
         }, 750);
     });
 }

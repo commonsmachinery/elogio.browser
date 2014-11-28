@@ -24,7 +24,8 @@ module.exports = function (grunt) {
                         common: 'elogio-commons/data/templates/commonTemplate.html',
                         canvas: 'elogio-commons/data/templates/canvas.html',
                         multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
-                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html',
+                        details: 'elogio-commons/data/templates/detailsImageCardTemplate.html'
                     }
                 }
             },
@@ -38,7 +39,8 @@ module.exports = function (grunt) {
                         common: 'elogio-commons/data/templates/commonTemplate.html',
                         canvas: 'elogio-commons/data/templates/canvas.html',
                         multipleMatch: 'elogio-commons/data/templates/multipleMatchesTemplate.html',
-                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html'
+                        singleMatch: 'elogio-commons/data/templates/singleMatchTemplate.html',
+                        details: 'elogio-commons/data/templates/detailsImageCardTemplate.html'
                     }
                 }
             }
@@ -75,6 +77,7 @@ module.exports = function (grunt) {
                 },
                 files: {
                     "<%= buildDir%>/chrome/styles/panel.css": "elogio-chrome/data/less/panel.less",
+                    "<%= buildDir%>/chrome/styles/prefs.css": "elogio-chrome/data/less/prefs.less",
                     "<%= buildDir%>/chrome/styles/content.css": "elogio-commons/less/content.less",
                     "<%= buildDir%>/chrome/styles/sidebar.css": "elogio-commons/less/sidebar.less"
                 }
@@ -313,13 +316,13 @@ module.exports = function (grunt) {
             },
             //we need to copy libs (like jquery,mustache etc.) into build folder
             chromeLibs: {
-                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "!**/test/**", "!**/less/**"],
+                src: ["**/jquery.js", "**/mustache.js", "**/bootstrap/**", "**/jquery.color.js", "**/q.js", "**/html2canvas.js", "!**/test/**", "!**/less/**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/chrome/data/deps/",
                 expand: true
             },
             firefoxLibs: {
-                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/mustache.js", "!**/test/**", "!**/less**"],
+                src: ["**/jquery.color.js", "**/jquery.js", "**/bootstrap/**", "**/q.js", "**/html2canvas.js", "**/mustache.js", "!**/test/**", "!**/less**"],
                 cwd: "elogio-commons/data/deps/",
                 dest: "<%= buildDir%>/firefox/data/deps/",
                 expand: true
