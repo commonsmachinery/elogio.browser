@@ -19,7 +19,7 @@
         "message": "Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details."
     },
     "noDataForImage": {
-        "message": "Sorry, we couldn't match this against any image in the Elog.io catalog"
+        "message": "Sorry, we couldn't match this against any image in the Elog.io catalog."
     },
     "blockhashError": {
         "message": "The image could not be matched (most likely the web site you're viewing has security restrictions) that prevent us from reading the image. You can open this image in new tab and try query again."
