@@ -424,7 +424,7 @@ new Elogio(['config', 'messaging', 'bridge', 'elogioRequest', 'elogioServer', 'u
     });
     //first run
     if (simplePrefs.prefs.firstRun) {
-        tabs.open('http://elog.io/');
+        tabs.open('http://elog.io/welcome/');
         toggleSidebar();
         simplePrefs.prefs.firstRun = false;
     }

@@ -20,7 +20,7 @@
             if (details.reason === "install") {
                 config.global.firstRun = true;
                 chrome.tabs.create({
-                    url: 'http://elog.io/',
+                    url: 'http://elog.io/welcome/',
                     active: true
                 });
             }
