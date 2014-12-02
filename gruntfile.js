@@ -96,8 +96,8 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'node_modules/blockhash.js/node_modules/png-js/zlib.js',
-                        'elogio-commons/data/deps/blockhash.js'
+                        'node_modules/blockhash/node_modules/png-js/zlib.js',
+                        'elogio-commons/data/deps/blockhash'
                     ],
                     '<%= buildDir%>/firefox/lib/common-chrome-lib.js': [
                         'elogio-commons/data/js/common.js',
@@ -121,8 +121,8 @@ module.exports = function (grunt) {
                         'elogio-commons/data/js/common.js',
                         'elogio-commons/data/js/config.js',
                         'elogio-commons/data/js-modules/*.js',
-                        'node_modules/blockhash.js/node_modules/png-js/zlib.js',
-                        'elogio-commons/data/deps/blockhash.js',
+                        'node_modules/blockhash/node_modules/png-js/zlib.js',
+                        'elogio-commons/data/deps/blockhash',
                         'elogio-chrome/data/modules/messaging.js'
                     ],
                     '<%= buildDir%>/chrome/main/common-chrome-lib.js': [
@@ -344,7 +344,7 @@ module.exports = function (grunt) {
         auto_install: {
             subdir: {
                 options: {
-                    cwd: 'node_modules/blockhash.js',
+                    cwd: 'node_modules/blockhash',
                     stdout: true,
                     stderr: true,
                     failOnError: true
@@ -360,8 +360,8 @@ module.exports = function (grunt) {
                 }
             },
             main: {
-                src: 'node_modules/blockhash.js/index.js',
-                dest: 'elogio-commons/data/deps/blockhash.js'
+                src: 'node_modules/blockhash/index.js',
+                dest: 'elogio-commons/data/deps/blockhash'
             }
         }
 
