@@ -123,6 +123,10 @@ new Elogio(
         }
 
         function submitFeedback() {
+            var button = $('#elogio-feedback-submit-button');
+            if (button.hasClass('elogio-disabled')) {
+                return;
+            }
             var message = $('#elogio-feedback-textarea').val();
             $('#elogio-feedback-error').hide();
             $('#elogio-feedback-success').hide();
@@ -135,14 +139,21 @@ new Elogio(
                 displayFeedbackError('Email is required');
                 return;
             }
-            bridge.emit(bridge.events.feedBackMessage, {
-                type: 'submit',
-                data: {
-                    message: message,
-                    email: email,
-                    imageObject: feedbackImageObject
-                }
-            });
+            button.text(Elogio._('pleaseWaitLabel'));
+            button.addClass('elogio-disabled');
+            button.removeClass('elogio-enabled');
+            if ($('#elogio-screenshot').is(':checked')) {
+                bridge.emit(events.feedBackMessage, {type: 'giveMeScreenshot'}, [panelUrl]);
+            } else {
+                bridge.emit(bridge.events.feedBackMessage, {
+                    type: 'submit',
+                    data: {
+                        message: message,
+                        email: email,
+                        imageObject: feedbackImageObject
+                    }
+                });
+            }
             feedbackImageObject = null;
         }
 
@@ -153,17 +164,24 @@ new Elogio(
             $('body').append(div);
             div.on('click', hideFeedback);
             var submitFeedbackButton = $('#elogio-feedback-submit-button');
+            submitFeedbackButton.text(Elogio._('sendLabel'));
+            $('#elogio-legend').text(Elogio._('feedbackWindowHeader'));
+            $('#attach-screenshot-label').text(Elogio._('attachScreenshotLabel'));
             submitFeedbackButton.on('click', submitFeedback);
         }
 
         function responseReceived(response) {
+            var submit = $('#elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = $('#elogio-feedback-success');
-                success.text(response.text);
+                success.text(Elogio._('successFeedbackMessage'));
                 success.show();
             } else {
                 displayFeedbackError(response.text);
             }
+            submit.text('Send');
+            submit.addClass('elogio-enabled');
+            submit.removeClass('elogio-disabled');
         }
 
         function setPreferences(changedSettings) {
@@ -237,10 +255,59 @@ new Elogio(
          */
 
         bridge.on(events.feedBackMessage, function (message) {
-            if (message.data) {
-                feedbackImageObject = message.data;
+            //if screenshot received from the panel
+            switch (message.type) {
+                case 'giveMeScreenshot':
+                    var feedbackwindow = $('#elogio-feedback-container'), screenshotData = message.data;
+                    feedbackwindow.hide();
+                    html2canvas(document.body, {
+                        onrendered: function (canvas) {
+                            var dataURL = canvas.toDataURL('image/jpeg'),
+                                fullScreenshot = $('<canvas/>'), ctx = fullScreenshot[0].getContext('2d'), contentScreenshotImage, panelScreenshotImage;
+                            feedbackwindow.show();
+                            //load content screenShot
+                            contentScreenshotImage = $('<img/>');
+                            contentScreenshotImage.load(function () {
+                                //load panel screenshot
+                                panelScreenshotImage = $('<img/>');
+                                panelScreenshotImage.load(function () {
+                                    var maxHeight;
+                                    if (document.body.clientHeight >= screenshotData.height) {
+                                        maxHeight = document.body.clientHeight;
+                                    } else {
+                                        maxHeight = screenshotData.height;
+                                    }
+                                    fullScreenshot[0].width = document.body.clientWidth + screenshotData.width;
+                                    fullScreenshot[0].height = maxHeight;
+                                    //stick it together
+                                    ctx.drawImage(contentScreenshotImage[0], 0, 0, document.body.clientWidth, document.body.clientHeight);
+                                    ctx.drawImage(panelScreenshotImage[0], document.body.clientWidth, 0, panelScreenshotImage[0].width, panelScreenshotImage[0].height);
+                                    bridge.emit(bridge.events.feedBackMessage, {
+                                        type: 'submit',
+                                        data: {
+                                            message: $('#elogio-feedback-textarea').val(),
+                                            email: $('#elogio-feedback-email').val(),
+                                            imageObject: feedbackImageObject,
+                                            screenshot: fullScreenshot[0].toDataURL('image/jpeg')
+                                        }
+                                    });
+                                });
+                                panelScreenshotImage.attr('src', screenshotData.url);
+                            });
+                            contentScreenshotImage.attr('src', dataURL);
+                        },
+                        useCORS: true,
+                        allowTaint: false,
+                        width: document.body.clientWidth - screenshotData.width,
+                        height: document.body.clientHeight
+                    });
+                    break;
+                default:
+                    if (message.data) {
+                        feedbackImageObject = message.data;
+                    }
+                    $('#elogio-feedback-container').show();
             }
-            $('#elogio-feedback-container').show();
         }, [panelUrl]);
         bridge.on(events.imageDetailsRequired, function (imageObj) {
             bridge.emit(events.imageDetailsRequired, imageObj);

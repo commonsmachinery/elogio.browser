@@ -36,6 +36,21 @@
     "contextMenuItem_01": {
         "message": "Найти в панели Elog.io"
     },
+    "sendLabel": {
+        "message": "Отправить"
+    },
+    "pleaseWaitLabel": {
+        "message": "Подождите пожалуйста..."
+    },
+    "successFeedbackMessage": {
+        "message": "Ваш запрос успешно отправлен"
+    },
+    "feedbackWindowHeader": {
+        "message": "Здравствуйте. Мы рады быть с вами на связи."
+    },
+    "attachScreenshotLabel": {
+        "message": "Прикрепить скриншот"
+    },
     "noLookup": {
         "message": "У нас нет информации об этом изображении, но вы можете сделать запрос к Elog.io с более детальным поиском."
     },

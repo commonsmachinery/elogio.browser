@@ -266,19 +266,40 @@ Elogio.modules.mainScriptHelper = function (modules) {
 
     self.feedbackSubmit = function (data, onSuccess, onError) {
         var postBody;
+        //if work report
         if (data.imageObject) {
-            postBody = {
-                "email": data.email,
-                "message": data.message,
-                "properties": {
-                    "uri": data.imageObject.uri
-                }
-            };
+            if (data.screenshot) {
+                postBody = {
+                    "email": data.email,
+                    "message": data.message,
+                    "properties": {
+                        "uri": data.imageObject.uri
+                    },
+                    "screenshot": data.screenshot
+                };
+            } else {
+                postBody = {
+                    "email": data.email,
+                    "message": data.message,
+                    "properties": {
+                        "uri": data.imageObject.uri
+                    }
+                };
+            }
         } else {
-            postBody = {
-                "email": data.email,
-                "message": data.message
-            };
+            //if report without work data
+            if (data.screenshot) {
+                postBody = {
+                    "email": data.email,
+                    "message": data.message,
+                    "screenshot": data.screenshot
+                };
+            } else {
+                postBody = {
+                    "email": data.email,
+                    "message": data.message
+                };
+            }
         }
         elogioServer.sendFeedbackSubmit(postBody, onSuccess, onError);
     };

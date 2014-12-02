@@ -33,6 +33,7 @@
         "exports",
         "require",
         "blockhashjs",
-        "chrome"
+        "chrome",
+        "html2canvas"
     ]
 }

@@ -1,0 +1,38 @@
+<script id="elogio-image-details-template" type="x-tmpl-mustache">
+{{#imageObj.thumbnailImage}}
+    <div class="elogio-thumbnail pull-left">
+        <img class="elogio-thumbnail-image picture" src="{{imageObj.thumbnailImage}}"/>
+    </div>
+{{/imageObj.thumbnailImage}}
+{{#imageObj.collectionLink}}
+    <div class="pull-right">
+        <img class="elogio-gravatar" src="{{imageObj.collectionLink}}"/>
+    </div>
+{{/imageObj.collectionLink}}
+{{^imageObj.collectionLink}}
+        {{#imageObj.gravatarLink}}
+            <div class="pull-right">
+                <img class="elogio-gravatar" src="{{imageObj.gravatarLink}}"/>
+            </div>
+        {{/imageObj.gravatarLink}}
+{{/imageObj.collectionLink}}
+<div class="clearfix"></div>
+<div class="details-text">
+    <p>
+        {{#imageObj.title}}
+        <strong class="elogio-annotations-title">{{imageObj.title}}</strong><br />
+        {{/imageObj.title}}
+        {{#imageObj.by}}
+        <i><span class="elogio-annotations-by">{{imageObj.by}}</span></i>
+        {{/imageObj.by}}
+    </p>
+    {{#imageObj.license}}
+    <p>
+        <span class="label label-info elogio-license">{{imageObj.license}}</span>
+    </p>
+    {{/imageObj.license}}
+</div>
+</div>
+
+
+</script>
