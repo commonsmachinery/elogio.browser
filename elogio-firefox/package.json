@@ -10,7 +10,7 @@
         "Artem Fedorov (http://logicify.com/) <artem.fedorov@logicify.com>"
     ],
     "license": "GPLv3",
-    "version": "0.8.0",
+    "version": "0.9.0",
     "preferences": [
         {
             "name": "highlightRecognizedImages",
