@@ -193,7 +193,7 @@ Elogio.modules.sidebarHelper = function (modules) {
                     }
                     matchPlaceHolder.append($(navigationPart));
                 }
-                self.initializeDetails(imageObj, cardElement, templates);
+                self.initializeDetails(imageObj, cardElement, templates, locale);
                 errorArea.hide();//hide this anyway because it is wrong show both of messages
             } else {
                 // Nothing to do hear just waiting when user clicks on image to query details
@@ -224,7 +224,7 @@ Elogio.modules.sidebarHelper = function (modules) {
      * @param cardElement - card element from panel
      * @param templates - link to templates
      */
-    self.initializeDetails = function (imageObj, cardElement, templates) {
+    self.initializeDetails = function (imageObj, cardElement, templates, locale) {
         var annotations = new Elogio.Annotations(imageObj, config),
             templateData = {}, detailsTemplate, detailsPlaceholder = cardElement.find('.details-placeholder');
         if (imageObj.details) {
@@ -269,7 +269,7 @@ Elogio.modules.sidebarHelper = function (modules) {
         //cleanup details always
         detailsPlaceholder.empty();
         //render details
-        detailsTemplate = $(Mustache.render(templates.detailsTemplate, {'imageObj': templateData}));
+        detailsTemplate = $(Mustache.render(templates.detailsTemplate, {'imageObj': templateData, 'loc': locale}));
         //append details to image card
         detailsPlaceholder.append(detailsTemplate);
         //then just animate image card to top

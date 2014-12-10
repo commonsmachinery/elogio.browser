@@ -107,5 +107,8 @@
     },
     "multiMatchInfo": {
         "message": "Запрос к elog.io дал больше чем одно совпадение. Вы можете выбрать любое."
+    },
+    "closeMatch": {
+        "message": "We found a close (not perfect) match. Please verify that this is the image you're looking for."
     }
 }

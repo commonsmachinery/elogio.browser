@@ -169,7 +169,7 @@ Elogio.modules.utils = function (modules) {
     /**
      *
      * @param _ - it's a link to method "getMessage" of locale
-     * @returns {{feedbackLabel: *, dropDownMenuLabel: *, copyHtmlButtonLabel: *, copyJsonButtonLabel: *, copyImgButtonLabel: *, sourceButtonLabel: *, licenseButtonLabel: *, reportButtonLabel: *, queryButtonLabel: *, openImgInNewTabLabel: *, noLookup: *, blockhash: {moreMatchesInfo: *}, button: {previous: *, next: *}}}
+     * @returns {{feedbackLabel: *, dropDownMenuLabel: *, copyHtmlButtonLabel: *, copyJsonButtonLabel: *, copyImgButtonLabel: *, sourceButtonLabel: *, licenseButtonLabel: *, reportButtonLabel: *, queryButtonLabel: *, openImgInNewTabLabel: *, noLookup: *, blockhash: {moreMatchesInfo: *, closeMatch: *}, button: {previous: *, next: *}}}
      */
     self.initLocale = function () {
         return {
@@ -188,7 +188,8 @@ Elogio.modules.utils = function (modules) {
             openImgInNewTabLabel: Elogio._('openImageInNewTabLabel'),
             noLookup: Elogio._('noLookup'),
             blockhash: {
-                moreMatchesInfo: Elogio._('multiMatchInfo')
+                moreMatchesInfo: Elogio._('multiMatchInfo'),
+                closeMatch: Elogio._('closeMatch')
             },
             button: {
                 previous: Elogio._('matchPreviousButtonLabel'),
@@ -275,3 +276,4 @@ Elogio.modules.utils = function (modules) {
         };
     })();
 };
+

@@ -19,10 +19,10 @@
         "message": "Elog.io failed to load one or more images, see the individual images in the sidebar for additional error details."
     },
     "noDataForImage": {
-        "message": "Sorry, we couldn't match this against any image in the Elog.io catalog."
+        "message": "Sorry, we didn't find this image in the Elog.io catalog."
     },
     "blockhashError": {
-        "message": "The image could not be matched (most likely the web site you're viewing has security restrictions) that prevent us from reading the image. You can open this image in new tab and try query again."
+        "message": "The image could not be matched. Most likely the web site you're viewing has security restrictions that prevent us from reading the image. You can open this image in new tab and try query again."
     },
     "pluginStateOff": {
         "message": "Elog.io plug-in is disabled now"
@@ -52,7 +52,7 @@
         "message": "Find in Elog.io"
     },
     "noLookup": {
-        "message": "We don't have any information about this image, but you can query Elog.io to match it against images in the catalog."
+        "message": "Click query to match this image against the Elog.io catalog."
     },
     "feedbackLabel": {
         "message": "Feedback"
@@ -106,6 +106,9 @@
         "message": "<<"
     },
     "multiMatchInfo": {
-        "message": "Query to elog.io returned more than one matches and you can choose any of them."
+        "message": "Query to Elog.io returned more than one potential match."
+    },
+    "closeMatch": {
+        "message": "We found a close (not perfect) match. Please verify that this is the image you're looking for."
     }
 }
