@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "__MSG_appName__",
-    "version": "0.9.2",
+    "version": "0.9.2.1",
     "description": "__MSG_appDesc__",
     "default_locale": "en",
     "minimum_chrome_version": "23",
@@ -53,5 +53,5 @@
         "data/**",
         "**://**"
     ],
-    "content_security_policy": "script-src 'self' 'unsafe-eval' https:// ; object-src 'self'"
+    "content_security_policy": "script-src 'self' 'unsafe-eval' ; object-src 'self'"
 }
