@@ -17,6 +17,14 @@ new Elogio(
          PRIVATE MEMBERS
          =======================
          */
+        function replaceMessage(object, message) {
+            var newItem = document.createTextNode(message);
+            while (object.firstChild) {
+                object.removeChild(object.firstChild);
+            }
+            object.appendChild(newItem);
+        }
+
         function removeClass(obj, cls) {
             var classes = obj.className.split(' ');
             if (!classes.length) {
@@ -37,7 +45,7 @@ new Elogio(
 
         function displayFeedbackError(message) {
             var error = document.getElementById('elogio-feedback-error');
-            error.innerHTML = message;
+            replaceMessage(error, message);
             error.style.display = 'block';
         }
 
@@ -72,7 +80,7 @@ new Elogio(
                 displayFeedbackError('Message is required.');
                 return;
             }
-            button.innerHTML = contentLocale.pleaseWaitLabel;
+            replaceMessage(button, contentLocale.pleaseWaitLabel);
             removeClass(button, 'elogio-enabled');
             button.className += ' elogio-disabled';
             var email = document.getElementById('elogio-feedback-email').value;
@@ -103,14 +111,14 @@ new Elogio(
             var button = document.getElementById('elogio-feedback-submit-button');
             if (response.status === 201) {
                 var success = document.getElementById('elogio-feedback-success');
-                success.innerHTML = contentLocale.successFeedbackMessage;
+                replaceMessage(success, contentLocale.successFeedbackMessage);
                 success.style.display = 'block';
             } else {
                 displayFeedbackError(response.text);
             }
             removeClass(button, 'elogio-disabled');
             button.className += ' elogio-enabled';
-            button.innerHTML = contentLocale.sendLabel;
+            replaceMessage(button, contentLocale.sendLabel);
         }
 
         //start scan page
@@ -153,14 +161,19 @@ new Elogio(
         bridge.on(bridge.events.feedbackTemplateRequired, function (response) {
             var div = document.createElement('div');
             div.setAttribute('id', 'elogio-feedback-container');
+            /*
+             * This innerHTML is safe, since it's set to a value that is
+             * received directly from the add-on itself. From main.js where
+             * it's loaded from html/feedbackWindow.html
+             */
             div.innerHTML = response;
             document.body.appendChild(div);
             //when clicked at around feedback window just hide it
             div.addEventListener('click', hideFeedback);
             var submitFeedbackButton = document.getElementById('elogio-feedback-submit-button');
-            submitFeedbackButton.innerHTML = contentLocale.sendLabel;
-            document.getElementById('elogio-legend').innerHTML = contentLocale.feedbackWindowHeader;
-            document.getElementById('attach-screenshot-label').innerHTML = contentLocale.attachScreenshotLabel;
+            replaceMessage(submitFeedbackButton, contentLocale.sendLabel);
+            replaceMessage(document.getElementById('elogio-legend'), contentLocale.feedbackWindowHeader);
+            replaceMessage(document.getElementById('attach-screenshot-label'), contentLocale.attachScreenshotLabel);
             submitFeedbackButton.addEventListener('click', submitFeedback);
         });
         //show window when button clicked

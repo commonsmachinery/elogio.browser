@@ -38,7 +38,7 @@ $(document).ready(function () {
 
 
             self.showMessage = function (html) {
-                object.messageBox.html(html);
+                object.messageBox.text(html);
                 object.messageBox.fadeIn('fast');
             };
 
